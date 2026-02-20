@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Offers Tracker - Live Airdrops & Rewards 2026</title>
+    <meta name="description" content="Find the latest crypto airdrops, staking rewards, trading bonuses and token launches. Updated every 8 hours with AI-powered search.">
+    <meta name="keywords" content="crypto airdrops, bitcoin rewards, ethereum staking, binance bonus, coinbase earn, crypto trading bonus, DeFi rewards, token launch">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0e1a;
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Ad Containers - Optimized */
+        .ad-container {
+            margin: 25px auto;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            text-align: center;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ad-label {
+            font-size: 0.65rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            opacity: 0.6;
+        }
+
+        /* Sticky Sidebar - Desktop Only */
+        .sidebar-ad {
+            position: fixed;
+            right: 20px;
+            top: 100px;
+            width: 300px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        @media (max-width: 1400px) {
+            .sidebar-ad { display: none; }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a855f7 50%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .search-section {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            padding: 35px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #9ca3af;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .platform-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .chip {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chip:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .chip.active {
+            background: linear-gradient(135deg, #3b82f6, #a855f7);
+            border-color: transparent;
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+        }
+
+        select {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            width: 100%;
+            background: linear-gradient(135deg, #3b82f6, #a855f7);
+            color: white;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            padding: 28px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 25px 50px rgba(59, 130, 246, 0.2);
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .badge-live { background: linear-gradient(135deg, #10b981, #059669); }
+        .badge-new { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            line-height: 1.4;
+        }
+
+        .card-description {
+            color: #9ca3af;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .card-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-card {
+            flex: 1;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #3b82f6, #a855f7);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .cache-status {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification-info { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .notification-success { background: linear-gradient(135deg, #10b981, #059669); }
+        .notification-error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .hidden { display: none; }
+
+        @media (max-width: 768px) {
+            .title { font-size: 2rem; }
+            .search-grid { grid-template-columns: 1fr; }
+            .results-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Banner Ad (Leaderboard 728x90) -->
+    <div class="ad-container">
+        <div class="ad-label">Advertisement</div>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-XXXXXXXXXX"
+             data-ad-slot="1111111111"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+    </div>
+
+    <!-- Sticky Sidebar Ad (300x600 Half Page - Premium CPM) -->
+    <div class="sidebar-ad">
+        <div class="ad-label">Advertisement</div>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-XXXXXXXXXX"
+             data-ad-slot="2222222222"
+             data-ad-format="rectangle"></ins>
+    </div>
+
+    <div class="container">
+        <div id="notification" class="notification hidden"></div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1 class="title">🚀 Crypto Offers Tracker</h1>
+            <p class="subtitle">AI-powered search for airdrops, staking & rewards</p>
+            <div class="ai-badge">
+                <span>⚡</span>
+                <span>Powered by Llama 3.1 8B • Updates Every 8 Hours</span>
+            </div>
+        </div>
+
+        <!-- Below Header Ad (Native/Fluid) -->
+        <div class="ad-container">
+            <div class="ad-label">Advertisement</div>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-XXXXXXXXXX"
+                 data-ad-slot="3333333333"
+                 data-ad-format="fluid"
+                 data-ad-layout-key="-fb+5w+4e-db+86"></ins>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <h3 class="section-title">Select Platform</h3>
+            <div class="platform-chips" id="platformChips"></div>
+
+            <div class="search-grid">
+                <select id="searchType">
+                    <option value="airdrop">🪂 Airdrops</option>
+                    <option value="staking">🔒 Staking</option>
+                    <option value="trading">💰 Trading</option>
+                    <option value="learn">📚 Learn & Earn</option>
+                    <option value="launchpad">🚀 Launchpads</option>
+                </select>
+                <button class="btn" id="searchBtn" onclick="handleSearch()">🔍 Search</button>
+            </div>
+
+            <div id="cacheStatus" class="cache-status hidden">
+                <span id="cacheText"></span>
+                <span id="cacheTime"></span>
+            </div>
+        </div>
+
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p style="color: #9ca3af;">AI analyzing offers...</p>
+        </div>
+
+        <div id="resultsContainer"></div>
+
+        <div id="emptyState" class="empty-state">
+            <div style="font-size: 4rem; margin-bottom: 20px;">🤖</div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 10px;">Ready to Search</h3>
+            <p style="color: #9ca3af;">Select your preferences and click Search</p>
+        </div>
+
+        <!-- Mid-Content Ad (Multiplex) -->
+        <div id="midAd" class="ad-container" style="display: none;">
+            <div class="ad-label">Advertisement</div>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-format="autorelaxed"
+                 data-ad-client="ca-pub-XXXXXXXXXX"
+                 data-ad-slot="4444444444"></ins>
+        </div>
+
+        <!-- Bottom Banner Ad -->
+        <div id="bottomAd" class="ad-container" style="display: none;">
+            <div class="ad-label">Advertisement</div>
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-XXXXXXXXXX"
+                 data-ad-slot="5555555555"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; color: #6b7280; padding: 40px 20px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px;">
+            <p style="margin-bottom: 10px;">⚡ Powered by Groq + Llama 3.1 8B • 8hr caching • Free forever</p>
+            <p style="font-size: 0.875rem;">⚠️ Always verify offers on official platforms • DYOR</p>
+        </div>
+    </div>
+
+    <script>
+        const GROQ_API_KEY = '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';
+        const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        const CACHE_DURATION = 8 * 60 * 60 * 1000;
+        const PLATFORMS = ['Binance', 'Coinbase', 'Kraken', 'OKX', 'Bybit', 'KuCoin', 'Gate.io', 'Uniswap', 'PancakeSwap', 'Jupiter'];
+        
+        let selectedPlatform = '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initPlatformChips();
+            initAds();
+        });
+
+        function initAds() {
+            try {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+                (adsbygoogle = window.adsbygoogle || []).push({});
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {}
+        }
+
+        function initPlatformChips() {
+            const container = document.getElementById('platformChips');
+            const allChip = document.createElement('div');
+            allChip.className = 'chip active';
+            allChip.textContent = 'All Platforms';
+            allChip.onclick = () => selectPlatform('', allChip);
+            container.appendChild(allChip);
+
+            PLATFORMS.forEach(platform => {
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.textContent = platform;
+                chip.onclick = () => selectPlatform(platform, chip);
+                container.appendChild(chip);
+            });
+        }
+
+        function selectPlatform(platform, chipElement) {
+            selectedPlatform = platform;
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            chipElement.classList.add('active');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification notification-${type}`;
+            setTimeout(() => notification.classList.add('hidden'), 4000);
+        }
+
+        function getCacheKey(platform, type) {
+            return `crypto_${platform}_${type}`;
+        }
+
+        function getCachedResults(platform, type) {
+            try {
+                const cached = localStorage.getItem(getCacheKey(platform, type));
+                if (cached) {
+                    const { data, timestamp } = JSON.parse(cached);
+                    const age = Date.now() - timestamp;
+                    if (age < CACHE_DURATION) {
+                        return {
+                            data,
+                            hoursLeft: Math.floor((CACHE_DURATION - age) / (60 * 60 * 1000)),
+                            minutesLeft: Math.floor(((CACHE_DURATION - age) % (60 * 60 * 1000)) / (60 * 1000))
+                        };
+                    }
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        function setCachedResults(platform, type, data) {
+            try {
+                localStorage.setItem(getCacheKey(platform, type), JSON.stringify({ data, timestamp: Date.now() }));
+            } catch (e) {}
+        }
+
+        async function searchWithGroq(query, type) {
+            const response = await fetch(GROQ_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${GROQ_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: 'llama-3.1-8b-instant',
+                    messages: [{
+                        role: 'user',
+                        content: `Find latest ${query} crypto offers. Return JSON array with 8 offers. Each: {title, platform, description, value, type: "${type}", badge: "live" or "new", date}. Only JSON array.`
+                    }],
+                    temperature: 0.7,
+                    max_tokens: 1500
+                })
+            });
+
+            const data = await response.json();
+            const content = data.choices?.[0]?.message?.content || '';
+            const match = content.match(/\[[\s\S]*\]/);
+            return match ? JSON.parse(match[0]) : [];
+        }
+
+        async function handleSearch() {
+            const searchType = document.getElementById('searchType').value;
+            const searchBtn = document.getElementById('searchBtn');
+            const loading = document.getElementById('loading');
+            const emptyState = document.getElementById('emptyState');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const cacheStatus = document.getElementById('cacheStatus');
+
+            const cached = getCachedResults(selectedPlatform, searchType);
+            if (cached) {
+                displayResults(cached.data);
+                showCacheStatus(cached.hoursLeft, cached.minutesLeft);
+                showNotification('📦 Loaded from cache', 'success');
+                return;
+            }
+
+            searchBtn.disabled = true;
+            searchBtn.textContent = 'Searching...';
+            loading.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            resultsContainer.innerHTML = '';
+            cacheStatus.classList.add('hidden');
+
+            try {
+                const platformPart = selectedPlatform ? `${selectedPlatform} ` : '';
+                const typeLabels = { airdrop: '🪂 Airdrops', staking: '🔒 Staking', trading: '💰 Trading', learn: '📚 Learn & Earn', launchpad: '🚀 Launchpads' };
+                showNotification('🤖 AI searching...', 'info');
+
+                const results = await searchWithGroq(`${platformPart}${typeLabels[searchType]}`, searchType);
+
+                if (results && results.length > 0) {
+                    setCachedResults(selectedPlatform, searchType, results);
+                    displayResults(results);
+                    showCacheStatus(8, 0);
+                    showNotification(`✅ Found ${results.length} offers!`, 'success');
+                } else {
+                    emptyState.classList.remove('hidden');
+                    showNotification('No results found', 'error');
+                }
+            } catch (error) {
+                emptyState.classList.remove('hidden');
+                showNotification('Search failed', 'error');
+            } finally {
+                loading.classList.add('hidden');
+                searchBtn.disabled = false;
+                searchBtn.textContent = '🔍 Search';
+            }
+        }
+
+        function displayResults(results) {
+            const container = document.getElementById('resultsContainer');
+            const emptyState = document.getElementById('emptyState');
+            emptyState.classList.add('hidden');
+            container.innerHTML = '';
+
+            // First 2 cards
+            const grid1 = document.createElement('div');
+            grid1.className = 'results-grid';
+            results.slice(0, 2).forEach(r => grid1.appendChild(createCard(r)));
+            container.appendChild(grid1);
+
+            // In-feed ad after 2nd card
+            const inFeedAd = document.createElement('div');
+            inFeedAd.className = 'ad-container';
+            inFeedAd.innerHTML = `
+                <div class="ad-label">Advertisement</div>
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-format="fluid"
+                     data-ad-layout-key="-fb+5w+4e-db+86"
+                     data-ad-client="ca-pub-XXXXXXXXXX"
+                     data-ad-slot="6666666666"></ins>
+            `;
+            container.appendChild(inFeedAd);
+            try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+
+            // Next 3 cards
+            const grid2 = document.createElement('div');
+            grid2.className = 'results-grid';
+            results.slice(2, 5).forEach(r => grid2.appendChild(createCard(r)));
+            container.appendChild(grid2);
+
+            // Mid content ad
+            document.getElementById('midAd').style.display = 'flex';
+            try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+
+            // Remaining cards
+            const grid3 = document.createElement('div');
+            grid3.className = 'results-grid';
+            results.slice(5).forEach(r => grid3.appendChild(createCard(r)));
+            container.appendChild(grid3);
+
+            // Bottom ad
+            document.getElementById('bottomAd').style.display = 'flex';
+            try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+        }
+
+        function createCard(result) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            const badgeClass = result.badge === 'new' ? 'badge-new' : 'badge-live';
+            const badgeText = result.badge === 'new' ? '✨ NEW' : '🟢 LIVE';
+            card.innerHTML = `
+                <span class="badge ${badgeClass}">${badgeText}</span>
+                <h3 class="card-title">${result.title}</h3>
+                <p class="card-description">${result.description}</p>
+                <div class="card-meta">
+                    <div class="meta-item"><span>🏢</span> ${result.platform}</div>
+                    <div class="meta-item"><span>💰</span> ${result.value}</div>
+                    <div class="meta-item"><span>📅</span> ${result.date || 'Recent'}</div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn-card">🔗 View Offer</button>
+                    <button class="btn-card" style="flex: 0 0 50px;">🔔</button>
+                </div>
+            `;
+            return card;
+        }
+
+        function showCacheStatus(hours, minutes) {
+            const cacheStatus = document.getElementById('cacheStatus');
+            document.getElementById('cacheText').innerHTML = '<span style="color: #10b981; font-weight: 600;">📦 Cached</span>';
+            document.getElementById('cacheTime').innerHTML = `<span style="color: #9ca3af;">Refresh in ${hours}h ${minutes}m</span>`;
+            cacheStatus.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
