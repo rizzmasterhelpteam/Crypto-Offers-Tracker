@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Offers Tracker - Live Airdrops & Rewards 2026</title>
+    <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+    <div class="ad-container">
+        <div class="ad-label">Advertisement</div>
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX" data-ad-slot="1111111111" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    </div>
+
+    <div class="sidebar-ad">
+        <div class="ad-label">Advertisement</div>
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX" data-ad-slot="2222222222" data-ad-format="rectangle"></ins>
+    </div>
+
+    <div class="container">
+        <div id="notification" class="notification hidden"></div>
+        <div class="header">
+            <h1 class="title">🚀 Crypto Offers Tracker</h1>
+            <p class="subtitle">Find the latest crypto airdrops, staking rewards & trading bonuses</p>
+        </div>
+
+        <div class="search-section">
+            <h3 class="section-title">Select Platform</h3>
+            <div class="platform-chips" id="platformChips"></div>
+            <div class="search-grid">
+                <select id="searchType">
+                    <option value="airdrop">🪂 Airdrops</option>
+                    <option value="staking">🔒 Staking</option>
+                    <option value="trading">💰 Trading</option>
+                    <option value="learn">📚 Learn & Earn</option>
+                    <option value="launchpad">🚀 Launchpads</option>
+                    <option value="all">All Types</option>
+                </select>
+                <button class="btn" id="searchBtn">🔍 Search</button>
+            </div>
+            <div id="cacheStatus" class="cache-status hidden">
+                <span id="cacheText"></span>
+                <span id="cacheTime"></span>
+            </div>
+        </div>
+
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>AI analyzing offers...</p>
+        </div>
+
+        <div id="resultsContainer"></div>
+        <div id="emptyState" class="empty-state">
+            <div style="font-size: 4rem; margin-bottom: 20px;">🤖</div>
+            <h3>Ready to Search</h3>
+            <p>Select your preferences and click Search</p>
+        </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
