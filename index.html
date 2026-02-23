@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6">
     <title>Crypto Offers Tracker - Live Airdrops & Rewards 2026</title>
-    <link rel="stylesheet" href="/src/style.css">
+    <meta name="description" content="Find the latest crypto airdrops, staking rewards, trading bonuses. Updated with AI search.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./src/style.css">
 </head>
 <body>
     <div class="ad-container">
@@ -19,14 +23,21 @@
 
     <div class="container">
         <div id="notification" class="notification hidden"></div>
+
         <div class="header">
             <h1 class="title">🚀 Crypto Offers Tracker</h1>
             <p class="subtitle">Find the latest crypto airdrops, staking rewards & trading bonuses</p>
         </div>
 
+        <div class="ad-container">
+            <div class="ad-label">Advertisement</div>
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX" data-ad-slot="3333333333" data-ad-format="fluid" data-ad-layout-key="-fb+5w+4e-db+86"></ins>
+        </div>
+
         <div class="search-section">
             <h3 class="section-title">Select Platform</h3>
             <div class="platform-chips" id="platformChips"></div>
+
             <div class="search-grid">
                 <select id="searchType">
                     <option value="airdrop">🪂 Airdrops</option>
@@ -38,6 +49,7 @@
                 </select>
                 <button class="btn" id="searchBtn">🔍 Search</button>
             </div>
+
             <div id="cacheStatus" class="cache-status hidden">
                 <span id="cacheText"></span>
                 <span id="cacheTime"></span>
@@ -46,16 +58,33 @@
 
         <div id="loading" class="loading hidden">
             <div class="spinner"></div>
-            <p>AI analyzing offers...</p>
+            <p style="color: #9ca3af;">AI analyzing offers...</p>
         </div>
 
         <div id="resultsContainer"></div>
+
         <div id="emptyState" class="empty-state">
             <div style="font-size: 4rem; margin-bottom: 20px;">🤖</div>
-            <h3>Ready to Search</h3>
-            <p>Select your preferences and click Search</p>
+            <h3 style="font-size: 1.5rem; margin-bottom: 10px;">Ready to Search</h3>
+            <p style="color: #9ca3af;">Select your preferences and click Search</p>
+        </div>
+
+        <div id="midAd" class="ad-container" style="display: none;">
+            <div class="ad-label">Advertisement</div>
+            <ins class="adsbygoogle" style="display:block" data-ad-format="autorelaxed" data-ad-client="ca-pub-XXXXXXXXXX" data-ad-slot="4444444444"></ins>
+        </div>
+
+        <div id="bottomAd" class="ad-container" style="display: none;">
+            <div class="ad-label">Advertisement</div>
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX" data-ad-slot="5555555555" data-ad-format="auto" data-full-width-responsive="true"></ins>
+        </div>
+
+        <div style="text-align: center; color: #6b7280; padding: 40px 20px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px;">
+            <p style="margin-bottom: 10px;">⚡ Updated every search • Free forever</p>
+            <p style="font-size: 0.875rem;">⚠️ Always verify offers on official platforms • DYOR</p>
         </div>
     </div>
-    <script type="module" src="/src/main.js"></script>
+
+    <script type="module" src="./src/main.js"></script>
 </body>
 </html>
