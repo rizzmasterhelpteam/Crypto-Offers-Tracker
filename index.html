@@ -189,6 +189,24 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        .logo-container {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(96, 165, 250, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
+        }
+
+        .logo-icon {
+            font-size: 2.8rem;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+        }
+
         .title {
             font-size: 3rem;
             font-weight: 800;
@@ -264,19 +282,28 @@
         select {
             width: 100%;
             padding: 14px 18px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #1e293b;
+            /* Dark solid color instead of transparent for visibility */
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
-            color: white;
+            color: #f8fafc;
             font-size: 0.95rem;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         select:focus {
             outline: none;
             border-color: #3b82f6;
-            background: rgba(59, 130, 246, 0.1);
+            background: #0f172a;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        select option {
+            background: #1e293b;
+            color: #f8fafc;
         }
 
         .btn {
@@ -524,7 +551,10 @@
 
         <!-- Header -->
         <div class="header">
-            <h1 class="title">🚀 Crypto Offers Tracker 2026</h1>
+            <div class="logo-container">
+                <div class="logo-icon">🚀</div>
+            </div>
+            <h1 class="title">Crypto Offers Tracker 2026</h1>
             <p class="subtitle">Free Crypto Airdrops, Staking Rewards &amp; Trading Bonuses — AI-Powered, Updated Twice
                 Daily</p>
             <p style="color:#6b7280;font-size:0.85rem;margin-top:10px;">Track live airdrops on Binance, Coinbase, OKX,
