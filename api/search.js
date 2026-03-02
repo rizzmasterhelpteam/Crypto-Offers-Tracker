@@ -87,14 +87,27 @@ Return ONLY a JSON array, no extra text. Each item MUST follow this exact format
         }
 
         const data = await groqResponse.json();
-        const content = data.choices?.[0]?.message?.content || '';
-        const jsonMatch = content.match(/\[[\s\S]*\]/);
+        let results = [];
+        try {
+            // 1. Sometimes LLMs use markdown blocks, so remove ```json and ``` if they exist
+            let cleanContent = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
 
-        if (!jsonMatch) {
-            return res.status(500).json({ error: 'No valid JSON in Groq response', raw: content });
+            // 2. Extract the actual array bracket content
+            const jsonMatch = cleanContent.match(/\[[\s\S]*\]/);
+
+            if (!jsonMatch) {
+                console.error("Groq raw content did not contain an array:", content);
+                return res.status(500).json({ error: 'No valid JSON array found in Groq response', raw: content });
+            }
+
+            // 3. Clean up trailing commas which break strict JSON.parse (a common LLM mistake)
+            let arrayStr = jsonMatch[0].replace(/,(\s*[\]}])/g, '$1');
+
+            results = JSON.parse(arrayStr);
+        } catch (parseErr) {
+            console.error('JSON Parse Error:', parseErr, 'Raw Content:', content);
+            return res.status(500).json({ error: 'Failed to parse JSON from Groq', detail: parseErr.message });
         }
-
-        const results = JSON.parse(jsonMatch[0]);
 
         // Cache globally for this slot
         serverCache[globalCacheKey] = results;
