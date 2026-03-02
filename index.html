@@ -760,13 +760,13 @@
         }
 
         // Cache key includes the current slot — expires automatically when slot changes (every 12h UTC)
-        function getCacheKey(platform, type) {
-            return `crypto_v2_slot${getCurrentSlot()}_${platform || 'all'}_${type}`;
+        function getCacheKey() {
+            return `crypto_v3_global_slot_${getCurrentSlot()}`;
         }
 
-        function getCachedResults(platform, type) {
+        function getCachedGlobalResults() {
             try {
-                const cached = localStorage.getItem(getCacheKey(platform, type));
+                const cached = localStorage.getItem(getCacheKey());
                 if (cached) {
                     const { data, nextRefresh } = JSON.parse(cached);
                     const msLeft = new Date(nextRefresh) - Date.now();
@@ -778,18 +778,29 @@
             return null;
         }
 
-        function setCachedResults(platform, type, data, nextRefresh) {
+        function setCachedGlobalResults(data, nextRefresh) {
             try {
-                localStorage.setItem(getCacheKey(platform, type), JSON.stringify({ data, nextRefresh }));
+                localStorage.setItem(getCacheKey(), JSON.stringify({ data, nextRefresh }));
             } catch (e) { }
         }
 
-        async function searchWithGroq(platform, type) {
-            // Call our secure serverless API route — Groq key stays on the server
+        let globalOffersList = []; // Stores the full 40-item batch
+        let currentNextRefresh = null;
+
+        async function fetchGlobalOffers() {
+            // Check local slot cache first
+            const cached = getCachedGlobalResults();
+            if (cached) {
+                globalOffersList = cached.data;
+                currentNextRefresh = cached.nextRefresh;
+                return { cached: true };
+            }
+
+            // Call our secure serverless API route — fetches the massive 40-item global batch
             const response = await fetch('/api/search', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ platform, type })
+                body: JSON.stringify({}) // Backend now ignores specific filters and gets everything
             });
 
             if (!response.ok) {
@@ -803,11 +814,14 @@
                 throw new Error('No valid results in response');
             }
 
-            // Return both results and nextRefresh time from server
-            return { results: data.results, nextRefresh: data.nextRefresh, cached: data.cached };
+            globalOffersList = data.results;
+            currentNextRefresh = data.nextRefresh;
+            setCachedGlobalResults(globalOffersList, currentNextRefresh);
+
+            return { cached: data.cached };
         }
 
-        async function handleSearch() {
+        async function handleSearch(isInitialLoad = false) {
             const searchType = document.getElementById('searchType').value;
             const loading = document.getElementById('loading');
             const emptyState = document.getElementById('emptyState');
@@ -817,43 +831,52 @@
             // Clean up old slot caches from localStorage
             clearOldSlotCaches();
 
-            // Check local slot cache first
-            const cached = getCachedResults(selectedPlatform, searchType);
-            if (cached) {
-                currentResults = cached.data;
-                displayResults(cached.data);
-                showCacheStatus(cached.nextRefresh);
-                showNotification('📦 Offers from this refresh window', 'success');
-                return;
+            if (globalOffersList.length === 0) {
+                loading.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                resultsContainer.innerHTML = '';
+                cacheStatus.classList.add('hidden');
+
+                try {
+                    showNotification('🤖 AI fetching all daily offers...', 'info');
+                    const { cached: wasLocallyCached } = await fetchGlobalOffers();
+
+                    if (isInitialLoad) {
+                        const msg = wasLocallyCached ? '📦 Latest offers loaded' : `✅ Found airdrops & rewards!`;
+                        showNotification(msg, 'success');
+                    }
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    emptyState.classList.remove('hidden');
+                    showNotification(`Failed to load offers: ${error.message}`, 'error');
+                    loading.classList.add('hidden');
+                    return;
+                } finally {
+                    loading.classList.add('hidden');
+                }
             }
 
-            loading.classList.remove('hidden');
+            // Filter locally without hitting the API again
             emptyState.classList.add('hidden');
-            resultsContainer.innerHTML = '';
-            cacheStatus.classList.add('hidden');
+            let filtered = globalOffersList;
 
-            try {
-                showNotification('🤖 AI fetching latest offers...', 'info');
+            if (selectedPlatform) {
+                filtered = filtered.filter(o => o.platform && o.platform.toLowerCase().includes(selectedPlatform.toLowerCase()));
+            }
+            if (searchType !== 'all') {
+                filtered = filtered.filter(o => o.type === searchType);
+            }
 
-                const { results, nextRefresh, cached: serverCached } = await searchWithGroq(selectedPlatform, searchType);
-
-                if (results && results.length > 0) {
-                    currentResults = results;
-                    setCachedResults(selectedPlatform, searchType, results, nextRefresh);
-                    displayResults(results);
-                    showCacheStatus(nextRefresh);
-                    const msg = serverCached ? '📦 Latest offers loaded' : `✅ Found ${results.length} fresh offers!`;
-                    showNotification(msg, 'success');
-                } else {
-                    emptyState.classList.remove('hidden');
-                    showNotification('No results found', 'error');
+            if (filtered.length > 0) {
+                displayResults(filtered);
+                showCacheStatus(currentNextRefresh);
+                if (!isInitialLoad) {
+                    showNotification(`⚡ Instant load: ${filtered.length} matches found`, 'success');
                 }
-            } catch (error) {
-                console.error('Search error:', error);
+            } else {
+                resultsContainer.innerHTML = '';
                 emptyState.classList.remove('hidden');
-                showNotification(`Search failed: ${error.message}`, 'error');
-            } finally {
-                loading.classList.add('hidden');
+                if (!isInitialLoad) showNotification('No matches for this filter combination', 'info');
             }
         }
 
@@ -862,11 +885,15 @@
             try {
                 const currentSlot = getCurrentSlot();
                 Object.keys(localStorage).forEach(key => {
-                    if (key.startsWith('crypto_v2_slot')) {
-                        const slotMatch = key.match(/crypto_v2_slot(\d+)_/);
+                    if (key.startsWith('crypto_v3_global_slot_')) {
+                        const slotMatch = key.match(/crypto_v3_global_slot_(\d+)/);
                         if (slotMatch && parseInt(slotMatch[1]) < currentSlot) {
                             localStorage.removeItem(key);
                         }
+                    }
+                    // Also clean up old v2 cache
+                    if (key.startsWith('crypto_v2_slot')) {
+                        localStorage.removeItem(key);
                     }
                 });
             } catch (e) { }

@@ -22,32 +22,22 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'GROQ_API_KEY is not configured in Vercel environment variables.' });
     }
 
-    const { platform, type } = req.body;
+    // We now ignore the requested platform/type and generate one massive global payload per 12h slot.
+    // This allows the client to download everything once and filter instantly without further API calls.
     const slot = getCurrentSlot();
-    const cacheKey = `${slot}_${platform || 'all'}_${type}`;
+    const globalCacheKey = `global_slot_${slot}`;
 
-    // Return cached slot data if available (same for all users in this 12h window)
-    if (serverCache[cacheKey]) {
+    // Return cached global data if available
+    if (serverCache[globalCacheKey]) {
         return res.status(200).json({
-            results: serverCache[cacheKey],
+            results: serverCache[globalCacheKey],
             cached: true,
             nextRefresh: getNextSlotTime().toISOString(),
             slot
         });
     }
 
-    const typeLabels = {
-        airdrop: 'Airdrops (token giveaways, claim events)',
-        staking: 'Staking Rewards (APY, lock-up rewards)',
-        trading: 'Trading Bonuses (deposit bonus, cashback, fee rebates)',
-        learn: 'Learn & Earn (quiz rewards, educational campaigns)',
-        launchpad: 'Launchpad token sales (IEO, IDO, new listings)',
-        all: 'all types: airdrops, staking, trading bonuses, learn & earn, launchpads'
-    };
-
-    const today = new Date().toISOString().split('T')[0]; // e.g. 2026-03-02
-    const platformPart = platform ? `on ${platform}` : 'across major exchanges';
-    const typePart = typeLabels[type] || type;
+    const today = new Date().toISOString().split('T')[0];
 
     try {
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -61,30 +51,30 @@ export default async function handler(req, res) {
                 messages: [
                     {
                         role: 'system',
-                        content: `Today is ${today}. You are a crypto offers expert. List ONLY currently active, real offers that exist as of today. Include realistic reward values and today's date. Never invent random URLs — use only known official domain patterns.`
+                        content: `Today is ${today}. You are a crypto offers expert. You must generate a diverse, comprehensive list of exactly 40 currently active crypto offers.`
                     },
                     {
                         role: 'user',
-                        content: `List 10 active crypto ${typePart} ${platformPart} as of ${today}.
+                        content: `Generate exactly 40 active crypto offers as of ${today}.
+Ensure a balanced mix of: "airdrop", "staking", "trading", "learn", and "launchpad".
+Ensure a wide mix of platforms: Binance, OKX, Bybit, KuCoin, Coinbase, Kraken, Bitget, MEXC, Gate.io, HTX, etc.
 
-Return ONLY a JSON array, no extra text. Each item:
+Return ONLY a JSON array, no extra text. Each item MUST follow this exact format:
 {
-  "title": "Specific offer name",
+  "title": "Specific offer name (e.g., Learn & Earn SUI, 120% APY USDT)",
   "platform": "Exchange or protocol name",
-  "description": "Clear 1-2 sentence description of the offer",
-  "value": "Reward amount or APY (e.g. Up to $100, 12% APY)",
-  "type": "${type}",
+  "description": "Clear 1-2 sentence description",
+  "value": "Reward amount or APY",
+  "type": "Must be exactly one of: airdrop, staking, trading, learn, launchpad",
   "badge": "live" | "new" | "ending",
   "date": "${today}",
   "requirements": "Brief eligibility note",
   "link": "https://official-platform-domain.com/offers-page"
-}
-
-Use real, well-known platforms (Binance, OKX, Bybit, KuCoin, Coinbase, Kraken, Bitget, MEXC, Gate.io, etc.) and their real offers pages as the link.`
+}`
                     }
                 ],
                 temperature: 0.5,
-                max_tokens: 2000
+                max_tokens: 3500 // Increased token limit for 40 items
             })
         });
 
@@ -106,13 +96,15 @@ Use real, well-known platforms (Binance, OKX, Bybit, KuCoin, Coinbase, Kraken, B
 
         const results = JSON.parse(jsonMatch[0]);
 
-        // Cache for this slot (all users get same results for 12h window)
-        serverCache[cacheKey] = results;
+        // Cache globally for this slot
+        serverCache[globalCacheKey] = results;
 
         // Clean up stale slot caches
         const cur = getCurrentSlot();
         Object.keys(serverCache).forEach(k => {
-            if (parseInt(k.split('_')[0]) < cur) delete serverCache[k];
+            if (k.startsWith('global_slot_') && parseInt(k.replace('global_slot_', '')) < cur) {
+                delete serverCache[k];
+            }
         });
 
         return res.status(200).json({
