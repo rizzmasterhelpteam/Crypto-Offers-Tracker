@@ -544,8 +544,8 @@
             <h2 class="section-title">Select Platform — Find Real Crypto Offers</h2>
             <div class="platform-chips" id="platformChips"></div>
 
-            <div class="search-grid">
-                <select id="searchType">
+            <div class="search-grid" style="grid-template-columns: 1fr;">
+                <select id="searchType" onchange="handleSearch()">
                     <option value="airdrop">🪂 Airdrops</option>
                     <option value="staking">🔒 Staking</option>
                     <option value="trading">💰 Trading</option>
@@ -553,7 +553,6 @@
                     <option value="launchpad">🚀 Launchpads</option>
                     <option value="all">All Types</option>
                 </select>
-                <button class="btn" id="searchBtn" onclick="handleSearch()">🔍 Search</button>
             </div>
 
             <div id="cacheStatus" class="cache-status hidden">
@@ -594,7 +593,7 @@
         <!-- SEO Footer -->
         <footer
             style="color: #6b7280; padding: 40px 20px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 40px;">
-            <p style="text-align:center;margin-bottom:12px;">⚡ Real offers updated twice daily &nbsp;|&nbsp; Free
+            <p style="text-align:center;margin-bottom:12px;">⚡ Real offers &nbsp;|&nbsp; Free
                 forever &nbsp;|&nbsp; 20+ exchanges</p>
             <p style="text-align:center;font-size:0.875rem;margin-bottom:20px;">⚠️ Always verify offers on official
                 platforms before participating — DYOR</p>
@@ -619,8 +618,19 @@
                 <a href="https://www.gate.io/activities" target="_blank" rel="noopener"
                     style="color:#60a5fa;text-decoration:none;">Gate.io Activities</a>
             </div>
+
+            <!-- AdSense Legal Links -->
+            <div
+                style="display:flex;flex-wrap:wrap;justify-content:center;gap:15px;font-size:0.85rem;margin-bottom:20px;">
+                <a href="/privacy.html" style="color:#9ca3af;text-decoration:none;">Privacy Policy</a>
+                <a href="/terms.html" style="color:#9ca3af;text-decoration:none;">Terms of Service</a>
+                <a href="/about.html" style="color:#9ca3af;text-decoration:none;">About Us</a>
+                <a href="/contact.html" style="color:#9ca3af;text-decoration:none;">Contact Us</a>
+            </div>
+
             <p style="text-align:center;font-size:0.75rem;">© 2026 Crypto Offers Tracker — Best Crypto Airdrops, Staking
                 Rewards &amp; Trading Bonuses</p>
+        </footer>
     </div>
 
 
@@ -676,6 +686,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             initPlatformChips();
             initAds();
+            // Trigger initial auto-search
+            handleSearch();
         });
 
         function initAds() {
@@ -707,6 +719,7 @@
             selectedPlatform = platform;
             document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
             chipElement.classList.add('active');
+            handleSearch(); // Auto-search when platform is clicked
         }
 
         function showNotification(message, type = 'info') {
@@ -766,7 +779,6 @@
 
         async function handleSearch() {
             const searchType = document.getElementById('searchType').value;
-            const searchBtn = document.getElementById('searchBtn');
             const loading = document.getElementById('loading');
             const emptyState = document.getElementById('emptyState');
             const resultsContainer = document.getElementById('resultsContainer');
@@ -785,8 +797,6 @@
                 return;
             }
 
-            searchBtn.disabled = true;
-            searchBtn.textContent = 'Searching...';
             loading.classList.remove('hidden');
             emptyState.classList.add('hidden');
             resultsContainer.innerHTML = '';
@@ -814,8 +824,6 @@
                 showNotification(`Search failed: ${error.message}`, 'error');
             } finally {
                 loading.classList.add('hidden');
-                searchBtn.disabled = false;
-                searchBtn.textContent = '🔍 Search';
             }
         }
 
