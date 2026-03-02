@@ -2,127 +2,12 @@
 const serverCache = {};
 
 function getCurrentSlot() {
+    // Increments every 12 hours UTC — refreshes globally twice daily
     return Math.floor(Date.now() / (12 * 60 * 60 * 1000));
 }
 
 function getNextSlotTime() {
     return new Date((getCurrentSlot() + 1) * 12 * 60 * 60 * 1000);
-}
-
-// Build smart Google search queries for real crypto offers
-function buildSearchQueries(platform, type) {
-    const today = new Date().toISOString().split('T')[0];
-    const year = new Date().getFullYear();
-
-    const typeTerms = {
-        airdrop: ['airdrop', 'token airdrop claim', 'free crypto airdrop'],
-        staking: ['staking rewards APY', 'crypto staking earn'],
-        trading: ['trading bonus promo', 'deposit bonus cashback'],
-        learn: ['learn earn rewards', 'crypto quiz rewards'],
-        launchpad: ['launchpad IEO token sale', 'new token listing'],
-        all: ['crypto offers rewards', 'airdrop staking bonus']
-    };
-
-    const terms = typeTerms[type] || typeTerms.all;
-
-    if (platform) {
-        // Targeted site-specific search for selected platform
-        const platformDomains = {
-            'Binance': 'site:binance.com',
-            'Coinbase': 'site:coinbase.com',
-            'Kraken': 'site:kraken.com',
-            'OKX': 'site:okx.com',
-            'Bybit': 'site:bybit.com',
-            'KuCoin': 'site:kucoin.com',
-            'Gate.io': 'site:gate.io',
-            'HTX': 'site:htx.com',
-            'Bitget': 'site:bitget.com',
-            'MEXC': 'site:mexc.com',
-            'Crypto.com': 'site:crypto.com',
-            'Gemini': 'site:gemini.com',
-            'Phemex': 'site:phemex.com',
-            'Uniswap': 'site:app.uniswap.org OR site:blog.uniswap.org',
-            'PancakeSwap': 'site:pancakeswap.finance',
-            'dYdX': 'site:dydx.exchange OR site:dydx.foundation',
-        };
-        const siteFilter = platformDomains[platform] || '';
-        return terms.slice(0, 2).map(t =>
-            `${platform} ${t} ${year} ${siteFilter}`.trim()
-        );
-    } else {
-        // General search across all platforms
-        return terms.slice(0, 2).map(t =>
-            `crypto ${t} ${year} active`
-        );
-    }
-}
-
-async function searchSerper(query, apiKey) {
-    const res = await fetch('https://google.serper.dev/search', {
-        method: 'POST',
-        headers: {
-            'X-API-KEY': apiKey,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ q: query, num: 6, gl: 'us', hl: 'en' })
-    });
-    if (!res.ok) throw new Error(`Serper error ${res.status}: ${await res.text()}`);
-    const data = await res.json();
-    return (data.organic || []).map(r => ({
-        title: r.title,
-        link: r.link,
-        snippet: r.snippet,
-        date: r.date || ''
-    }));
-}
-
-async function formatWithGroq(rawResults, platform, type, groqKey) {
-    const today = new Date().toISOString().split('T')[0];
-    const resultsText = rawResults.map((r, i) =>
-        `[${i + 1}] Title: ${r.title}\nURL: ${r.link}\nSnippet: ${r.snippet}\nDate: ${r.date}`
-    ).join('\n\n');
-
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${groqKey}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            model: 'llama-3.1-8b-instant',
-            messages: [{
-                role: 'system',
-                content: `Today is ${today}. You extract structured crypto offer information from real search results. You MUST preserve the exact URL from each search result — never modify or fabricate URLs.`
-            }, {
-                role: 'user',
-                content: `From these real Google search results about crypto ${type} offers${platform ? ` on ${platform}` : ''}, extract up to 8 offers as a JSON array.
-
-RULES:
-- "link" MUST be the EXACT URL from the search result (do not change or invent URLs)
-- "platform" should be the exchange/protocol name extracted from the URL or title
-- "badge" must be "live", "new", or "ending" based on content
-- "value" should be the reward amount/APY if mentioned, else "varies"
-- "date" from search result date if available
-- "requirements" brief eligibility note
-- Only include results that are clearly active crypto offers (skip news articles, generic pages)
-
-Search results:
-${resultsText}
-
-Return ONLY a valid JSON array, no extra text:
-[{"title":"...","platform":"...","description":"...","value":"...","type":"${type}","badge":"live","date":"...","requirements":"...","link":"exact-url-from-results"}]`
-            }],
-            temperature: 0.2,
-            max_tokens: 2000
-        })
-    });
-
-    if (!res.ok) throw new Error(`Groq error ${res.status}`);
-    const data = await res.json();
-    const content = data.choices?.[0]?.message?.content || '';
-    const jsonMatch = content.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) throw new Error('Groq returned no valid JSON');
-    return JSON.parse(jsonMatch[0]);
 }
 
 export default async function handler(req, res) {
@@ -132,17 +17,16 @@ export default async function handler(req, res) {
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const groqKey = process.env.GROQ_API_KEY;
-    const serperKey = process.env.SERPER_API_KEY;
-
-    if (!groqKey) return res.status(500).json({ error: 'GROQ_API_KEY not set in Vercel environment variables.' });
-    if (!serperKey) return res.status(500).json({ error: 'SERPER_API_KEY not set in Vercel environment variables. Get a free key at serper.dev' });
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+        return res.status(500).json({ error: 'GROQ_API_KEY is not configured in Vercel environment variables.' });
+    }
 
     const { platform, type } = req.body;
     const slot = getCurrentSlot();
     const cacheKey = `${slot}_${platform || 'all'}_${type}`;
 
-    // Return cached slot data if available
+    // Return cached slot data if available (same for all users in this 12h window)
     if (serverCache[cacheKey]) {
         return res.status(200).json({
             results: serverCache[cacheKey],
@@ -152,55 +36,87 @@ export default async function handler(req, res) {
         });
     }
 
+    const typeLabels = {
+        airdrop: 'Airdrops (token giveaways, claim events)',
+        staking: 'Staking Rewards (APY, lock-up rewards)',
+        trading: 'Trading Bonuses (deposit bonus, cashback, fee rebates)',
+        learn: 'Learn & Earn (quiz rewards, educational campaigns)',
+        launchpad: 'Launchpad token sales (IEO, IDO, new listings)',
+        all: 'all types: airdrops, staking, trading bonuses, learn & earn, launchpads'
+    };
+
+    const today = new Date().toISOString().split('T')[0]; // e.g. 2026-03-02
+    const platformPart = platform ? `on ${platform}` : 'across major exchanges';
+    const typePart = typeLabels[type] || type;
+
     try {
-        // Step 1: Build search queries
-        const queries = buildSearchQueries(platform, type);
+        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'llama-3.1-8b-instant',
+                messages: [
+                    {
+                        role: 'system',
+                        content: `Today is ${today}. You are a crypto offers expert. List ONLY currently active, real offers that exist as of today. Include realistic reward values and today's date. Never invent random URLs — use only known official domain patterns.`
+                    },
+                    {
+                        role: 'user',
+                        content: `List 10 active crypto ${typePart} ${platformPart} as of ${today}.
 
-        // Step 2: Fetch real Google results via Serper for each query (parallel)
-        const searchResultArrays = await Promise.all(
-            queries.map(q => searchSerper(q, serperKey).catch(() => []))
-        );
+Return ONLY a JSON array, no extra text. Each item:
+{
+  "title": "Specific offer name",
+  "platform": "Exchange or protocol name",
+  "description": "Clear 1-2 sentence description of the offer",
+  "value": "Reward amount or APY (e.g. Up to $100, 12% APY)",
+  "type": "${type}",
+  "badge": "live" | "new" | "ending",
+  "date": "${today}",
+  "requirements": "Brief eligibility note",
+  "link": "https://official-platform-domain.com/offers-page"
+}
 
-        // Merge + deduplicate by URL
-        const seen = new Set();
-        const allResults = [];
-        for (const arr of searchResultArrays) {
-            for (const r of arr) {
-                if (!seen.has(r.link)) {
-                    seen.add(r.link);
-                    allResults.push(r);
-                }
-            }
-        }
+Use real, well-known platforms (Binance, OKX, Bybit, KuCoin, Coinbase, Kraken, Bitget, MEXC, Gate.io, etc.) and their real offers pages as the link.`
+                    }
+                ],
+                temperature: 0.5,
+                max_tokens: 2000
+            })
+        });
 
-        if (allResults.length === 0) {
-            return res.status(200).json({
-                results: [],
-                cached: false,
-                nextRefresh: getNextSlotTime().toISOString(),
-                slot
+        if (!groqResponse.ok) {
+            const errorText = await groqResponse.text();
+            return res.status(groqResponse.status).json({
+                error: `Groq API error: ${groqResponse.status}`,
+                detail: errorText
             });
         }
 
-        // Step 3: Use Groq to extract structured offer data — real URLs preserved
-        const offers = await formatWithGroq(allResults, platform, type, groqKey);
+        const data = await groqResponse.json();
+        const content = data.choices?.[0]?.message?.content || '';
+        const jsonMatch = content.match(/\[[\s\S]*\]/);
 
-        // Filter to ensure links are real (not hallucinated)
-        const validOffers = offers.filter(o =>
-            o.link && o.link.startsWith('http') && allResults.some(r => r.link === o.link)
-        );
+        if (!jsonMatch) {
+            return res.status(500).json({ error: 'No valid JSON in Groq response', raw: content });
+        }
 
-        // Cache for this slot
-        serverCache[cacheKey] = validOffers;
+        const results = JSON.parse(jsonMatch[0]);
 
-        // Clean old slot caches
+        // Cache for this slot (all users get same results for 12h window)
+        serverCache[cacheKey] = results;
+
+        // Clean up stale slot caches
         const cur = getCurrentSlot();
         Object.keys(serverCache).forEach(k => {
             if (parseInt(k.split('_')[0]) < cur) delete serverCache[k];
         });
 
         return res.status(200).json({
-            results: validOffers,
+            results,
             cached: false,
             nextRefresh: getNextSlotTime().toISOString(),
             slot
