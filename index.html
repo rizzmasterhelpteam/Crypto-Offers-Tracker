@@ -765,7 +765,14 @@
             const badgeClass = `badge-${result.badge || 'live'}`;
             const badgeText = { live: '🟢 LIVE', new: '✨ NEW', ending: '⏰ ENDING' }[result.badge] || '🟢 LIVE';
 
-            const platformUrl = PLATFORM_URLS[result.platform] || `https://www.google.com/search?q=${encodeURIComponent(result.platform + ' crypto')}`;
+            // Use the real URL from search results — fall back to platform page or Google
+            const offerUrl = result.link ||
+                PLATFORM_URLS[result.platform] ||
+                `https://www.google.com/search?q=${encodeURIComponent((result.platform || '') + ' crypto ' + (result.type || 'offer'))}`;
+
+            // Show the real domain in the card
+            let displayDomain = '';
+            try { displayDomain = new URL(offerUrl).hostname.replace('www.', ''); } catch (e) { }
 
             card.innerHTML = `
                 <span class="badge ${badgeClass}">${badgeText}</span>
@@ -774,18 +781,20 @@
                 ${result.requirements ? `<div class="requirements">📋 ${result.requirements}</div>` : ''}
                 <div class="card-meta">
                     <div class="meta-item"><span>🏢</span> ${result.platform}</div>
-                    <div class="meta-item"><span>💰</span> ${result.value}</div>
+                    <div class="meta-item"><span>💰</span> ${result.value || 'Varies'}</div>
                     <div class="meta-item"><span>📅</span> ${result.date || 'Recent'}</div>
+                    ${displayDomain ? `<div class="meta-item"><span>🔗</span> <span style="color:#60a5fa;font-size:0.8rem;">${displayDomain}</span></div>` : ''}
                 </div>
                 <div class="card-actions">
-                    <button class="btn-card" onclick="window.open('${platformUrl}', '_blank')">
-                        🔗 View Offer
+                    <button class="btn-card" onclick="window.open('${offerUrl}', '_blank')">
+                        🔗 View Real Offer
                     </button>
-                    <button class="btn-card" style="flex: 0 0 50px;">📤</button>
+                    <button class="btn-card" style="flex: 0 0 50px;" onclick="navigator.share ? navigator.share({title:'${result.title.replace(/'/g, '')}',url:'${offerUrl}'}) : navigator.clipboard.writeText('${offerUrl}')">📤</button>
                 </div>
             `;
             return card;
         }
+
 
         let countdownInterval = null;
         function showCacheStatus(nextRefresh) {
