@@ -510,8 +510,12 @@
         // ============================================
         // Groq API Key is stored securely in Vercel Environment Variables (GROQ_API_KEY)
         // All API calls go through /api/search (serverless function) — never exposed to browser
+        // Cache refreshes globally every 12 hours (twice daily) for all users
 
-        const CACHE_DURATION = 8 * 60 * 60 * 1000;
+        // Slot = number that increments every 12h UTC — same for all users worldwide
+        function getCurrentSlot() {
+            return Math.floor(Date.now() / (12 * 60 * 60 * 1000));
+        }
 
         const PLATFORMS = [
             'Binance', 'Coinbase', 'Kraken', 'OKX', 'Bybit',
@@ -592,31 +596,28 @@
             setTimeout(() => notification.classList.add('hidden'), 4000);
         }
 
+        // Cache key includes the current slot — expires automatically when slot changes (every 12h UTC)
         function getCacheKey(platform, type) {
-            return `crypto_${platform}_${type}`;
+            return `crypto_v2_slot${getCurrentSlot()}_${platform || 'all'}_${type}`;
         }
 
         function getCachedResults(platform, type) {
             try {
                 const cached = localStorage.getItem(getCacheKey(platform, type));
                 if (cached) {
-                    const { data, timestamp } = JSON.parse(cached);
-                    const age = Date.now() - timestamp;
-                    if (age < CACHE_DURATION) {
-                        return {
-                            data,
-                            hoursLeft: Math.floor((CACHE_DURATION - age) / (60 * 60 * 1000)),
-                            minutesLeft: Math.floor(((CACHE_DURATION - age) % (60 * 60 * 1000)) / (60 * 1000))
-                        };
+                    const { data, nextRefresh } = JSON.parse(cached);
+                    const msLeft = new Date(nextRefresh) - Date.now();
+                    if (msLeft > 0 && data) {
+                        return { data, nextRefresh };
                     }
                 }
             } catch (e) { }
             return null;
         }
 
-        function setCachedResults(platform, type, data) {
+        function setCachedResults(platform, type, data, nextRefresh) {
             try {
-                localStorage.setItem(getCacheKey(platform, type), JSON.stringify({ data, timestamp: Date.now() }));
+                localStorage.setItem(getCacheKey(platform, type), JSON.stringify({ data, nextRefresh }));
             } catch (e) { }
         }
 
@@ -639,7 +640,8 @@
                 throw new Error('No valid results in response');
             }
 
-            return data.results;
+            // Return both results and nextRefresh time from server
+            return { results: data.results, nextRefresh: data.nextRefresh, cached: data.cached };
         }
 
         async function handleSearch() {
@@ -650,13 +652,16 @@
             const resultsContainer = document.getElementById('resultsContainer');
             const cacheStatus = document.getElementById('cacheStatus');
 
-            // Check cache first
+            // Clean up old slot caches from localStorage
+            clearOldSlotCaches();
+
+            // Check local slot cache first
             const cached = getCachedResults(selectedPlatform, searchType);
             if (cached) {
                 currentResults = cached.data;
                 displayResults(cached.data);
-                showCacheStatus(cached.hoursLeft, cached.minutesLeft);
-                showNotification('📦 Loaded from cache', 'success');
+                showCacheStatus(cached.nextRefresh);
+                showNotification('📦 Offers from this refresh window', 'success');
                 return;
             }
 
@@ -668,16 +673,17 @@
             cacheStatus.classList.add('hidden');
 
             try {
-                showNotification('🤖 AI searching...', 'info');
+                showNotification('🤖 AI fetching latest offers...', 'info');
 
-                const results = await searchWithGroq(selectedPlatform, searchType);
+                const { results, nextRefresh, cached: serverCached } = await searchWithGroq(selectedPlatform, searchType);
 
                 if (results && results.length > 0) {
                     currentResults = results;
-                    setCachedResults(selectedPlatform, searchType, results);
+                    setCachedResults(selectedPlatform, searchType, results, nextRefresh);
                     displayResults(results);
-                    showCacheStatus(8, 0);
-                    showNotification(`✅ Found ${results.length} offers!`, 'success');
+                    showCacheStatus(nextRefresh);
+                    const msg = serverCached ? '📦 Latest offers loaded' : `✅ Found ${results.length} fresh offers!`;
+                    showNotification(msg, 'success');
                 } else {
                     emptyState.classList.remove('hidden');
                     showNotification('No results found', 'error');
@@ -685,12 +691,27 @@
             } catch (error) {
                 console.error('Search error:', error);
                 emptyState.classList.remove('hidden');
-                showNotification('Search failed. Check API key.', 'error');
+                showNotification(`Search failed: ${error.message}`, 'error');
             } finally {
                 loading.classList.add('hidden');
                 searchBtn.disabled = false;
                 searchBtn.textContent = '🔍 Search';
             }
+        }
+
+        // Clean up stale slot caches from localStorage
+        function clearOldSlotCaches() {
+            try {
+                const currentSlot = getCurrentSlot();
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('crypto_v2_slot')) {
+                        const slotMatch = key.match(/crypto_v2_slot(\d+)_/);
+                        if (slotMatch && parseInt(slotMatch[1]) < currentSlot) {
+                            localStorage.removeItem(key);
+                        }
+                    }
+                });
+            } catch (e) { }
         }
 
         function displayResults(results) {
@@ -766,11 +787,29 @@
             return card;
         }
 
-        function showCacheStatus(hours, minutes) {
+        let countdownInterval = null;
+        function showCacheStatus(nextRefresh) {
             const cacheStatus = document.getElementById('cacheStatus');
-            document.getElementById('cacheText').innerHTML = '<span style="color: #10b981; font-weight: 600;">📦 Cached</span>';
-            document.getElementById('cacheTime').innerHTML = `<span style="color: #9ca3af;">Refresh in ${hours}h ${minutes}m</span>`;
+            document.getElementById('cacheText').innerHTML = '<span style="color: #10b981; font-weight: 600;">🔄 Refreshes globally twice daily</span>';
             cacheStatus.classList.remove('hidden');
+
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            function updateCountdown() {
+                const msLeft = new Date(nextRefresh) - Date.now();
+                if (msLeft <= 0) {
+                    document.getElementById('cacheTime').innerHTML = '<span style="color: #f59e0b;">⏰ Refresh due — search again!</span>';
+                    clearInterval(countdownInterval);
+                    return;
+                }
+                const h = Math.floor(msLeft / 3600000);
+                const m = Math.floor((msLeft % 3600000) / 60000);
+                const s = Math.floor((msLeft % 60000) / 1000);
+                document.getElementById('cacheTime').innerHTML =
+                    `<span style="color: #9ca3af;">Next refresh in <strong style="color:#60a5fa;">${h}h ${m}m ${s}s</strong></span>`;
+            }
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
         }
     </script>
 </body>
