@@ -1,3 +1,14 @@
+// Server-side in-memory cache
+const serverCache = {};
+
+function getCurrentSlot() {
+    return Math.floor(Date.now() / (12 * 60 * 60 * 1000));
+}
+
+function getNextSlotTime() {
+    return new Date((getCurrentSlot() + 1) * 12 * 60 * 60 * 1000);
+}
+
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -9,9 +20,23 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'GROQ_API_KEY is not configured.' });
     }
 
+    const slot = getCurrentSlot();
+    const cacheKey = `blog_slot_${slot}`;
+
+    // Return cached blog if available
+    if (serverCache[cacheKey]) {
+        return res.status(200).json({
+            ...serverCache[cacheKey],
+            cached: true,
+            nextRefresh: getNextSlotTime().toISOString()
+        });
+    }
+
     try {
-        // 1. Fetch Trending Topics from CoinGecko (No API Key Required for Public API)
+        // 1. Fetch Trending Topics from CoinGecko
         const trendingResponse = await fetch('https://api.coingecko.com/api/v3/search/trending');
+        if (!trendingResponse.ok) throw new Error('CoinGecko API busy');
+
         const trendingData = await trendingResponse.json();
         const trendingCoins = trendingData.coins.slice(0, 5).map(c => c.item.name).join(', ');
 
@@ -25,7 +50,7 @@ export default async function handler(req, res) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.1-70b-versatile', // High-end model for better personality
+                model: 'llama-3.1-70b-versatile',
                 messages: [
                     {
                         role: 'system',
@@ -42,7 +67,7 @@ Express how you feel about these moves. Did you 'buy the dip'? Are you 'scared' 
 Use human-like expressions, slang (like HODL or WAGMI sparingly), and share a 'personal' takeaway.`
                     }
                 ],
-                temperature: 0.8 // Increased temperature for more creative/human variability
+                temperature: 0.8
             })
         });
 
@@ -53,12 +78,20 @@ Use human-like expressions, slang (like HODL or WAGMI sparingly), and share a 'p
         const data = await groqResponse.json();
         const content = data.choices[0].message.content;
 
-        // 3. Return the generated post
-        return res.status(200).json({
+        const result = {
             date: today,
             topics: trendingCoins,
             post: content,
             attribution: "AI-Generated via Groq & CoinGecko"
+        };
+
+        // Cache the result for this slot
+        serverCache[cacheKey] = result;
+
+        return res.status(200).json({
+            ...result,
+            cached: false,
+            nextRefresh: getNextSlotTime().toISOString()
         });
 
     } catch (err) {
