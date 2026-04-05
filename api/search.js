@@ -87,6 +87,11 @@ Return ONLY a JSON array, no extra text. Each item MUST follow this exact format
         }
 
         const data = await groqResponse.json();
+        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+            return res.status(500).json({ error: 'Unexpected response format from Groq API', detail: data });
+        }
+
+        const content = data.choices[0].message.content;
         let results = [];
         try {
             // 1. Sometimes LLMs use markdown blocks, so remove ```json and ``` if they exist
