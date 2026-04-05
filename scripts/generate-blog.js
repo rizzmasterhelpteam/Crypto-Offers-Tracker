@@ -53,7 +53,7 @@ async function generatePost(title, tone, keywords) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.1-70b-versatile',
+                model: 'llama-4-scout-17b-16e-instruct',
                 messages: [
                     {
                         role: 'system',
