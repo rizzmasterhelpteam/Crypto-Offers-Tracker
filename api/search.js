@@ -47,7 +47,7 @@ export default async function handler(req, res) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-4-scout-17b-16e-instruct', // Upgraded for reliability
+                model: 'llama-3.1-8b-instant', // Fast data retrieval
                 messages: [
                     {
                         role: 'system',
