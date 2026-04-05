@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// To run this, you must have GROQ_API_KEY in your env
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 if (!GROQ_API_KEY) {
@@ -9,19 +8,43 @@ if (!GROQ_API_KEY) {
     process.exit(1);
 }
 
+const ADMIN_DIR = path.join(__dirname, '..', 'admin');
 const BLOG_DIR = path.join(__dirname, '..', 'blog');
+const QUEUE_PATH = path.join(ADMIN_DIR, 'blog-queue.csv');
 const TEMPLATE_PATH = path.join(BLOG_DIR, 'template.html');
 const INDEX_PATH = path.join(BLOG_DIR, 'index.html');
 
-async function generate() {
-    try {
-        console.log("Fetching trending data...");
-        const trendingResponse = await fetch('https://api.coingecko.com/api/v3/search/trending');
-        const trendingData = await trendingResponse.json();
-        const trendingCoins = trendingData.coins.slice(0, 5).map(c => c.item.name).join(', ');
+// Helper to parse simple CSV (handles basic quotes)
+function parseCSV(content) {
+    const lines = content.trim().split('\n');
+    const headers = lines[0].split(',').map(h => h.trim());
+    return lines.slice(1).map(line => {
+        // Simple regex to handle commas inside quotes
+        const values = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+        const row = {};
+        headers.forEach((h, i) => {
+            row[h] = values[i] ? values[i].replace(/^"|"$/g, '').trim() : '';
+        });
+        return row;
+    });
+}
 
+// Helper to write CSV
+function writeCSV(headers, rows) {
+    const content = [
+        headers.join(','),
+        ...rows.map(r => headers.map(h => {
+            const val = r[h] || '';
+            return val.includes(',') ? `"${val}"` : val;
+        }).join(','))
+    ].join('\n');
+    fs.writeFileSync(QUEUE_PATH, content);
+}
+
+async function generatePost(title, tone, keywords) {
+    try {
         const today = new Date().toISOString().split('T')[0];
-        console.log(`Generating post for ${today}...`);
+        console.log(`Generating: "${title}" | Tone: ${tone}...`);
 
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -34,17 +57,16 @@ async function generate() {
                 messages: [
                     {
                         role: 'system',
-                        content: `You are a passionate crypto enthusiast and blogger. Use a first-person perspective ('I', 'me', 'my'). 
-Your tone should be deeply human, emotional, and opinionated. Share 'personal' anecdotes about your trading journey.
-Avoid sounding like an AI or a clinical analyst. Use humor, frustration, or excitement where appropriate.
-Format with a catchy personal title, conversational paragraphs, and a relatable closing.`
+                        content: `You are a crypto blogger. Use a first-person perspective ('I', 'me', 'my'). 
+Your tone for this specific post MUST be: ${tone}.
+Incorporate these keywords naturally: ${keywords}.
+Ensure the content feels human, personal, and opinionated.`
                     },
                     {
                         role: 'user',
-                        content: `Today is ${today}. I'm looking at these trending tokens: ${trendingCoins}.
-Write a blog post about what's happening. Make it feel like a real person wrote it after a long night of watching charts.
-Express how you feel about these moves. Did you 'buy the dip'? Are you 'scared' of the volatility? 
-Use human-like expressions, slang (like HODL or WAGMI sparingly), and share a 'personal' takeaway.`
+                        content: `Write a blog post titled: "${title}".
+Today is ${today}. Discuss ${keywords}. 
+Make it engaging, relatable, and use the specified tone of "${tone}".`
                     }
                 ],
                 temperature: 0.8,
@@ -55,11 +77,8 @@ Use human-like expressions, slang (like HODL or WAGMI sparingly), and share a 'p
         const data = await groqResponse.json();
         const content = data.choices[0].message.content;
 
-        // Extract title (first line)
-        const rawLines = content.split('\n');
-        const title = rawLines.find(l => l.trim().length > 0)?.replace(/#/g, '').trim() || "Daily Market Digest";
-        const bodyContent = content.replace(rawLines[0], '')
-            .replace(/### (.*)/g, '<h3>$1</h3>')
+        // Cleanup markdown
+        const bodyContent = content.replace(/### (.*)/g, '<h3>$1</h3>')
             .replace(/## (.*)/g, '<h2>$1</h2>')
             .replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>')
             .replace(/\n\n/g, '</p><p>')
@@ -70,14 +89,14 @@ Use human-like expressions, slang (like HODL or WAGMI sparingly), and share a 'p
         let html = template
             .replace('{{TITLE}}', title)
             .replace('{{DATE}}', today)
-            .replace('{{TOPICS}}', trendingCoins)
+            .replace('{{TOPICS}}', keywords)
             .replace('{{CONTENT}}', bodyContent);
 
         // 2. Save new post
-        const slug = `market-digest-${today}`;
+        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const fileName = `${slug}.html`;
         fs.writeFileSync(path.join(BLOG_DIR, fileName), html);
-        console.log(`Saved new post: blog/${fileName}`);
+        console.log(`- Saved: blog/${fileName}`);
 
         // 3. Update Index
         let indexHtml = fs.readFileSync(INDEX_PATH, 'utf8');
@@ -85,17 +104,47 @@ Use human-like expressions, slang (like HODL or WAGMI sparingly), and share a 'p
             <a href="${fileName}" class="post-card">
                 <span class="post-date">${today}</span>
                 <div class="post-title">${title}</div>
-                <div class="post-excerpt">${trendingCoins}</div>
+                <div class="post-excerpt">${keywords}</div>
             </a>
             <!-- POST_ITEM_TEMPLATE -->`;
 
         indexHtml = indexHtml.replace('<!-- POST_ITEM_TEMPLATE -->', postEntry);
         fs.writeFileSync(INDEX_PATH, indexHtml);
-        console.log("Updated blog/index.html");
 
+        return true;
     } catch (err) {
-        console.error("Error generating blog:", err);
+        console.error(`Error generating "${title}":`, err);
+        return false;
     }
 }
 
-generate();
+async function runQueue() {
+    if (!fs.existsSync(QUEUE_PATH)) {
+        console.error("Queue file not found at: admin/blog-queue.csv");
+        return;
+    }
+
+    const content = fs.readFileSync(QUEUE_PATH, 'utf8');
+    const rows = parseCSV(content);
+    const headers = ['title', 'tone', 'keywords', 'status'];
+
+    let count = 0;
+    for (let row of rows) {
+        if (row.status === 'pending') {
+            const success = await generatePost(row.title, row.tone, row.keywords);
+            if (success) {
+                row.status = 'published';
+                count++;
+            }
+        }
+    }
+
+    if (count > 0) {
+        writeCSV(headers, rows);
+        console.log(`\nSuccessfully processed ${count} posts.`);
+    } else {
+        console.log("No pending posts found in queue.");
+    }
+}
+
+runQueue();
