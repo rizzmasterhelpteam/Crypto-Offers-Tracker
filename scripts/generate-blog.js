@@ -14,12 +14,11 @@ const QUEUE_PATH = path.join(ADMIN_DIR, 'blog-queue.csv');
 const TEMPLATE_PATH = path.join(BLOG_DIR, 'template.html');
 const INDEX_PATH = path.join(BLOG_DIR, 'index.html');
 
-// Helper to parse simple CSV (handles basic quotes)
 function parseCSV(content) {
     const lines = content.trim().split('\n');
+    if (lines.length < 2) return [];
     const headers = lines[0].split(',').map(h => h.trim());
     return lines.slice(1).map(line => {
-        // Simple regex to handle commas inside quotes
         const values = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
         const row = {};
         headers.forEach((h, i) => {
@@ -29,7 +28,6 @@ function parseCSV(content) {
     });
 }
 
-// Helper to write CSV
 function writeCSV(headers, rows) {
     const content = [
         headers.join(','),
@@ -57,19 +55,19 @@ async function generatePost(title, tone, keywords) {
                 messages: [
                     {
                         role: 'system',
-                        content: `You are a crypto blogger. Use a first-person perspective ('I', 'me', 'my'). 
-Your tone for this specific post MUST be: ${tone}.
-Incorporate these keywords naturally: ${keywords}.
-Ensure the content feels human, personal, and opinionated.`
+                        content: `You are a professional crypto analyst and blogger. Use a first-person perspective ('I', 'me', 'my'). 
+Your tone should be: ${tone}.
+Incorporate these keywords naturally and professionally: ${keywords}.
+Ensure the content feels human, deeply informed, and expert-level.`
                     },
                     {
                         role: 'user',
-                        content: `Write a blog post titled: "${title}".
-Today is ${today}. Discuss ${keywords}. 
-Make it engaging, relatable, and use the specified tone of "${tone}".`
+                        content: `Today is ${today}. Write a professional blog post titled: "${title}".
+Focus on ${keywords}. Discuss current market moves and share your expert outlook.
+Relatable, sophisticated, and impactful.`
                     }
                 ],
-                temperature: 0.8,
+                temperature: 0.7,
                 max_tokens: 4000
             })
         });
@@ -77,14 +75,12 @@ Make it engaging, relatable, and use the specified tone of "${tone}".`
         const data = await groqResponse.json();
         const content = data.choices[0].message.content;
 
-        // Cleanup markdown
         const bodyContent = content.replace(/### (.*)/g, '<h3>$1</h3>')
             .replace(/## (.*)/g, '<h2>$1</h2>')
             .replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>')
             .replace(/\n\n/g, '</p><p>')
             .split('\n').map(line => line.trim() ? `<p>${line}</p>` : '').join('');
 
-        // 1. Load Template
         let template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
         let html = template
             .replace('{{TITLE}}', title)
@@ -92,13 +88,11 @@ Make it engaging, relatable, and use the specified tone of "${tone}".`
             .replace('{{TOPICS}}', keywords)
             .replace('{{CONTENT}}', bodyContent);
 
-        // 2. Save new post
         const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const fileName = `${slug}.html`;
         fs.writeFileSync(path.join(BLOG_DIR, fileName), html);
         console.log(`- Saved: blog/${fileName}`);
 
-        // 3. Update Index
         let indexHtml = fs.readFileSync(INDEX_PATH, 'utf8');
         const postEntry = `
             <a href="${fileName}" class="post-card">
@@ -118,33 +112,47 @@ Make it engaging, relatable, and use the specified tone of "${tone}".`
     }
 }
 
-async function runQueue() {
-    if (!fs.existsSync(QUEUE_PATH)) {
-        console.error("Queue file not found at: admin/blog-queue.csv");
-        return;
+async function autoDiscoverAndGenerate() {
+    console.log("Auto-Discovery Mode: Fetching trending crypto data...");
+    const trendingResponse = await fetch('https://api.coingecko.com/api/v3/search/trending');
+    const trendingData = await trendingResponse.json();
+    const trendingCoins = trendingData.coins.slice(0, 5).map(c => c.item.name).join(', ');
+
+    // Auto-generate a title and tone
+    const title = `Market Pulse: ${trendingData.coins[0].item.name} Leads the Charge and What's Next`;
+    const tone = "Professional, Informative, yet Human";
+    const keywords = `${trendingCoins}, market trends, 2026 outlook`;
+
+    await generatePost(title, tone, keywords);
+}
+
+async function run() {
+    let rows = [];
+    if (fs.existsSync(QUEUE_PATH)) {
+        const content = fs.readFileSync(QUEUE_PATH, 'utf8');
+        rows = parseCSV(content);
     }
 
-    const content = fs.readFileSync(QUEUE_PATH, 'utf8');
-    const rows = parseCSV(content);
     const headers = ['title', 'tone', 'keywords', 'status'];
 
-    let count = 0;
+    let manualCount = 0;
     for (let row of rows) {
         if (row.status === 'pending') {
             const success = await generatePost(row.title, row.tone, row.keywords);
             if (success) {
                 row.status = 'published';
-                count++;
+                manualCount++;
             }
         }
     }
 
-    if (count > 0) {
+    if (manualCount > 0) {
         writeCSV(headers, rows);
-        console.log(`\nSuccessfully processed ${count} posts.`);
+        console.log(`\nSuccessfully processed ${manualCount} manual posts.`);
     } else {
-        console.log("No pending posts found in queue.");
+        console.log("No pending manual posts. Switching to Auto-Discovery...");
+        await autoDiscoverAndGenerate();
     }
 }
 
-runQueue();
+run();
