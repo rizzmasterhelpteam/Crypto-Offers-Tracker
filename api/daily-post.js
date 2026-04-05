@@ -67,7 +67,8 @@ Express how you feel about these moves. Did you 'buy the dip'? Are you 'scared' 
 Use human-like expressions, slang (like HODL or WAGMI sparingly), and share a 'personal' takeaway.`
                     }
                 ],
-                temperature: 0.8
+                temperature: 0.8,
+                max_tokens: 4000
             })
         });
 

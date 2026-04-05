@@ -52,13 +52,13 @@ export default async function handler(req, res) {
                     {
                         role: 'system',
                         content: `Today is ${today}. You are a crypto offers expert. 
-You must generate a diverse list of exactly 40 currently active crypto offers.
+You must generate a diverse list of exactly 30 currently active crypto offers.
 Output MUST be a single JSON array starting with [ and ending with ]. NO prose.`
                     },
                     {
                         role: 'user',
-                        content: `Generate exactly 40 active crypto offers as of ${today}.
-Include a mix of airdrop, staking, trading, learn, and launchpad offers across 20+ platforms.
+                        content: `Generate exactly 30 active crypto offers as of ${today}.
+Include a mix of airdrop, staking, trading, learn, and launchpad offers across 15+ platforms.
 
 Return ONLY a JSON array. Each item MUST follow this format:
 {
@@ -75,7 +75,7 @@ Return ONLY a JSON array. Each item MUST follow this format:
                     }
                 ],
                 temperature: 0.3,
-                max_tokens: 6000
+                max_tokens: 4000
             })
         });
 

@@ -528,69 +528,6 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        .blog-container {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            padding: 35px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .blog-title {
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin-bottom: 15px;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .blog-meta {
-            font-size: 0.85rem;
-            color: #6b7280;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 10px;
-        }
-
-        .blog-content {
-            line-height: 1.8;
-            color: #d1d5db;
-        }
-
-        .blog-content h1,
-        .blog-content h2,
-        .blog-content h3 {
-            color: white;
-            margin: 20px 0 10px;
-        }
-
-        .blog-content p {
-            margin-bottom: 15px;
-        }
-
-        .btn-blog {
-            margin-top: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #9ca3af;
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-blog:hover {
-            background: rgba(59, 130, 246, 0.1);
-            color: #60a5fa;
-            border-color: rgba(59, 130, 246, 0.3);
-        }
     </style>
 </head>
 
@@ -646,7 +583,10 @@
                     <option value="launchpad">🚀 Launchpads</option>
                     <option value="all">All Types</option>
                 </select>
-                <button class="btn-blog" onclick="showBlog()">📖 Read Daily Market Digest</button>
+                <button class="btn" style="margin-top:15px;" onclick="handleSearch()">🔍 Search All Daily
+                    Offers</button>
+                <a href="/blog/" class="btn-blog"
+                    style="text-decoration:none; display:inline-block; text-align:center;">📖 Read Our Blog</a>
             </div>
 
             <div id="cacheStatus" class="cache-status hidden">
@@ -660,13 +600,6 @@
             <p style="color: #9ca3af;">AI analyzing offers...</p>
         </div>
 
-        <div id="blogContainer" class="blog-container hidden">
-            <div id="blogLoading" class="loading hidden">
-                <div class="spinner"></div>
-                <p style="color: #9ca3af;">Humanizing market data...</p>
-            </div>
-            <div id="blogContentArea"></div>
-        </div>
 
         <div id="resultsContainer"></div>
 
@@ -1078,52 +1011,6 @@
             countdownInterval = setInterval(updateCountdown, 1000);
         }
 
-        async function showBlog() {
-            const container = document.getElementById('blogContainer');
-            const contentArea = document.getElementById('blogContentArea');
-            const loading = document.getElementById('blogLoading');
-
-            // Scroll to blog area
-            container.classList.remove('hidden');
-            container.scrollIntoView({ behavior: 'smooth' });
-
-            // Clear previous and show loading
-            contentArea.innerHTML = '';
-            loading.classList.remove('hidden');
-
-            try {
-                const response = await fetch('/api/daily-post');
-                if (!response.ok) throw new Error('Failed to generate daily digest.');
-                const data = await response.json();
-
-                loading.classList.add('hidden');
-
-                // Find the first line for the title, cleanup hashes
-                const rawLines = data.post.split('\n');
-                const titleLine = rawLines.find(l => l.trim().length > 0)?.replace(/#/g, '').trim() || "Daily Market Digest";
-
-                // Basic Markdown styling (headers, bold)
-                let html = `
-                    <h2 class="blog-title">${titleLine}</h2>
-                    <div class="blog-meta">
-                        <span>📅 ${data.date}</span>
-                        <span>🔥 Trending: ${data.topics}</span>
-                    </div>
-                    <div class="blog-content">
-                        ${data.post.replace(rawLines[0], '') // Remove title from body
-                        .replace(/### (.*)/g, '<h3>$1</h3>')
-                        .replace(/## (.*)/g, '<h2>$1</h2>')
-                        .replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>')
-                        .replace(/\n\n/g, '</p><p>')
-                        .split('\n').map(line => line.trim() ? `<p>${line}</p>` : '').join('')}
-                    </div>
-                `;
-                contentArea.innerHTML = html;
-            } catch (err) {
-                loading.classList.add('hidden');
-                contentArea.innerHTML = `<p style="color: #ef4444;">❌ Error: ${err.message}</p>`;
-            }
-        }
     </script>
 </body>
 

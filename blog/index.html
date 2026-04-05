@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Market Digest - Crypto Offers Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --accent: #60a5fa;
+            --text-main: #f8fafc;
+            --text-dim: #9ca3af;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding: 40px 20px;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(96, 165, 250, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .post-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .post-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.3s ease;
+        }
+
+        .post-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        .post-date {
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .post-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .post-excerpt {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 40px;
+            color: var(--text-dim);
+            text-decoration: none;
+        }
+
+        .back-home:hover {
+            color: var(--accent);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Daily Market Digest</h1>
+            <p style="color: var(--text-dim); margin-top: 10px;">Human-like crypto insights, one day at a time.</p>
+        </div>
+
+        <div class="post-list" id="postList">
+            <a href="market-digest-2026-04-06.html" class="post-card">
+                <span class="post-date">2026-04-06</span>
+                <div class="post-title">The Night Shift: Why Volatility is My Best Friend</div>
+                <div class="post-excerpt">Bitcoin, Ethereum, Solana</div>
+            </a>
+            <!-- POST_ITEM_TEMPLATE -->
+        </div>
+
+        <a href="/" class="back-home">← Home to Tracker</a>
+    </div>
+</body>
+
+</html>
