@@ -8,11 +8,15 @@ if (!GROQ_API_KEY) {
     process.exit(1);
 }
 
-const ADMIN_DIR = path.join(__dirname, '..', 'admin');
-const BLOG_DIR = path.join(__dirname, '..', 'blog');
+const SITE_URL = 'https://crypto-offers-tracker.vercel.app'; // Update this if your domain changes
+
+const ROOT_DIR = path.join(__dirname, '..');
+const ADMIN_DIR = path.join(ROOT_DIR, 'admin');
+const BLOG_DIR = path.join(ROOT_DIR, 'blog');
 const QUEUE_PATH = path.join(ADMIN_DIR, 'blog-queue.csv');
 const TEMPLATE_PATH = path.join(BLOG_DIR, 'template.html');
 const INDEX_PATH = path.join(BLOG_DIR, 'index.html');
+const SITEMAP_PATH = path.join(ROOT_DIR, 'sitemap.xml');
 
 function parseCSV(content) {
     const lines = content.trim().split('\n');
@@ -37,6 +41,47 @@ function writeCSV(headers, rows) {
         }).join(','))
     ].join('\n');
     fs.writeFileSync(QUEUE_PATH, content);
+}
+
+// Automatically builds a sitemap by scanning the file system
+function buildSitemap() {
+    console.log("\nBuilding Sitemap...");
+    const today = new Date().toISOString().split('T')[0];
+
+    // 1. Define Static Pages
+    const staticPages = [
+        'index.html',
+        'about.html',
+        'contact.html',
+        'privacy.html',
+        'terms.html',
+        'blog/index.html'
+    ];
+
+    // 2. Scan Blog Directory for Generated Posts
+    const blogFiles = fs.readdirSync(BLOG_DIR)
+        .filter(f => f.endsWith('.html') && f !== 'template.html' && f !== 'index.html')
+        .map(f => `blog/${f}`);
+
+    const allPages = [...staticPages, ...blogFiles];
+
+    // 3. Generate XML
+    const urls = allPages.map(page => {
+        const url = `${SITE_URL}/${page.replace('index.html', '')}`;
+        return `  <url>
+    <loc>${url}</loc>
+    <lastmod>${today}</lastmod>
+    <priority>${page.includes('blog/') ? '0.8' : '1.0'}</priority>
+  </url>`;
+    }).join('\n');
+
+    const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>`;
+
+    fs.writeFileSync(SITEMAP_PATH, sitemapContent);
+    console.log(`- Sitemap updated at: ${SITEMAP_PATH} (${allPages.length} links)`);
 }
 
 async function generatePost(title, tone, keywords) {
@@ -153,6 +198,9 @@ async function run() {
         console.log("No pending manual posts. Switching to Auto-Discovery...");
         await autoDiscoverAndGenerate();
     }
+
+    // Always rebuild sitemap at the end (handles additions and deletions)
+    buildSitemap();
 }
 
 run();
