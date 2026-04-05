@@ -47,34 +47,35 @@ export default async function handler(req, res) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.1-8b-instant',
+                model: 'llama-3.1-70b-versatile', // Upgraded for reliability
                 messages: [
                     {
                         role: 'system',
-                        content: `Today is ${today}. You are a crypto offers expert. You must generate a diverse, comprehensive list of exactly 40 currently active crypto offers.`
+                        content: `Today is ${today}. You are a crypto offers expert. 
+You must generate a diverse list of exactly 40 currently active crypto offers.
+Output MUST be a single JSON array starting with [ and ending with ]. NO prose.`
                     },
                     {
                         role: 'user',
                         content: `Generate exactly 40 active crypto offers as of ${today}.
-Ensure a balanced mix of: "airdrop", "staking", "trading", "learn", and "launchpad".
-Ensure a wide mix of platforms: Binance, OKX, Bybit, KuCoin, Coinbase, Kraken, Bitget, MEXC, Gate.io, HTX, etc.
+Include a mix of airdrop, staking, trading, learn, and launchpad offers across 20+ platforms.
 
-Return ONLY a JSON array, no extra text. Each item MUST follow this exact format:
+Return ONLY a JSON array. Each item MUST follow this format:
 {
-  "title": "Specific offer name (e.g., Learn & Earn SUI, 120% APY USDT)",
-  "platform": "Exchange or protocol name",
-  "description": "Clear 1-2 sentence description",
-  "value": "Reward amount or APY",
-  "type": "Must be exactly one of: airdrop, staking, trading, learn, launchpad",
-  "badge": "live" | "new" | "ending",
+  "title": "Offer name",
+  "platform": "Exchange name",
+  "description": "Short description",
+  "value": "Reward",
+  "type": "airdrop|staking|trading|learn|launchpad",
+  "badge": "live|new|ending",
   "date": "${today}",
-  "requirements": "Brief eligibility note",
-  "link": "https://official-platform-domain.com/offers-page"
+  "requirements": "Requirements",
+  "link": "https://official-platform-domain.com"
 }`
                     }
                 ],
-                temperature: 0.5,
-                max_tokens: 3500 // Increased token limit for 40 items
+                temperature: 0.3,
+                max_tokens: 6000
             })
         });
 
