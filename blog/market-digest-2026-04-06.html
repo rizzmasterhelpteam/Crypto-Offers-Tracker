@@ -7,9 +7,20 @@
     <title>The Night Shift: Why Volatility is My Best Friend | Crypto Digest</title>
     <meta name="description" content="Expert crypto analysis on Bitcoin, Ethereum, Solana. Published on 2026-04-06.">
     <link rel="stylesheet" href="style.css">
+    <script>
+        window.onscroll = function () {
+            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrolled = (winScroll / height) * 100;
+            document.getElementById("myBar").style.width = scrolled + "%";
+        };
+    </script>
 </head>
 
 <body>
+    <div class="progress-container">
+        <div class="progress-bar" id="myBar"></div>
+    </div>
     <header>
         <div class="container header-inner">
             <a href="/" class="logo">
@@ -26,7 +37,7 @@
     </header>
 
     <main class="container">
-        <div class="post-detail-container">
+        <div class="post-detail-container animate">
             <article class="post-detail">
                 <header class="post-header">
                     <span class="hero-tag">Market Deep Dive</span>

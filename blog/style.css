@@ -11,6 +11,24 @@
     --text-muted: #64748b;
     --glass-blur: blur(12px);
     --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-premium: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate {
+    animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    opacity: 0;
 }
 
 * {
@@ -169,6 +187,60 @@ header {
     margin: 0 auto;
 }
 
+/* Featured Post */
+.featured-post {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 40px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.05));
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    padding: 60px;
+    border-radius: 40px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.featured-post::before {
+    content: 'TOP PICK';
+    position: absolute;
+    top: 30px;
+    right: -40px;
+    background: var(--accent-primary);
+    color: #fff;
+    padding: 8px 60px;
+    transform: rotate(45deg);
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.featured-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 24px;
+}
+
+.featured-post h2 {
+    font-size: 3rem;
+    line-height: 1.1;
+    background: linear-gradient(to right, #fff, var(--text-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@media (max-width: 1024px) {
+    .featured-post {
+        grid-template-columns: 1fr;
+        padding: 40px;
+    }
+}
+
 /* Post Cards */
 .post-list {
     display: grid;
@@ -296,6 +368,75 @@ header {
     background: rgba(255, 255, 255, 0.08);
     border-color: var(--accent-secondary);
     color: #fff;
+}
+
+/* Newsletter Widget */
+.newsletter-widget {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    color: #fff;
+    border: none;
+}
+
+.newsletter-widget h4::after {
+    background: #fff;
+}
+
+.newsletter-widget p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 20px;
+}
+
+.newsletter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.newsletter-form input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 12px 16px;
+    border-radius: 12px;
+    color: #fff;
+    font-family: inherit;
+}
+
+.newsletter-form input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.newsletter-form button {
+    background: #fff;
+    color: var(--accent-primary);
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.newsletter-form button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Progress Bar */
+.progress-container {
+    position: fixed;
+    top: 72px;
+    /* Adjustable based on header height */
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: transparent;
+    z-index: 999;
+}
+
+.progress-bar {
+    height: 4px;
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+    width: 0%;
 }
 
 /* Blog Content (Individual) */
