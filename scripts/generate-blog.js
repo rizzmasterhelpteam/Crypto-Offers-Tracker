@@ -231,8 +231,15 @@ Close with a dedicated "Expert Outlook" section containing 1-2 strategic pieces 
                 max_tokens: 4000
             })
         });
+        if (!groqResponse.ok) {
+            const errorText = await groqResponse.text();
+            throw new Error(`Groq API Error (${groqResponse.status}): ${errorText}`);
+        }
 
         const data = await groqResponse.json();
+        if (!data.choices || data.choices.length === 0) {
+            throw new Error("Invalid response from Groq: No choices returned.");
+        }
         const content = data.choices[0].message.content;
 
         const bodyContent = content.replace(/### (.*)/g, '<h3>$1</h3>')
