@@ -5,25 +5,40 @@
 const fs = require('fs');
 const path = require('path');
 
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+
+if (!GROQ_API_KEY) {
+    console.error("Please set GROQ_API_KEY environment variable.");
+    process.exit(1);
+}
+
 const ROOT_DIR = path.join(__dirname, '..');
 const ASSETS_DIR = path.join(ROOT_DIR, 'assets');
 const TEMPLATE_PATH = path.join(ASSETS_DIR, 'charts-template.html');
 const OUTPUT_PATH = path.join(ROOT_DIR, 'charts.html');
 
+async function fetchNewsContext() {
+    try {
+        console.log("Fetching market news for upcoming trends...");
+        const response = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
+        const data = await response.json();
+        return data.Data.slice(0, 10).map(n => n.title).join('\n');
+    } catch (err) {
+        return "No recent news.";
+    }
+}
+
 async function fetchPerformanceData() {
     try {
         console.log("Fetching market performance data from CoinGecko...");
-        // Fetch top 100 coins with price change data
-        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=30d,1y');
+        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=150&page=1&sparkline=false&price_change_percentage=30d,1y');
         const data = await response.json();
 
-        // Sort for Top 10 Monthly
         const topMonthly = [...data]
             .filter(c => c.price_change_percentage_30d_in_currency != null)
             .sort((a, b) => b.price_change_percentage_30d_in_currency - a.price_change_percentage_30d_in_currency)
             .slice(0, 10);
 
-        // Sort for Top 10 Yearly
         const topYearly = [...data]
             .filter(c => c.price_change_percentage_1y_in_currency != null)
             .sort((a, b) => b.price_change_percentage_1y_in_currency - a.price_change_percentage_1y_in_currency)
@@ -38,17 +53,36 @@ async function fetchPerformanceData() {
 
 async function fetchUpcomingProjects() {
     try {
-        console.log("Fetching trending projects for 'Upcoming' highlights...");
-        const response = await fetch('https://api.coingecko.com/api/v3/search/trending');
-        const data = await response.json();
-        return data.coins.slice(0, 5).map(c => ({
-            name: c.item.name,
-            symbol: c.item.symbol,
-            market_cap_rank: c.item.market_cap_rank,
-            thumb: c.item.thumb
-        }));
+        console.log("Analyzing news and trends to identify genuine 'Upcoming' Titans...");
+        const news = await fetchNewsContext();
+
+        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'llama-3.1-70b-versatile',
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are a crypto research specialist. Identify 5 high-potential projects that are in GENUINELY early stages (e.g., Testnet, Alpha/Beta, Early Mainnet, or IDO Phase). 
+CRITICAL: Exclude any project in the Top 100 market cap (NO Bitcoin, Ethereum, Sui, Solana, etc.). 
+Ground your response in these news trends: ${news}.
+Return a JSON array of objects: [{"name": "...", "symbol": "...", "status": "Testnet Phase|IDO Stage|Mainnet Soon", "insight": "Concise 1-sentence potential"}]`
+                    }
+                ],
+                temperature: 0.5,
+                response_format: { type: "json_object" }
+            })
+        });
+
+        const data = await groqResponse.json();
+        const content = JSON.parse(data.choices[0].message.content);
+        return content.projects || Object.values(content)[0] || [];
     } catch (err) {
-        console.error("Error fetching upcoming projects:", err);
+        console.error("Error fetching upcoming projects with AI:", err);
         return [];
     }
 }
@@ -70,14 +104,13 @@ function formatUpcoming(data) {
     return data.map(p => `
         <div class="upcoming-item">
             <div style="display: flex; align-items: center; gap: 15px;">
-                <img src="${p.thumb}" alt="${p.name}" style="width: 32px; border-radius: 50%;">
+                <div style="width: 12px; height: 12px; background: var(--accent-secondary); border-radius: 50%; box-shadow: 0 0 10px var(--accent-secondary);"></div>
                 <div>
                     <strong>${p.name}</strong> (${p.symbol})
+                    <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px;">${p.insight}</div>
                 </div>
             </div>
-            <div style="color: var(--text-muted); font-size: 0.8rem;">
-                Rank: #${p.market_cap_rank || 'N/A'} | Trending 🔥
-            </div>
+            <div class="status-badge">${p.status}</div>
         </div>
     `).join('');
 }
