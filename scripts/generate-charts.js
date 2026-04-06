@@ -30,10 +30,10 @@ const PROJECT_KNOWLEDGE = {
 };
 
 const AUTHOR = {
-    name: 'Quantitative Data Desk',
-    initials: 'QDD',
+    name: 'Liam Foster',
+    initials: 'LF',
     title: 'Lead Quantitative Analyst',
-    bio: 'The Quantitative Data Desk specializes in high-frequency market analysis and on-chain volatility monitoring. Using a first-principles approach, the desk identifies early-stage volume anomalies and cross-exchange arbitrage opportunities.'
+    bio: 'Liam specializes in high-frequency market analysis and on-chain volatility monitoring. Using a first-principles approach, he identifies early-stage volume anomalies and cross-exchange arbitrage opportunities.'
 };
 
 async function fetchNewsContext() {

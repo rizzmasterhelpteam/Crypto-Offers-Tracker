@@ -53,22 +53,22 @@ const RESEARCH_SEEDS = ['Celestia', 'EigenLayer', 'Monad', 'Berachain', 'Jito', 
 
 const AUTHORS = {
     intelligence: {
-        name: 'Institutional Research Desk',
-        initials: 'IRD',
+        name: 'Sarah Mitchell',
+        initials: 'SM',
         title: 'Senior Macro Strategist',
-        bio: 'The Institutional Research Desk provides high-fidelity macro analysis and on-chain liquidity monitoring for professional market participants. Focus areas include capital flows, volatility surface analysis, and institutional risk management.'
+        bio: 'Sarah provides high-fidelity macro analysis and on-chain liquidity monitoring for professional market participants. Focus areas include capital flows, volatility surface analysis, and institutional risk management.'
     },
     alpha: {
-        name: 'On-Chain Analytics Desk',
-        initials: 'OCAD',
+        name: 'Alex Rivera',
+        initials: 'AR',
         title: 'Lead Technical Analyst',
-        bio: 'The On-Chain Analytics Desk specializes in smart contract monitoring, MEV-flow analysis, and identifying delta-neutral yield opportunities before they reach retail saturation. Grounded in raw blockchain data and cross-protocol auditing.'
+        bio: 'Alex specializes in smart contract monitoring, MEV-flow analysis, and identifying delta-neutral yield opportunities before they reach retail saturation. Grounded in raw blockchain data and cross-protocol auditing.'
     },
     spotlight: {
-        name: 'Protocol Research Group',
-        initials: 'PRG',
-        title: 'Lead Architect',
-        bio: 'The Protocol Research Group is dedicated to the technical analysis of foundational crypto infrastructure. Expertise includes modular data availability layers, zero-knowledge proofs, and decentralized oracle mechanisms.'
+        name: 'Marcus Chen',
+        initials: 'MC',
+        title: 'Lead Protocol Architect',
+        bio: 'Marcus is dedicated to the technical analysis of foundational crypto infrastructure. Expertise includes modular data availability layers, zero-knowledge proofs, and decentralized oracle mechanisms.'
     }
 };
 
