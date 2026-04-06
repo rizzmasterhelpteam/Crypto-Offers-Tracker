@@ -17,6 +17,13 @@ const ASSETS_DIR = path.join(ROOT_DIR, 'assets');
 const TEMPLATE_PATH = path.join(ASSETS_DIR, 'charts-template.html');
 const OUTPUT_PATH = path.join(ROOT_DIR, 'charts.html');
 
+const AUTHOR = {
+    name: 'Liam Foster',
+    initials: 'LF',
+    title: 'Chief Data Analyst',
+    bio: 'Liam Foster is the data engine behind crypto offers. With a background in quantitative analysis, he specializes in identifying market trends and project "Titans" before they hit the mainstream.'
+};
+
 async function fetchNewsContext() {
     try {
         console.log("Fetching market news for upcoming trends...");
@@ -124,7 +131,11 @@ async function run() {
     let html = template
         .replace('<!-- {{TOP_YEARLY}} -->', formatTableRows(topYearly, 'price_change_percentage_1y_in_currency'))
         .replace('<!-- {{TOP_MONTHLY}} -->', formatTableRows(topMonthly, 'price_change_percentage_30d_in_currency'))
-        .replace('<!-- {{UPCOMING_PROJECTS}} -->', formatUpcoming(upcoming));
+        .replace('<!-- {{UPCOMING_PROJECTS}} -->', formatUpcoming(upcoming))
+        .replace(/{{AUTHOR_NAME}}/g, AUTHOR.name)
+        .replace(/{{AUTHOR_INITIALS}}/g, AUTHOR.initials)
+        .replace(/{{AUTHOR_TITLE}}/g, AUTHOR.title)
+        .replace(/{{AUTHOR_BIO}}/g, AUTHOR.bio);
 
     fs.writeFileSync(OUTPUT_PATH, html);
     console.log(`\nSuccessfully generated: ${OUTPUT_PATH}`);

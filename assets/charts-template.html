@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Market Charts | Crypto Digest</title>
+    <title>Weekly Market Charts | crypto offers Digest</title>
     <meta name="description"
         content="Top crypto performers of the month, year, and upcoming project highlights. Updated weekly.">
     <link rel="stylesheet" href="blog/style.css">
@@ -104,8 +104,11 @@
         <div class="container header-inner">
             <a href="/" class="logo">
                 <img src="assets/logo.png" alt="Logo">
-                <span>Crypto Digest</span>
+                <span>crypto offers Digest</span>
             </a>
+            <div class="author-meta" style="font-size: 0.85rem; color: #9ca3af; margin-top: 5px;">
+                By <span style="color: #60a5fa; font-weight: 600;">{{AUTHOR_NAME}}</span> • Updated Weekly
+            </div>
             <nav class="nav-links">
                 <a href="/">Tracker</a>
                 <a href="/blog/">Digest</a>
@@ -167,10 +170,26 @@
         </div>
     </main>
 
+    <div class="container"
+        style="max-width: 800px; margin: 40px auto; padding: 30px; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <div
+                style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #3b82f6); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; font-weight: 800;">
+                {{AUTHOR_INITIALS}}
+            </div>
+            <div>
+                <h3 style="margin: 0; color: #fff; font-size: 1.25rem;">{{AUTHOR_NAME}}</h3>
+                <p style="margin: 4px 0 10px 0; color: #60a5fa; font-size: 0.9rem; font-weight: 600;">{{AUTHOR_TITLE}}
+                </p>
+                <p style="margin: 0; color: #9ca3af; font-size: 0.95rem; line-height: 1.5;">{{AUTHOR_BIO}}</p>
+            </div>
+        </div>
+    </div>
+
     <footer
         style="margin-top: 60px; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); text-align: center;">
         <div class="container">
-            <p>&copy; 2026 Crypto Offers Tracker. All data verified weekly.</p>
+            <p>&copy; 2026 crypto offers. All data verified weekly.</p>
         </div>
     </footer>
 </body>

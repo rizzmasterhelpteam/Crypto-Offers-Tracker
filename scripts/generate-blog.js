@@ -14,6 +14,27 @@ if (!GROQ_API_KEY) {
 
 const SITE_URL = 'https://crypto-offers.vercel.app'; // Update this if your domain changes
 
+const AUTHORS = {
+    intelligence: {
+        name: 'Sarah Mitchell',
+        initials: 'SM',
+        title: 'Senior Market Strategist',
+        bio: 'Sarah Mitchell is a veteran crypto analyst with over 8 years of experience in macro-finance. She specializes in identifying early-stage market rotations and institutional capital flows.'
+    },
+    alpha: {
+        name: 'Alex Rivera',
+        initials: 'AR',
+        title: 'Alpha Sniper & Rewards Lead',
+        bio: 'Alex Rivera is a dedicated airdrop hunter and DeFi degen. He spends his days auditing protocols and tracking on-chain alerts to bring the community first-access to high-yield opportunities.'
+    },
+    spotlight: {
+        name: 'Marcus Chen',
+        initials: 'MC',
+        title: 'Lead Tech Researcher',
+        bio: 'Marcus Chen focuses on the deep-tech layers of crypto. From L2 scaling solutions to obscure DeFi primitives, Marcus breaks down complex project architectures for the everyday investor.'
+    }
+};
+
 const STATE_PATH = path.join(ADMIN_DIR, 'state.json');
 
 const CATEGORIES = [
@@ -21,19 +42,19 @@ const CATEGORIES = [
         id: 'intelligence',
         name: 'Market Intelligence',
         badge: 'purple',
-        systemPrompt: 'You are an elite crypto market strategist for "crypto offers". Focus on macro trends, price action analysis, and professional tactical advice. High-information, institutional-grade reporting.'
+        systemPrompt: 'You are Sarah Mitchell, an elite crypto market strategist for "crypto offers". Your tone is professional, institutional-grade, and data-driven. Focus on macro trends, price action analysis, and tactical financial advice.'
     },
     {
         id: 'alpha',
         name: 'Alpha Alerts',
         badge: 'green',
-        systemPrompt: 'You are a crypto rewards and airdrop specialist for "crypto offers". Focus on identifying high-yield opportunities, active airdrops, and time-sensitive staking rewards. Expert on maximizing capital efficiency.'
+        systemPrompt: 'You are Alex Rivera, an aggressive alpha sniper and rewards specialist for "crypto offers". Your tone is fast-paced, hype-focused, and direct. Focus on identifying high-yield opportunities, active airdrops, and capital efficiency.'
     },
     {
         id: 'spotlight',
         name: 'Project Spotlight',
         badge: 'blue',
-        systemPrompt: 'You are a deep-tech crypto researcher for "crypto offers". Focus on emerging Layer 1/2 ecosystems, innovative DeFi protocols, and upcoming high-potential project deep-dives. Technical but accessible analysis.'
+        systemPrompt: 'You are Marcus Chen, a deep-tech crypto researcher for "crypto offers". Your tone is technical, inquisitive, and thorough. Focus on emerging modular ecosystems, DeFi architecture, and high-potential project deep-dives.'
     }
 ];
 
@@ -211,13 +232,18 @@ Close with a dedicated "Expert Outlook" section containing 1-2 strategic pieces 
             .split('</p><p>').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
 
         let template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
+        const author = AUTHORS[category.id];
         let html = template
             .replace('{{TITLE}}', title)
             .replace('{{DATE}}', today)
             .replace('{{TOPICS}}', keywords)
             .replace('{{CATEGORY}}', category.name)
             .replace('{{CATEGORY_BADGE}}', category.badge)
-            .replace('{{CONTENT}}', bodyContent);
+            .replace('{{CONTENT}}', bodyContent)
+            .replace('{{AUTHOR_NAME}}', author.name)
+            .replace('{{AUTHOR_INITIALS}}', author.initials)
+            .replace('{{AUTHOR_TITLE}}', author.title)
+            .replace('{{AUTHOR_BIO}}', author.bio);
 
         const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const fileName = `${slug}.html`;
