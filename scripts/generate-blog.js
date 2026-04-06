@@ -12,7 +12,7 @@ if (!GROQ_API_KEY) {
     process.exit(1);
 }
 
-const SITE_URL = 'https://crypto-offers-tracker.vercel.app'; // Update this if your domain changes
+const SITE_URL = 'https://crypto-offers.vercel.app'; // Update this if your domain changes
 
 const STATE_PATH = path.join(ADMIN_DIR, 'state.json');
 

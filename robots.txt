@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://crypto-offers-tracker.vercel.app/sitemap.xml
+Sitemap: https://crypto-offers.vercel.app/sitemap.xml

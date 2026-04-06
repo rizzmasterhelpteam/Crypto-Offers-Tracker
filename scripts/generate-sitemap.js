@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const BASE_URL = 'https://crypto-offers-tracker.vercel.app';
+const BASE_URL = 'https://crypto-offers.vercel.app';
 const PROJECT_ROOT = path.join(__dirname, '..');
 const BLOG_DIR = path.join(PROJECT_ROOT, 'blog');
 
