@@ -102,7 +102,7 @@ async function fetchCurrentOffers(keywords, news) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.1-8b-instant',
+                model: 'llama-4-scout-109b',
                 messages: [
                     {
                         role: 'system',
@@ -203,7 +203,7 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.1-70b-versatile',
+                model: 'llama-4-scout-109b',
                 messages: [
                     {
                         role: 'system',
