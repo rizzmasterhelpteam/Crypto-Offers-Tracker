@@ -280,7 +280,7 @@ STRICT CONSTRAINTS:
                     }
                 ],
                 temperature: 0.7,
-                max_tokens: 4000
+                max_tokens: 3200
             })
         });
         if (!groqResponse.ok) {
