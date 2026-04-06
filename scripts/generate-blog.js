@@ -227,6 +227,59 @@ ${urls}
     console.log(`- Sitemap updated at: ${SITEMAP_PATH} (${allPages.length} links)`);
 }
 
+async function factCheckPost(draftContent, title, keywords) {
+    try {
+        console.log(`Fact-checking: "${title}"...`);
+        const latestNews = await fetchLatestNews();
+
+        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'openai/gpt-oss-120b',
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are a Senior Editor and Fact-Checker for the "Chain Signals" blog. 
+Your goal is to audit a draft crypto article for factual accuracy and "Chain of Thought" leaks.
+
+STRICT AUDIT RULES:
+1. FACT CHECK: Verify all TVL, APY, and technical claims against this Source of Truth: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
+2. HALLUCINATION KILLER: If you find a fake statistic, a made-up project history, or an unverified event, DELETE it or replace it with a qualified statement (e.g., "per latest data" or "merits closer scrutiny").
+3. NO META-TALK: Strip any remaining "Thinking Process", "Okay, let's write...", or "I will now..." conversational fragments.
+4. VOICE PROTECTION: Keep the "Chain Signals" conversational, expert tone. Do not make it sound like a robot.
+5. CONCISENESS: Keep the final length within 600-900 words.
+
+OUTPUT ONLY: The audited, corrected article body in HTML format (using <h2>, <h3>, <p>, <ul>, <li>).`
+                    },
+                    {
+                        role: 'user',
+                        content: `AUDIT THIS DRAFT ARTICLE:
+                        
+Title: ${title}
+Draft: ${draftContent}
+Reference Context: ${keywords}
+Latest News for verification: ${latestNews}`
+                    }
+                ],
+                temperature: 0.3,
+                max_tokens: 3200
+            })
+        });
+
+        if (!groqResponse.ok) return draftContent; // Fallback to draft if fact-check fails
+
+        const data = await groqResponse.json();
+        return data.choices[0].message.content.trim();
+    } catch (err) {
+        console.error("Fact-check error:", err.message);
+        return draftContent;
+    }
+}
+
 async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
     try {
         const today = new Date().toISOString().split('T')[0];
@@ -276,10 +329,13 @@ End with: a genuine open question or honest take on where things are headed`
         }
         let bodyContent = data.choices[0].message.content;
 
-        // ANTI-SLOP SCRUBBER: Remove common AI conversational leaks and chain-of-thought
+        // Stage 2: Fact-Check & Fix
+        bodyContent = await factCheckPost(bodyContent, title, keywords);
+
+        // Final Scrubber for residual slop
         bodyContent = bodyContent
-            .replace(/^.*?(Let me|Okay,|I will|Starting with).*?\n/gi, '') // Remove meta-intro lines
-            .replace(/^(Thinking Process|Scratchpad|Reasoning):[\s\S]*?\n\n/gi, '') // Remove explicit thinking blocks
+            .replace(/^.*?(Let me|Okay,|I will|Starting with).*?\n/gi, '')
+            .replace(/^(Thinking Process|Scratchpad|Reasoning):[\s\S]*?\n\n/gi, '')
             .trim();
 
         bodyContent = bodyContent.replace(/### (.*)/g, '<h3>$1</h3>')
