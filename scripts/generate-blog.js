@@ -254,10 +254,9 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
                     {
                         role: 'system',
                         content: `${category.systemPrompt}
-- NO HALLUCINATIONS: If you do not have a specific TVL, APY, or user count in the Dossier, DO NOT make one up. Use qualitative descriptions (e.g., "significant liquidity") instead of fake stats.
-- THESIS-DRIVEN: Start with an argument or a market observation. Do NOT just say "Today we are looking at...".
-- NO LISTS: Avoid the "Project A, Project B, Project C" formula. Interleave the projects into a cohesive story about a single market trend.
-- CRITICAL: Length 800-1500 words. Sophisticated tone. No AI summary buzzwords at the end.`
+- CRITICAL: Length 800-1500 words. Sophisticated tone. 
+- NO META-TALK: Do NOT include your "thinking process", "scratchpad", or any conversational preamble (e.g. "Okay, let's look at..."). 
+- OUTPUT ONLY: Start the response immediately with the article title or the first sentence of the lead. Nothing else.`
                     },
                     {
                         role: 'user',
@@ -292,9 +291,15 @@ STRICT CONSTRAINTS:
         if (!data.choices || data.choices.length === 0) {
             throw new Error("Invalid response from Groq: No choices returned.");
         }
-        const content = data.choices[0].message.content;
+        let bodyContent = data.choices[0].message.content;
 
-        const bodyContent = content.replace(/### (.*)/g, '<h3>$1</h3>')
+        // ANTI-SLOP SCRUBBER: Remove common AI conversational leaks and chain-of-thought
+        bodyContent = bodyContent
+            .replace(/^.*?(Let me|Okay,|I will|Starting with).*?\n/gi, '') // Remove meta-intro lines
+            .replace(/^(Thinking Process|Scratchpad|Reasoning):[\s\S]*?\n\n/gi, '') // Remove explicit thinking blocks
+            .trim();
+
+        bodyContent = bodyContent.replace(/### (.*)/g, '<h3>$1</h3>')
             .replace(/## (.*)/g, '<h2>$1</h2>')
             .replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>')
             .replace(/^\s*\*\s+(.*)/gm, '<li>$1</li>') // Bullet points
