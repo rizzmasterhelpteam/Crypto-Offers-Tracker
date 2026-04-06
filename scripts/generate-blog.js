@@ -225,7 +225,7 @@ ${urls}
 async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
     try {
         const today = new Date().toISOString().split('T')[0];
-        const model = category.id === 'alpha' ? 'llama-3.1-8b-instant' : 'meta-llama/llama-4-scout-17b-16e-instruct';
+        const model = category.id === 'alpha' ? 'llama-3.1-8b-instant' : 'qwen/qwen3-32b';
         console.log(`Generating: [${category.name}] "${title}" (Model: ${model})...`);
 
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
