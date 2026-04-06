@@ -211,7 +211,8 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
                         content: `${category.systemPrompt}
 Avoid first-person perspective ('I', 'me', 'my'). Focus on data-driven reporting.
 Always provide 1-2 clear, actionable pieces of professional advice or "Key Takeaways" for the reader.
-Keep it sophisticated yet easy to understand.`
+Keep it sophisticated yet easy to understand.
+CRITICAL: The article must be detailed and comprehensive, aiming for a length between 600 and 1500 words.`
                     },
                     {
                         role: 'user',
@@ -223,8 +224,9 @@ ${await fetchLatestNews()}
 Current Active Offers/Rewards:
 ${await fetchCurrentOffers(keywords, await fetchLatestNews())}
 
-Write a professional update titled: "${title}".
-Structure the post with clear headings. Incorporate the trending tokens, news, and active offers naturally. 
+Write a long-form professional update titled: "${title}".
+Aim for a word count between 600 and 1500 words. 
+Structure the post with clear, descriptive headings. Incorporate the trending tokens, news, and active offers naturally but with deep analysis. 
 Close with a dedicated "Expert Outlook" section containing 1-2 strategic pieces of advice.`
                     }
                 ],
