@@ -82,7 +82,7 @@ async function fetchUpcomingProjects() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'openai/gpt-oss-120b',
+                model: 'qwen/qwen3-32b',
                 messages: [
                     {
                         role: 'system',
