@@ -25,6 +25,20 @@ const INDEX_PATH = path.join(BLOG_DIR, 'index.html');
 const QUEUE_PATH = path.join(ADMIN_DIR, 'queue.csv');
 const SITEMAP_PATH = path.join(PROJECT_ROOT, 'sitemap.xml');
 
+// SOURCE OF TRUTH: Hard-coded knowledge to prevent AI hallucinations on project types
+const PROJECT_KNOWLEDGE = {
+    'REDSTONE': { role: 'Modular Oracle / Price Feed provider', mechanism: 'Push/Pull data models for L1s and L2s' },
+    'RED': { role: 'Modular Oracle / Price Feed provider', mechanism: 'Push/Pull data models for L1s and L2s' },
+    'SIREN': { role: 'Decentralized Options & Derivatives Protocol', mechanism: 'On-chain option writing and trading' },
+    'TRUEFI': { role: 'Uncollateralized Credit & Institutional Lending', mechanism: 'Credit-based lending pools' },
+    'TRU': { role: 'Uncollateralized Credit & Institutional Lending', mechanism: 'Credit-based lending pools' },
+    'PUDGY PENGUINS': { role: 'NFT Brand & IP Ecosystem', mechanism: 'Tokenized IP and consumer products' },
+    'PENGU': { role: 'NFT Brand & IP Ecosystem', mechanism: 'Tokenized IP and consumer products' },
+    'AAVE': { role: 'Decentralized Liquidity Market (Lending/Borrowing)', mechanism: 'Over-collateralized lending and Flash Loans' },
+    'EIGENLAYER': { role: 'Restaking Primitive', mechanism: 'Security sharing via ETH restaking' },
+    'ETHER.FI': { role: 'Liquid Restaking Protocol', mechanism: 'Non-custodial restaking and points' }
+};
+
 const AUTHORS = {
     intelligence: {
         name: 'Sarah Mitchell',
@@ -53,31 +67,34 @@ const CATEGORIES = [
         id: 'intelligence',
         name: 'Market Intelligence',
         badge: 'purple',
-        systemPrompt: `You are Sarah Mitchell, a Macro Crypto Strategist. 
-WRITING STYLE: Opinionated, data-heavy, slightly skeptical. Use short, punchy sentences. 
-FORBIDDEN WORDS: "delve", "tapestry", "landscape", "look no further", "unlock your potential", "comprehensive overview", "making waves".
-MANDATE: Treat every "yield" mention with a risk assessment. If you mention a project, you MUST mention its TVL or its specific market niche (e.g., "Modular DA layer" not just "cool project"). 
-VOICE: Like a professional financial analyst writing for a private group of high-net-worth investors.`
+        systemPrompt: `You are Sarah Mitchell. 
+VOICE: Blunt, cynical, data-obsessed. 
+STYLE: Direct start. NO GREETINGS. NO INTROS. 
+MANDATE: Start with a technical observation or a TVL anomaly. Use hard data comparisons. 
+FORBIDDEN: "In the ever-evolving world", "shiring example", "delve", "tapestry".
+TONE: Teammate-to-teammate raw briefing.`
     },
     {
         id: 'alpha',
         name: 'Alpha Alerts',
         badge: 'green',
-        systemPrompt: `You are Alex Rivera, an On-Chain Alpha Architect. 
-WRITING STYLE: Narrative-heavy, like a technical thread. Use "we" or talk to the reader like a teammate. 
-FORBIDDEN WORDS: "skyrocket", "next big thing", "game changer", "revolutionary", "exciting times ahead".
-MANDATE: Focus on "How to participate". Technical mechanics take precedence over marketing fluff. If it's an oracle like RedStone, talk about price pull vs push models. If it's lending, talk about liquidation thresholds.
-VOICE: Extremely technical, slightly caffeinated, 100% focused on sustainable upside.`
+        systemPrompt: `You are Alex Rivera. 
+VOICE: Fast, technical, raw on-chain data.
+STYLE: Direct start. NO GREETINGS. 
+MANDATE: You are a yield hunter, not a journalist. Talk about smart contracts, pull vs push oracles, and liquidation levels. 
+FORBIDDEN: "revolutionary", "game changer", "skyrocket".
+TONE: "Insider Alpha" thread. Technical and high-conviction.`
     },
     {
         id: 'spotlight',
         name: 'Project Spotlight',
         badge: 'blue',
-        systemPrompt: `You are Marcus Chen, a DeFi Primitive Engineer. 
-WRITING STYLE: First-principles engineering. 
-FORBIDDEN WORDS: "vibrant community", "poised for growth", "groundbreaking", "seamless integration".
-MANDATE: You MUST accurately categorize projects. RedStone = Oracles (Not Lending). Siren = Options/Derivatives. TrueFi = Uncollateralized Credit. If you get the category wrong, you fail. Explain WHY the tech matters, not just what it does.
-VOICE: A builder. Analytical, calm, and technically precise.`
+        systemPrompt: `You are Marcus Chen. 
+VOICE: Engineering-first, first-principles.
+STYLE: Direct start. NO GREETINGS. 
+MANDATE: Explain the plumbing. Why does the ZK-rollup or the Oracle mechanism actually matter for the user?
+FORBIDDEN: "vibrant community", "poised for growth", "seamless integration".
+TONE: Technical lead briefing a dev team.`
     }
 ];
 
@@ -121,13 +138,12 @@ async function fetchCurrentOffers(keywords, news) {
                         content: `You are a crypto research assistant. Identify 3-5 currently active, high-value crypto offers.
 For each project, you MUST provide:
 1. Project Name and Ticker.
-2. CATEGORY (Oracle, L2, Dex, etc.).
-3. THE OFFER (Qualitative description).
-CRITICAL: Do NOT invent TVL or APY. If the specific % or $ is not in your training data for TODAY's date, omit it.
-Ground your response in: ${keywords} and news: ${news}.`
+2. VERIFIED ROLE (Do NOT guess. Use this mapping if applicable: ${JSON.stringify(PROJECT_KNOWLEDGE)}).
+3. THE REWARD (Staking, Airdrop, etc.).
+CRITICAL: If a project is not in the mapping, and you aren't 100% sure of its role, describe it ONLY by the provided news: ${news}.`
                     }
                 ],
-                temperature: 0.3,
+                temperature: 0.1, // Lower temperature for more factual discovery
                 max_tokens: 500
             })
         });
@@ -237,14 +253,16 @@ CONTEXT DOSSIER:
 - Market News: ${await fetchLatestNews()}
 - Identified Rewards: ${await fetchCurrentOffers(keywords, await fetchLatestNews())}
 
-GOAL: Write a technical, thesis-driven deep dive titled: "${title}".
-STYLE: Hard-hitting journalism. Use cross-references between projects.
+GOAL: Write a technical, raw, and opinionated market analysis titled: "${title}".
+STYLE: Insider Technical Thread. NOT A NEWS DIGEST.
 
 STRICT CONSTRAINTS:
-1. ZERO HALLUCINATION: Do NOT invent TVL, APY, or percentage numbers. If the Dossier doesn't have it, don't write it. If you invent a number, the article is useless.
-2. NO PROJECT-BY-PROJECT LISTS: Do not use the "Spotlight" formula. Write a flowing narrative where projects are examples of a broader technical or economic shift.
-3. CONTRARIAN ANGLE: Provide at least one significant risk or "Bear Case" for the tokens mentioned.
-4. AUDIT YOURSELF: Before concluding, ensure you haven't used words like "delve", "tapestry", or "landscape".`
+1. NO INTROS: Do not start with "In today's market..." or "Welcome back...". Start with the most important technical fact immediately.
+2. NO LISTS: Do not use bullet points for project descriptions. Weave the projects into a logical argument about crypto infrastructure.
+3. KNOWLEDGE BRIDGE: You MUST use this project mapping for accuracy: ${JSON.stringify(PROJECT_KNOWLEDGE)}. 
+4. CALL OUT THE SLOP: If you find yourself using generic phrases like "making waves" or "poised for growth," stop and rewrite with technical data (e.g., "TPS capacity," "latency reduction," "delta-neutral strategies").
+5. RISK-FIRST: Spend as much time on what could go WRONG (liquidation risks, exploit history, oracle latency) as you do on the upside.
+6. ZERO FAKE NUMBERS: If you don't see a TVL or APY in the Dossier, you are forbidden from using one. Use qualitative comparisons (e.g., "Aave's TVL dwarfs the newcomers").`
                     }
                 ],
                 temperature: 0.7,
