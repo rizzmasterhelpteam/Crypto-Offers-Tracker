@@ -21,19 +21,19 @@ const CATEGORIES = [
         id: 'intelligence',
         name: 'Market Intelligence',
         badge: 'purple',
-        systemPrompt: 'You are an elite crypto market strategist for "crypto offerss". Focus on macro trends, price action analysis, and professional tactical advice. High-information, institutional-grade reporting.'
+        systemPrompt: 'You are an elite crypto market strategist for "crypto offers". Focus on macro trends, price action analysis, and professional tactical advice. High-information, institutional-grade reporting.'
     },
     {
         id: 'alpha',
         name: 'Alpha Alerts',
         badge: 'green',
-        systemPrompt: 'You are a crypto rewards and airdrop specialist for "crypto offerss". Focus on identifying high-yield opportunities, active airdrops, and time-sensitive staking rewards. Expert on maximizing capital efficiency.'
+        systemPrompt: 'You are a crypto rewards and airdrop specialist for "crypto offers". Focus on identifying high-yield opportunities, active airdrops, and time-sensitive staking rewards. Expert on maximizing capital efficiency.'
     },
     {
         id: 'spotlight',
         name: 'Project Spotlight',
         badge: 'blue',
-        systemPrompt: 'You are a deep-tech crypto researcher for "crypto offerss". Focus on emerging Layer 1/2 ecosystems, innovative DeFi protocols, and upcoming high-potential project deep-dives. Technical but accessible analysis.'
+        systemPrompt: 'You are a deep-tech crypto researcher for "crypto offers". Focus on emerging Layer 1/2 ecosystems, innovative DeFi protocols, and upcoming high-potential project deep-dives. Technical but accessible analysis.'
     }
 ];
 
