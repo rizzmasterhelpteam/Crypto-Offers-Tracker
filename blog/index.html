@@ -4,128 +4,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Market Digest - Crypto Offers Tracker</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --accent: #60a5fa;
-            --text-main: #f8fafc;
-            --text-dim: #9ca3af;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            padding: 40px 20px;
-            background-image:
-                radial-gradient(at 0% 0%, rgba(96, 165, 250, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #60a5fa 0%, #a855f7 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .post-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .post-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 24px;
-            text-decoration: none;
-            color: var(--text-main);
-            transition: all 0.3s ease;
-        }
-
-        .post-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--accent);
-            background: rgba(30, 41, 59, 0.9);
-        }
-
-        .post-date {
-            font-size: 0.8rem;
-            color: var(--accent);
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .post-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .post-excerpt {
-            font-size: 0.9rem;
-            color: var(--text-dim);
-        }
-
-        .back-home {
-            display: block;
-            text-align: center;
-            margin-top: 40px;
-            color: var(--text-dim);
-            text-decoration: none;
-        }
-
-        .back-home:hover {
-            color: var(--accent);
-        }
-    </style>
+    <title>Crypto Digest | Daily Market Insights</title>
+    <meta name="description"
+        content="Expert crypto market analysis, trending token insights, and daily digests for professional traders and enthusiasts.">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <div class="container">
-        <div class="header">
-            <h1 class="title">Daily Market Digest</h1>
-            <p style="color: var(--text-dim); margin-top: 10px;">Human-like crypto insights, one day at a time.</p>
-        </div>
-
-        <div class="post-list" id="postList">
-            <a href="market-digest-2026-04-06.html" class="post-card">
-                <span class="post-date">2026-04-06</span>
-                <div class="post-title">The Night Shift: Why Volatility is My Best Friend</div>
-                <div class="post-excerpt">Bitcoin, Ethereum, Solana</div>
+    <header>
+        <div class="container header-inner">
+            <a href="/" class="logo">
+                <img src="../assets/logo.png" alt="Crypto Digest Logo">
+                <span>Crypto Digest</span>
             </a>
-            <!-- POST_ITEM_TEMPLATE -->
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/" style="color: var(--accent-secondary);">Digest</a>
+                <a href="/about.html">Architecture</a>
+                <a href="/contact.html">Contact</a>
+            </nav>
         </div>
+    </header>
 
-        <a href="/" class="back-home">← Home to Tracker</a>
-    </div>
+    <main class="container">
+        <section class="hero">
+            <div class="hero-content">
+                <span class="hero-tag">Daily Insights</span>
+                <h1>The Future of Finance, <br>Decoded Daily.</h1>
+                <p>Human-centric crypto analysis powered by advanced AI. We cut through the noise to bring you the
+                    signal.</p>
+            </div>
+        </section>
+
+        <div class="main-layout">
+            <div class="content-area">
+                <div class="post-list" id="postList">
+                    <!-- The first item is a manual example of the new style -->
+                    <a href="market-digest-2026-04-06.html" class="post-card">
+                        <span class="date">APRIL 06, 2026</span>
+                        <h3>The Night Shift: Why Volatility is My Best Friend</h3>
+                        <div class="excerpt">A deep dive into Bitcoin, Ethereum, and Solana market dynamics during
+                            high-volatility sessions...</div>
+                        <span class="read-more">Read Full Insight</span>
+                    </a>
+                    <!-- POST_ITEM_TEMPLATE -->
+                </div>
+            </div>
+
+            <aside class="sidebar">
+                <div class="widget">
+                    <h4>About the Digest</h4>
+                    <div class="widget-content">
+                        <p>Crypto Digest is an autonomous analysis suite providing 24/7 market monitoring and daily
+                            deep-dives into the crypto ecosystem.</p>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <h4>Trending Topics</h4>
+                    <div class="tag-cloud">
+                        <span class="tag">#Bitcoin</span>
+                        <span class="tag">#Ethereum</span>
+                        <span class="tag">#Solana</span>
+                        <span class="tag">#DeFi</span>
+                        <span class="tag">#RWA</span>
+                        <span class="tag">#L2</span>
+                        <span class="tag">#AI</span>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <h4>Quick Links</h4>
+                    <div class="widget-content">
+                        <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                            <li><a href="/" style="color: var(--accent-secondary);">Tracker Dashboard</a></li>
+                            <li><a href="/about.html">Our Methodology</a></li>
+                            <li><a href="/privacy.html">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">
+                <img src="../assets/logo.png" alt="Logo">
+                <span>Crypto Digest</span>
+            </div>
+            <p>Comprehensive market intelligence and project tracking for the decentralized world.</p>
+            <p>&copy; 2026 Crypto Offers Tracker. All Rights Reserved.</p>
+        </div>
+    </footer>
 </body>
 
 </html>

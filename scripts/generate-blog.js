@@ -138,12 +138,17 @@ Relatable, sophisticated, and impactful.`
         fs.writeFileSync(path.join(BLOG_DIR, fileName), html);
         console.log(`- Saved: blog/${fileName}`);
 
+        const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+        const d = new Date();
+        const formattedDate = `${monthNames[d.getMonth()]} ${d.getDate().toString().padStart(2, '0')}, ${d.getFullYear()}`;
+
         let indexHtml = fs.readFileSync(INDEX_PATH, 'utf8');
         const postEntry = `
             <a href="${fileName}" class="post-card">
-                <span class="post-date">${today}</span>
-                <div class="post-title">${title}</div>
-                <div class="post-excerpt">${keywords}</div>
+                <span class="date">${formattedDate}</span>
+                <h3>${title}</h3>
+                <div class="excerpt">${keywords}</div>
+                <span class="read-more">Read Full Insight</span>
             </a>
             <!-- POST_ITEM_TEMPLATE -->`;
 
