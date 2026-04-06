@@ -43,7 +43,11 @@ export default async function handler(req, res) {
         // Fetch news for context to improve currency/accuracy
         const newsResponse = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
         const newsData = await newsResponse.json();
-        const newsContext = newsData.Data.slice(0, 5).map(n => n.title).join(', ');
+
+        // Safety check: Ensure newsData.Data exists and is an array
+        const newsContext = (newsData && Array.isArray(newsData.Data))
+            ? newsData.Data.slice(0, 5).map(n => n.title).join(', ')
+            : "General crypto market interest";
 
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
