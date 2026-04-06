@@ -8,8 +8,11 @@ const path = require('path');
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 if (!GROQ_API_KEY) {
-    console.error("Please set GROQ_API_KEY environment variable.");
+    console.error("❌ ERROR: GROQ_API_KEY is NOT set in GitHub Secrets.");
+    console.error("Please add it in: Settings -> Secrets and variables -> Actions");
     process.exit(1);
+} else {
+    console.log("✅ GROQ_API_KEY detected (Length:", GROQ_API_KEY.length, ")");
 }
 
 const SITE_URL = 'https://crypto-offers.vercel.app'; // Update this if your domain changes
@@ -283,24 +286,38 @@ Close with a dedicated "Expert Outlook" section containing 1-2 strategic pieces 
     }
 }
 
-async function autoDiscoverAndGenerate() {
-    console.log("Auto-Discovery Mode: Fetching trending crypto data...");
+try {
+    console.log("Auto-Discovery Mode: Fetching trending crypto data from CoinGecko...");
     const trendingResponse = await fetch('https://api.coingecko.com/api/v3/search/trending');
     const trendingData = await trendingResponse.json();
+
+    if (!trendingData || !trendingData.coins || trendingData.coins.length === 0) {
+        throw new Error("No trending coins found in CoinGecko response.");
+    }
+
     const trendingCoins = trendingData.coins.slice(0, 5).map(c => c.item.name).join(', ');
+    const firstCoin = trendingData.coins[0].item.name;
 
     const category = getNextCategory();
 
     // Customize title based on category
     let title = "";
-    if (category.id === 'intelligence') title = `Market Pulse: ${trendingData.coins[0].item.name} Analysis & Strategic Shift`;
-    else if (category.id === 'alpha') title = `Alpha Report: Top Staking & Airdrop Opportunities for ${trendingData.coins[0].item.name} Ecosystem`;
-    else title = `Ecosystem Spotlight: The Rise of ${trendingData.coins[0].item.name} & Emerging Protocols`;
+    if (category.id === 'intelligence') title = `Market Pulse: ${firstCoin} Analysis & Strategic Shift`;
+    else if (category.id === 'alpha') title = `Alpha Report: Top Staking & Airdrop Opportunities for ${firstCoin} Ecosystem`;
+    else title = `Ecosystem Spotlight: The Rise of ${firstCoin} & Emerging Protocols`;
 
     const tone = "Professional, Authoritative";
     const keywords = `${trendingCoins}, market trends, 2026 insights`;
 
     await generatePost(title, tone, keywords, category);
+} catch (err) {
+    console.error("❌ Error in Auto-Discovery Mode:", err.message);
+    // Fallback to a generic market update if CoinGecko is down
+    const fallbackTitle = `Market Update: Latest Crypto Trends for ${new Date().toLocaleDateString()}`;
+    const fallbackKeywords = "Bitcoin, Ethereum, DeFi, Market Trends";
+    const category = getNextCategory();
+    await generatePost(fallbackTitle, "Professional", fallbackKeywords, category);
+}
 }
 
 async function run() {
