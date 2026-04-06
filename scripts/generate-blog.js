@@ -194,7 +194,8 @@ ${urls}
 async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
     try {
         const today = new Date().toISOString().split('T')[0];
-        console.log(`Generating: [${category.name}] "${title}"...`);
+        const model = category.id === 'alpha' ? 'llama-3.1-8b-instant' : 'llama-4-scout-109b';
+        console.log(`Generating: [${category.name}] "${title}" (Model: ${model})...`);
 
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -203,7 +204,7 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-4-scout-109b',
+                model: model,
                 messages: [
                     {
                         role: 'system',
@@ -288,8 +289,8 @@ Close with a dedicated "Expert Outlook" section containing 1-2 strategic pieces 
 
         return true;
     } catch (err) {
-        console.error(`Error generating "${title}":`, err);
-        return false;
+        console.error(`❌ CRITICAL ERROR generating "${title}":`, err.message);
+        throw err; // Re-throw to fail the GitHub Action
     }
 }
 
