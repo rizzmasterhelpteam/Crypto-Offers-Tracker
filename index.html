@@ -138,6 +138,86 @@
             z-index: 1;
         }
 
+        /* Sticky Header */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(10, 14, 26, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px 0;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .logo img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #9ca3af;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #fff;
+        }
+
+        /* Hero Refinement */
+        .hero {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 80px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 60%);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
         .ad-container {
             margin: 25px auto;
             padding: 12px;
@@ -219,8 +299,35 @@
 
         .subtitle {
             color: #9ca3af;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 500;
+            max-width: 700px;
+            margin: 0 auto 32px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-large {
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            min-width: 200px;
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
         }
 
         .search-section {
@@ -546,19 +653,40 @@
             data-ad-format="rectangle"></ins>
     </div>
 
+    <header>
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <img src="assets/logo.png" alt="Logo">
+                <span>Crypto Tracker</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/" class="active">Tracker</a>
+                <a href="/blog/">Market Digest</a>
+                <a href="/about.html">About</a>
+                <a href="/contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
+
     <div class="container">
         <div id="notification" class="notification hidden"></div>
 
         <!-- Header -->
-        <div class="header">
+        <div class="hero">
             <div class="logo-container">
                 <div class="logo-icon">🚀</div>
             </div>
             <h1 class="title">Crypto Offers Tracker 2026</h1>
-            <p class="subtitle">Free Crypto Airdrops, Staking Rewards &amp; Trading Bonuses — AI-Powered, Updated Twice
-                Daily</p>
-            <p style="color:#6b7280;font-size:0.85rem;margin-top:10px;">Track live airdrops on Binance, Coinbase, OKX,
-                Bybit, KuCoin &amp; 20+ platforms</p>
+            <p class="subtitle">Real-time AI search across Binance, Coinbase, OKX &amp; 20+ Platforms. Updated Twice
+                Daily.</p>
+
+            <div class="hero-buttons">
+                <button class="btn btn-large"
+                    onclick="document.getElementById('searchSection').scrollIntoView({behavior: 'smooth'})">🔍 Find
+                    Offers Now</button>
+                <a href="/blog/" class="btn btn-large btn-outline" style="text-decoration:none;">📖 Read Market
+                    Digest</a>
+            </div>
         </div>
 
 
@@ -570,7 +698,7 @@
         </div>
 
         <!-- Search Section -->
-        <div class="search-section">
+        <div class="search-section" id="searchSection">
             <h2 class="section-title">Select Platform — Find Real Crypto Offers</h2>
             <div class="platform-chips" id="platformChips"></div>
 
