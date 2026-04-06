@@ -14,6 +14,14 @@ if (!GROQ_API_KEY) {
 
 const SITE_URL = 'https://crypto-offers.vercel.app'; // Update this if your domain changes
 
+const PROJECT_ROOT = path.join(__dirname, '..');
+const BLOG_DIR = path.join(PROJECT_ROOT, 'blog');
+const ADMIN_DIR = path.join(PROJECT_ROOT, 'admin');
+const TEMPLATE_PATH = path.join(BLOG_DIR, 'template.html');
+const INDEX_PATH = path.join(BLOG_DIR, 'index.html');
+const QUEUE_PATH = path.join(ADMIN_DIR, 'queue.csv');
+const SITEMAP_PATH = path.join(PROJECT_ROOT, 'sitemap.xml');
+
 const AUTHORS = {
     intelligence: {
         name: 'Sarah Mitchell',
