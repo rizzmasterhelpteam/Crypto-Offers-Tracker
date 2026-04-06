@@ -70,7 +70,7 @@ async function fetchUpcomingProjects() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-4-scout-109b',
+                model: 'llama-4-scout-17b-16e-instruct',
                 messages: [
                     {
                         role: 'system',
