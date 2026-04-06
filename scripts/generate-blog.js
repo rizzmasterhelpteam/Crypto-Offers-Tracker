@@ -246,23 +246,25 @@ Close with a dedicated "Expert Outlook" section containing 1-2 strategic pieces 
         const bodyContent = content.replace(/### (.*)/g, '<h3>$1</h3>')
             .replace(/## (.*)/g, '<h2>$1</h2>')
             .replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>')
+            .replace(/^\s*\*\s+(.*)/gm, '<li>$1</li>') // Bullet points
+            .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>') // Wrap bullets
             .replace(/\n\n/g, '</p><p>')
-            .replace(/\n/g, '<br>') // Preserve single line breaks
+            .replace(/\n/g, '<br>')
             .split('</p><p>').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
 
         let template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
         const author = AUTHORS[category.id];
         let html = template
-            .replace('{{TITLE}}', title)
-            .replace('{{DATE}}', today)
-            .replace('{{TOPICS}}', keywords)
-            .replace('{{CATEGORY}}', category.name)
-            .replace('{{CATEGORY_BADGE}}', category.badge)
-            .replace('{{CONTENT}}', bodyContent)
-            .replace('{{AUTHOR_NAME}}', author.name)
-            .replace('{{AUTHOR_INITIALS}}', author.initials)
-            .replace('{{AUTHOR_TITLE}}', author.title)
-            .replace('{{AUTHOR_BIO}}', author.bio);
+            .replaceAll('{{TITLE}}', title)
+            .replaceAll('{{DATE}}', today)
+            .replaceAll('{{TOPICS}}', keywords)
+            .replaceAll('{{CATEGORY}}', category.name)
+            .replaceAll('{{CATEGORY_BADGE}}', category.badge)
+            .replaceAll('{{CONTENT}}', bodyContent)
+            .replaceAll('{{AUTHOR_NAME}}', author.name)
+            .replaceAll('{{AUTHOR_INITIALS}}', author.initials)
+            .replaceAll('{{AUTHOR_TITLE}}', author.title)
+            .replaceAll('{{AUTHOR_BIO}}', author.bio);
 
         const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const fileName = `${today}-${slug}.html`;
