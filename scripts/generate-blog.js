@@ -14,13 +14,39 @@ if (!GROQ_API_KEY) {
 
 const SITE_URL = 'https://crypto-offers-tracker.vercel.app'; // Update this if your domain changes
 
-const ROOT_DIR = path.join(__dirname, '..');
-const ADMIN_DIR = path.join(ROOT_DIR, 'admin');
-const BLOG_DIR = path.join(ROOT_DIR, 'blog');
-const QUEUE_PATH = path.join(ADMIN_DIR, 'blog-queue.csv');
-const TEMPLATE_PATH = path.join(BLOG_DIR, 'template.html');
-const INDEX_PATH = path.join(BLOG_DIR, 'index.html');
-const SITEMAP_PATH = path.join(ROOT_DIR, 'sitemap.xml');
+const STATE_PATH = path.join(ADMIN_DIR, 'state.json');
+
+const CATEGORIES = [
+    {
+        id: 'intelligence',
+        name: 'Market Intelligence',
+        badge: 'purple',
+        systemPrompt: 'You are an elite crypto market strategist. Focus on macro trends, price action analysis, and professional tactical advice. High-information, institutional-grade reporting.'
+    },
+    {
+        id: 'alpha',
+        name: 'Alpha Alerts',
+        badge: 'green',
+        systemPrompt: 'You are a crypto rewards and airdrop specialist. Focus on identifying high-yield opportunities, active airdrops, and time-sensitive staking rewards. Expert on maximizing capital efficiency.'
+    },
+    {
+        id: 'spotlight',
+        name: 'Project Spotlight',
+        badge: 'blue',
+        systemPrompt: 'You are a deep-tech crypto researcher. Focus on emerging Layer 1/2 ecosystems, innovative DeFi protocols, and upcoming high-potential project deep-dives. Technical but accessible analysis.'
+    }
+];
+
+function getNextCategory() {
+    let state = { lastCategoryIndex: -1 };
+    if (fs.existsSync(STATE_PATH)) {
+        state = JSON.parse(fs.readFileSync(STATE_PATH, 'utf8'));
+    }
+    const nextIndex = (state.lastCategoryIndex + 1) % CATEGORIES.length;
+    state.lastCategoryIndex = nextIndex;
+    fs.writeFileSync(STATE_PATH, JSON.stringify(state, null, 4));
+    return CATEGORIES[nextIndex];
+}
 
 async function fetchLatestNews() {
     try {
@@ -103,7 +129,8 @@ function buildSitemap() {
         'contact.html',
         'privacy.html',
         'terms.html',
-        'blog/index.html'
+        'blog/index.html',
+        'charts.html'
     ];
 
     // 2. Scan Blog Directory for Generated Posts
@@ -132,10 +159,10 @@ ${urls}
     console.log(`- Sitemap updated at: ${SITEMAP_PATH} (${allPages.length} links)`);
 }
 
-async function generatePost(title, tone, keywords) {
+async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
     try {
         const today = new Date().toISOString().split('T')[0];
-        console.log(`Generating: "${title}" | Tone: ${tone}...`);
+        console.log(`Generating: [${category.name}] "${title}"...`);
 
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -144,16 +171,14 @@ async function generatePost(title, tone, keywords) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-4-scout-17b-16e-instruct',
+                model: 'llama-3.1-70b-versatile',
                 messages: [
                     {
                         role: 'system',
-                        content: `You are an elite crypto market strategist and financial journalist. 
-Your tone is professional, objective, and high-information. 
-Avoid first-person perspective ('I', 'me', 'my'). Focus on data-driven reporting and industry-standard analysis.
-Expertise, Authoritativeness, and Trustworthiness (E-E-A-T) are paramount.
-Always provide 1-2 clear, actionable pieces of professional advice or "Key Takeaways" for the reader based on the current data.
-Ensure the content is sophisticated yet easy to understand for a general audience.`
+                        content: `${category.systemPrompt}
+Avoid first-person perspective ('I', 'me', 'my'). Focus on data-driven reporting.
+Always provide 1-2 clear, actionable pieces of professional advice or "Key Takeaways" for the reader.
+Keep it sophisticated yet easy to understand.`
                     },
                     {
                         role: 'user',
@@ -165,10 +190,9 @@ ${await fetchLatestNews()}
 Current Active Offers/Rewards:
 ${await fetchCurrentOffers(keywords, await fetchLatestNews())}
 
-Write a professional market update titled: "${title}".
+Write a professional update titled: "${title}".
 Structure the post with clear headings. Incorporate the trending tokens, news, and active offers naturally. 
-The post should bridge the gap between market updates and actionable steps for readers.
-Close with a dedicated "Expert Outlook" section containing 1-2 strategic pieces of advice and a mention of the most promising current offer.`
+Close with a dedicated "Expert Outlook" section containing 1-2 strategic pieces of advice.`
                     }
                 ],
                 temperature: 0.7,
@@ -183,13 +207,16 @@ Close with a dedicated "Expert Outlook" section containing 1-2 strategic pieces 
             .replace(/## (.*)/g, '<h2>$1</h2>')
             .replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>')
             .replace(/\n\n/g, '</p><p>')
-            .split('\n').map(line => line.trim() ? `<p>${line}</p>` : '').join('');
+            .replace(/\n/g, '<br>') // Preserve single line breaks
+            .split('</p><p>').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
 
         let template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
         let html = template
             .replace('{{TITLE}}', title)
             .replace('{{DATE}}', today)
             .replace('{{TOPICS}}', keywords)
+            .replace('{{CATEGORY}}', category.name)
+            .replace('{{CATEGORY_BADGE}}', category.badge)
             .replace('{{CONTENT}}', bodyContent);
 
         const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -204,6 +231,7 @@ Close with a dedicated "Expert Outlook" section containing 1-2 strategic pieces 
         let indexHtml = fs.readFileSync(INDEX_PATH, 'utf8');
         const postEntry = `
             <a href="${fileName}" class="post-card">
+                <div class="category-badge ${category.badge}">${category.name}</div>
                 <span class="date">${formattedDate}</span>
                 <h3>${title}</h3>
                 <div class="excerpt">${keywords}</div>
@@ -222,17 +250,23 @@ Close with a dedicated "Expert Outlook" section containing 1-2 strategic pieces 
 }
 
 async function autoDiscoverAndGenerate() {
-    console.log("Auto-Discovery Mode: Fetching trending crypto data for twice-daily update...");
+    console.log("Auto-Discovery Mode: Fetching trending crypto data...");
     const trendingResponse = await fetch('https://api.coingecko.com/api/v3/search/trending');
     const trendingData = await trendingResponse.json();
     const trendingCoins = trendingData.coins.slice(0, 5).map(c => c.item.name).join(', ');
 
-    // Auto-generate a title and tone
-    const title = `Market Pulse: ${trendingData.coins[0].item.name} Leads the Charge and What's Next`;
-    const tone = "Professional, Informative, yet Human";
-    const keywords = `${trendingCoins}, market trends, 2026 outlook`;
+    const category = getNextCategory();
 
-    await generatePost(title, tone, keywords);
+    // Customize title based on category
+    let title = "";
+    if (category.id === 'intelligence') title = `Market Pulse: ${trendingData.coins[0].item.name} Analysis & Strategic Shift`;
+    else if (category.id === 'alpha') title = `Alpha Report: Top Staking & Airdrop Opportunities for ${trendingData.coins[0].item.name} Ecosystem`;
+    else title = `Ecosystem Spotlight: The Rise of ${trendingData.coins[0].item.name} & Emerging Protocols`;
+
+    const tone = "Professional, Authoritative";
+    const keywords = `${trendingCoins}, market trends, 2026 insights`;
+
+    await generatePost(title, tone, keywords, category);
 }
 
 async function run() {
@@ -247,7 +281,8 @@ async function run() {
     let manualCount = 0;
     for (let row of rows) {
         if (row.status === 'pending') {
-            const success = await generatePost(row.title, row.tone, row.keywords);
+            const category = getNextCategory();
+            const success = await generatePost(row.title, row.tone, row.keywords, category);
             if (success) {
                 row.status = 'published';
                 manualCount++;
@@ -259,11 +294,10 @@ async function run() {
         writeCSV(headers, rows);
         console.log(`\nSuccessfully processed ${manualCount} manual posts.`);
     } else {
-        console.log("No pending manual posts. Switching to Auto-Discovery...");
+        console.log("No pending manual posts. Switching to Rotating Auto-Discovery...");
         await autoDiscoverAndGenerate();
     }
 
-    // Always rebuild sitemap at the end (handles additions and deletions)
     buildSitemap();
 }
 
