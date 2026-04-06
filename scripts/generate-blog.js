@@ -56,19 +56,19 @@ const AUTHORS = {
         name: 'Sarah Mitchell',
         initials: 'SM',
         title: 'Senior Macro Strategist',
-        bio: 'Sarah provides high-fidelity macro analysis and on-chain liquidity monitoring for professional market participants. Focus areas include capital flows, volatility surface analysis, and institutional risk management.'
+        bio: 'Sarah focuses on macro liquidity and institutional capital flows across the crypto ecosystem.'
     },
     alpha: {
         name: 'Alex Rivera',
         initials: 'AR',
-        title: 'Lead Technical Analyst',
-        bio: 'Alex specializes in smart contract monitoring, MEV-flow analysis, and identifying delta-neutral yield opportunities before they reach retail saturation. Grounded in raw blockchain data and cross-protocol auditing.'
+        title: 'Technical Analyst',
+        bio: 'Alex specializes in smart contract monitoring, MEV-flow analysis, and identifying delta-neutral yield opportunities.'
     },
     spotlight: {
         name: 'Marcus Chen',
         initials: 'MC',
-        title: 'Lead Protocol Architect',
-        bio: 'Marcus is dedicated to the technical analysis of foundational crypto infrastructure. Expertise includes modular data availability layers, zero-knowledge proofs, and decentralized oracle mechanisms.'
+        title: 'Protocol Architect',
+        bio: 'Marcus is dedicated to the technical analysis of foundational infrastructure, including modular data availability and ZK-rollups.'
     }
 };
 
@@ -77,33 +77,33 @@ const STATE_PATH = path.join(ADMIN_DIR, 'state.json');
 const CATEGORIES = [
     {
         id: 'intelligence',
-        name: 'Institutional Research',
+        name: 'Macro Insights',
         badge: 'purple',
-        systemPrompt: `REPRESENT: Institutional Research Desk. 
+        systemPrompt: `PEPR: Sarah Mitchell, Senior Macro Strategist. 
 VOICE: Professional, analytical, clinical. 
 STYLE: Highly technical analysis. No fluff. NO GREETINGS. NO INTROS. 
 MANDATE: Start with a technical observation (TVL, volumes, or on-chain anomalies). 
-TONE: Formal research briefing for a hedge fund committee.`
+TONE: Formal research briefing.`
     },
     {
         id: 'alpha',
-        name: 'On-Chain Analytics',
+        name: 'Technical Alpha',
         badge: 'green',
-        systemPrompt: `REPRESENT: On-Chain Analytics Desk. 
-VOICE: Fast-paced, техническая precision, data-driven.
+        systemPrompt: `REPR: Alex Rivera, Technical Analyst. 
+VOICE: Fast-paced, precision, data-driven.
 STYLE: Direct start. NO GREETINGS. 
-MANDATE: Focus on liquidity flows, smart contract mechanics, and risk/reward arbitrage opportunities. 
-TONE: Internal memo for an active trading desk.`
+MANDATE: Focus on liquidity flows, smart contract mechanics, and arbitrage opportunities. 
+TONE: Internal market memo.`
     },
     {
         id: 'spotlight',
-        name: 'Protocol Analysis',
+        name: 'Protocol Engineering',
         badge: 'blue',
-        systemPrompt: `REPRESENT: Protocol Research Group. 
+        systemPrompt: `REPR: Marcus Chen, Protocol Architect. 
 VOICE: Engineering-first, architectural analysis.
 STYLE: Direct start. NO GREETINGS. 
 MANDATE: Analyze the "plumbing"—modular DA, ZK-tech, and consensus mechanisms. 
-TONE: Deep-dive whitepaper analysis for a technical audience.`
+TONE: Deep-dive whitepaper analysis.`
     }
 ];
 

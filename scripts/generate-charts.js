@@ -32,8 +32,8 @@ const PROJECT_KNOWLEDGE = {
 const AUTHOR = {
     name: 'Liam Foster',
     initials: 'LF',
-    title: 'Lead Quantitative Analyst',
-    bio: 'Liam specializes in high-frequency market analysis and on-chain volatility monitoring. Using a first-principles approach, he identifies early-stage volume anomalies and cross-exchange arbitrage opportunities.'
+    title: 'Quantitative Analyst',
+    bio: 'Liam provides high-frequency market analysis and on-chain volatility monitoring via a first-principles approach.'
 };
 
 async function fetchNewsContext() {
@@ -86,11 +86,11 @@ async function fetchUpcomingProjects() {
                 messages: [
                     {
                         role: 'system',
-                        content: `REPRESENT: Quantitative Data Desk. 
+                        content: `REPR: Liam Foster, Quantitative Analyst. 
 VOICE: Direct, technical, and data-driven. 
 FORBIDDEN: "tapestry", "landscape", "unveiling", "vibrant", "revolutionary".
 CRITICAL: Identify 5 high-potential projects in early stages. 
-TONE: Internal market briefing for sophisticated technical traders.`
+TONE: Internal market briefing.`
                     }
                 ],
                 temperature: 0.5,
