@@ -1,9 +1,9 @@
-name: Daily Automated Blog Generation
+name: Twice-Daily Automated Blog Generation
 
 on:
   schedule:
-    # 9:00 PM IST is 3:30 PM UTC
-    - cron: '30 15 * * *'
+    # 9:00 AM IST (3:30 AM UTC) & 9:00 PM IST (3:30 PM UTC)
+    - cron: '30 3,15 * * *'
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:

@@ -1,3 +1,7 @@
+/**
+ * Twice-Daily Automated Blog Generation Script
+ * Runs at 9:00 AM and 9:00 PM IST
+ */
 const fs = require('fs');
 const path = require('path');
 
@@ -163,7 +167,7 @@ Relatable, sophisticated, and impactful.`
 }
 
 async function autoDiscoverAndGenerate() {
-    console.log("Auto-Discovery Mode: Fetching trending crypto data...");
+    console.log("Auto-Discovery Mode: Fetching trending crypto data for twice-daily update...");
     const trendingResponse = await fetch('https://api.coingecko.com/api/v3/search/trending');
     const trendingData = await trendingResponse.json();
     const trendingCoins = trendingData.coins.slice(0, 5).map(c => c.item.name).join(', ');
