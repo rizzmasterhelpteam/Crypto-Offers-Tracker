@@ -21,6 +21,8 @@ jobs:
           node-version: '20'
 
       - name: Generate Weekly Charts
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: node scripts/generate-charts.js
 
       - name: Generate Sitemap
