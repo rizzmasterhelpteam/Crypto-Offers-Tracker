@@ -17,6 +17,18 @@ const ASSETS_DIR = path.join(ROOT_DIR, 'assets');
 const TEMPLATE_PATH = path.join(ASSETS_DIR, 'charts-template.html');
 const OUTPUT_PATH = path.join(ROOT_DIR, 'charts.html');
 
+// SOURCE OF TRUTH: Hard-coded knowledge for Liam Foster's analysis
+const PROJECT_KNOWLEDGE = {
+    'TIA': { role: 'Modular Data Availability Layer (Celestia)', mechanism: 'Data Availability Sampling (DAS) and Namespace Merkle Trees' },
+    'EIGEN': { role: 'Ethereum Restaking Primitive (EigenLayer)', mechanism: 'Shared security via Actively Validated Services (AVS)' },
+    'MON': { role: 'Parallelized EVM Layer 1 (Monad)', mechanism: 'Parallel execution and MonadDb for high-performance consensus' },
+    'BERA': { role: 'DeFi-Focused Layer 1 (Berachain)', mechanism: 'Proof of Liquidity (PoL) and tri-token system ($BERA, $BGT, $HONEY)' },
+    'JTO': { role: 'Solana MEV-Powered Liquid Staking (Jito)', mechanism: 'Maximum Extractable Value (MEV) redistribution to stakers' },
+    'DRIFT': { role: 'Decentralized Perceptual DEX on Solana', mechanism: 'Dynamic Virtual AMM (dAMM) and cross-margined trading' },
+    'REDSTONE': { role: 'Modular Oracle Provider', mechanism: 'Push/Pull data delivery for low-latency L1s/L2s' },
+    'TAIKO': { role: 'Based Rollup (Taiko)', mechanism: 'Decentralized sequencing via Ethereum L1' }
+};
+
 const AUTHOR = {
     name: 'Liam Foster',
     initials: 'LF',
@@ -75,12 +87,13 @@ async function fetchUpcomingProjects() {
                     {
                         role: 'system',
                         content: `You are Liam Foster, a Quantitative Data Analyst. 
-WRITING STYLE: Direct, factual, and 100% data-driven. 
-FORBIDDEN WORDS: "tapestry", "landscape", "unveiling", "vibrant", "revolutionary", "exciting", "look no further".
-CRITICAL: Identify 5 high-potential projects that are in GENUINELY early stages (e.g., Testnet, IDO Phase). 
-Explain each project in one simple, technical sentence. Focus on the "Mechanism" (e.g., "Non-custodial clearing house" instead of "cool app").
-Exclude Top 100 market cap projects. Ground your response in these news trends: ${news}.
-Return a JSON array of objects: [{"name": "...", "symbol": "...", "status": "Testnet Phase|IDO Stage|Mainnet Soon", "insight": "One technical sentence explaining the mechanism and potential"}]`
+VOICE: Direct, technical, and data-driven. 
+FORBIDDEN: "tapestry", "landscape", "unveiling", "vibrant", "revolutionary".
+CRITICAL: Identify 5 high-potential projects in early stages. 
+Prioritize these technically significant areas: Modular DA, Parallelized EVM, ZK-Rollups, and MEV redistribution.
+Use this technical mapping for accuracy: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
+If a project is unknown, focus on its "Technical Moat" (e.g., funding, backers like Paradigm, or whitepaper claims from news: ${news}).
+Return a JSON array: [{"name": "...", "symbol": "...", "status": "Testnet|Mainnet Soon", "insight": "Technical mechanism summary"}]`
                     }
                 ],
                 temperature: 0.5,

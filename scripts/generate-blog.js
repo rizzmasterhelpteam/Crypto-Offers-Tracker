@@ -27,17 +27,29 @@ const SITEMAP_PATH = path.join(PROJECT_ROOT, 'sitemap.xml');
 
 // SOURCE OF TRUTH: Hard-coded knowledge to prevent AI hallucinations on project types
 const PROJECT_KNOWLEDGE = {
-    'REDSTONE': { role: 'Modular Oracle / Price Feed provider', mechanism: 'Push/Pull data models for L1s and L2s' },
-    'RED': { role: 'Modular Oracle / Price Feed provider', mechanism: 'Push/Pull data models for L1s and L2s' },
-    'SIREN': { role: 'Decentralized Options & Derivatives Protocol', mechanism: 'On-chain option writing and trading' },
-    'TRUEFI': { role: 'Uncollateralized Credit & Institutional Lending', mechanism: 'Credit-based lending pools' },
-    'TRU': { role: 'Uncollateralized Credit & Institutional Lending', mechanism: 'Credit-based lending pools' },
-    'PUDGY PENGUINS': { role: 'NFT Brand & IP Ecosystem', mechanism: 'Tokenized IP and consumer products' },
-    'PENGU': { role: 'NFT Brand & IP Ecosystem', mechanism: 'Tokenized IP and consumer products' },
-    'AAVE': { role: 'Decentralized Liquidity Market (Lending/Borrowing)', mechanism: 'Over-collateralized lending and Flash Loans' },
-    'EIGENLAYER': { role: 'Restaking Primitive', mechanism: 'Security sharing via ETH restaking' },
-    'ETHER.FI': { role: 'Liquid Restaking Protocol', mechanism: 'Non-custodial restaking and points' }
+    'TIA': { role: 'Modular Data Availability Layer (Celestia)', mechanism: 'Data Availability Sampling (DAS) and Namespace Merkle Trees' },
+    'CELESTIA': { role: 'Modular Data Availability Layer', mechanism: 'Data Availability Sampling (DAS) and Namespace Merkle Trees' },
+    'EIGEN': { role: 'Ethereum Restaking Primitive (EigenLayer)', mechanism: 'Shared security via Actively Validated Services (AVS)' },
+    'EIGENLAYER': { role: 'Ethereum Restaking Primitive', mechanism: 'Shared security via Actively Validated Services (AVS)' },
+    'MON': { role: 'Parallelized EVM Layer 1 (Monad)', mechanism: 'Parallel execution and MonadDb for high-performance consensus' },
+    'MONAD': { role: 'Parallelized EVM Layer 1', mechanism: 'Parallel execution and MonadDb for high-performance consensus' },
+    'BERA': { role: 'DeFi-Focused Layer 1 (Berachain)', mechanism: 'Proof of Liquidity (PoL) and tri-token system ($BERA, $BGT, $HONEY)' },
+    'BERACHAIN': { role: 'DeFi-Focused Layer 1', mechanism: 'Proof of Liquidity (PoL) and tri-token system' },
+    'JTO': { role: 'Solana MEV-Powered Liquid Staking (Jito)', mechanism: 'Maximum Extractable Value (MEV) redistribution to stakers' },
+    'DRIFT': { role: 'Decentralized Perceptual DEX on Solana', mechanism: 'Dynamic Virtual AMM (dAMM) and cross-margined trading' },
+    'JUP': { role: 'Solana Liquidity & Swap Aggregator (Jupiter)', mechanism: 'Metis routing and decentralized limit order engine' },
+    'REDSTONE': { role: 'Modular Oracle Provider', mechanism: 'Push/Pull data delivery for low-latency L1s/L2s' },
+    'SIREN': { role: 'Decentralized Options & Derivatives Protocol', mechanism: 'On-chain option writing and AMM-based trading' },
+    'TRUEFI': { role: 'Uncollateralized Institutional Lending', mechanism: 'Credit-based lending pools on Ethereum' },
+    'TRU': { role: 'Uncollateralized Institutional Lending', mechanism: 'Credit-based lending pools on Ethereum' },
+    'LDO': { role: 'Liquid Staking Protocol (Lido)', mechanism: 'Tokenized staked ETH and decentralized validator sets' },
+    'TAIKO': { role: 'Based Rollup (Taiko)', mechanism: 'Decentralized sequencing via Ethereum L1' },
+    'STARKNET': { role: 'ZK-Rollup (Starknet)', mechanism: 'STARK-based scaling with Cairo language' },
+    'ZKSYNC': { role: 'ZK-Rollup (zkSync Era)', mechanism: 'ZK-SNARK scalability with native account abstraction' }
 };
+
+// Research seeds for high-authority content
+const RESEARCH_SEEDS = ['Celestia', 'EigenLayer', 'Monad', 'Berachain', 'Jito', 'Drift Protocol', 'Starknet', 'zkSync'];
 
 const AUTHORS = {
     intelligence: {
@@ -135,16 +147,18 @@ async function fetchCurrentOffers(keywords, news) {
                 messages: [
                     {
                         role: 'system',
-                        content: `You are a crypto research assistant. Identify 3-5 currently active, high-value crypto offers.
+                        content: `You are a Senior Crypto Research Lead. Identify 3-5 high-authority, research-grade crypto opportunities.
+Focus on: modularity, ZK-tech, restaking, and institutional DeFi.
 For each project, you MUST provide:
-1. Project Name and Ticker.
-2. VERIFIED ROLE (Do NOT guess. Use this mapping if applicable: ${JSON.stringify(PROJECT_KNOWLEDGE)}).
-3. THE REWARD (Staking, Airdrop, etc.).
-CRITICAL: If a project is not in the mapping, and you aren't 100% sure of its role, describe it ONLY by the provided news: ${news}.`
+1. NAME (Ticker).
+2. VERIFIED ROLE (Use this mapping for accuracy: ${JSON.stringify(PROJECT_KNOWLEDGE)}).
+3. TECHNICAL MOAT (VC backing like Paradigm/a16z, Whitepaper mechanism, or specific engineering breakthroughs).
+4. QUALITATIVE REWARD (Points, Airdrop, Yield).
+CRITICAL: If a project is not in the mapping, prioritize projects with significant GitHub activity or Institutional backing found in: ${news}.`
                     }
                 ],
-                temperature: 0.1, // Lower temperature for more factual discovery
-                max_tokens: 500
+                temperature: 0.1,
+                max_tokens: 600
             })
         });
         const data = await groqResponse.json();
@@ -343,19 +357,20 @@ async function autoDiscoverAndGenerate() {
             throw new Error("No trending coins found in CoinGecko response.");
         }
 
-        const trendingCoins = trendingData.coins.slice(0, 5).map(c => c.item.name).join(', ');
-        const firstCoin = trendingData.coins[0].item.name;
+        const trendingCoins = trendingData.coins.slice(0, 3).map(c => c.item.name);
+        const combinedResearch = [...new Set([...trendingCoins, ...RESEARCH_SEEDS.slice(0, 3)])].join(', ');
+        const firstCoin = RESEARCH_SEEDS[Math.floor(Math.random() * RESEARCH_SEEDS.length)];
 
         const category = getNextCategory();
 
         // Customize title based on category
         let title = "";
-        if (category.id === 'intelligence') title = `Market Pulse: ${firstCoin} Analysis & Strategic Shift`;
-        else if (category.id === 'alpha') title = `Alpha Report: Top Staking & Airdrop Opportunities for ${firstCoin} Ecosystem`;
-        else title = `Ecosystem Spotlight: The Rise of ${firstCoin} & Emerging Protocols`;
+        if (category.id === 'intelligence') title = `Deep Research: ${firstCoin} Infrastructure & Market Dominance`;
+        else if (category.id === 'alpha') title = `Alpha Report: Professional Staking & Institutional Yield for ${firstCoin}`;
+        else title = `Technical Deep Dive: ${combinedResearch} Ecosystem Evolution`;
 
-        const tone = "Professional, Authoritative";
-        const keywords = `${trendingCoins}, market trends, 2026 insights`;
+        const tone = "Deeply Technical, Professional, Investigative";
+        const keywords = `${combinedResearch}, institutional DeFi, modular infrastructure, 2026 technical roadmap`;
 
         await generatePost(title, tone, keywords, category);
     } catch (err) {
