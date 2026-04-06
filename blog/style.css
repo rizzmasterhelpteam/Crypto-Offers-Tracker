@@ -112,6 +112,13 @@ header {
     gap: 12px;
     font-size: 1.4rem;
     font-weight: 800;
+    color: var(--text-primary);
+}
+
+.logo img {
+    height: 40px;
+    width: auto;
+    border-radius: 6px;
 }
 
 .logo img {
