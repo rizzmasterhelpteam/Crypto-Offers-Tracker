@@ -40,6 +40,11 @@ export default async function handler(req, res) {
     const today = new Date().toISOString().split('T')[0];
 
     try {
+        // Fetch news for context to improve currency/accuracy
+        const newsResponse = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
+        const newsData = await newsResponse.json();
+        const newsContext = newsData.Data.slice(0, 5).map(n => n.title).join(', ');
+
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -52,13 +57,15 @@ export default async function handler(req, res) {
                     {
                         role: 'system',
                         content: `Today is ${today}. You are a crypto offers expert. 
+Latest Market News: ${newsContext}.
 You must generate a diverse list of exactly 30 currently active crypto offers.
 Output MUST be a single JSON array starting with [ and ending with ]. NO prose.`
                     },
                     {
                         role: 'user',
-                        content: `Generate exactly 30 active crypto offers as of ${today}.
+                        content: `Generate exactly 30 active crypto offers as of ${today} based on current market data and news.
 Include a mix of airdrop, staking, trading, learn, and launchpad offers across 15+ platforms.
+Avoid hallucinations. Do not include expired offers.
 
 Return ONLY a JSON array. Each item MUST follow this format:
 {

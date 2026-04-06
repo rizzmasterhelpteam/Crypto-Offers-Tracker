@@ -34,6 +34,38 @@ async function fetchLatestNews() {
     }
 }
 
+async function fetchCurrentOffers(keywords, news) {
+    try {
+        console.log("Identifying current crypto offers...");
+        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'llama-3.1-8b-instant',
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are a crypto rewards expert. Identify 3-5 currently active, high-value crypto offers (airdrops, staking, or bonuses).
+Ground your response in these trending topics: ${keywords} and recent news: ${news}.
+Avoid hallucinations. Only list offers known to be active today.
+Return a concise bulleted list.`
+                    }
+                ],
+                temperature: 0.3,
+                max_tokens: 500
+            })
+        });
+        const data = await groqResponse.json();
+        return data.choices[0].message.content;
+    } catch (err) {
+        console.error("Error fetching offers:", err);
+        return "Check our tracker for the latest active rewards.";
+    }
+}
+
 function parseCSV(content) {
     const lines = content.trim().split('\n');
     if (lines.length < 2) return [];
@@ -130,9 +162,13 @@ Trending Tokens: ${keywords}
 Latest News Headlines:
 ${await fetchLatestNews()}
 
+Current Active Offers/Rewards:
+${await fetchCurrentOffers(keywords, await fetchLatestNews())}
+
 Write a professional market update titled: "${title}".
-Structure the post with clear headings. Incorporate the trending tokens and news headlines naturally to provide a comprehensive market overview. 
-Close with a dedicated "Expert Outlook" section containing 1-2 pieces of strategic advice.`
+Structure the post with clear headings. Incorporate the trending tokens, news, and active offers naturally. 
+The post should bridge the gap between market updates and actionable steps for readers.
+Close with a dedicated "Expert Outlook" section containing 1-2 strategic pieces of advice and a mention of the most promising current offer.`
                     }
                 ],
                 temperature: 0.7,
