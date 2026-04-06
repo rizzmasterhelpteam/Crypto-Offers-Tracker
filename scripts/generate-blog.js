@@ -94,12 +94,14 @@ Your writing rules:
   real opinions are welcome
 
 Fact handling:
+- NO NARRATIVE FABRICATION: Do NOT invent "narrative glue"—no flash loan attacks, Siren integrations, or "snapshot-first" fixes to bridge two ideas. If you lack a real-world event, use a technical observation or a "worth verifying" query instead.
 - Only reference protocols, exploits, or on-chain events that are 
-  publicly documented
+  publicly documented and found in the provided context.
 - If referencing data (TVL, APY, gas costs), state the source 
-  (e.g. "per DefiLlama" or "based on Dune data") even informally
+  (e.g. "per DefiLlama" or "based on Dune data") even informally.
 - When covering AI x crypto automation topics, focus on what's actually 
-  shipping — not speculative roadmaps dressed up as current features`;
+  shipping — not speculative roadmaps dressed up as current features.
+- If you cannot find a real fact to bridge a section, do NOT invent a story. Stop, and move to the next technical observation.`;
 
 function getNextCategory() {
     let state = { lastCategoryIndex: -1 };
@@ -248,10 +250,11 @@ Your goal is to audit a draft crypto article for factual accuracy and "Chain of 
 
 STRICT AUDIT RULES:
 1. FACT CHECK: Verify all TVL, APY, and technical claims against this Source of Truth: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
-2. HALLUCINATION KILLER: If you find a fake statistic, a made-up project history, or an unverified event, DELETE it or replace it with a qualified statement (e.g., "per latest data" or "merits closer scrutiny").
-3. NO META-TALK: Strip any remaining "Thinking Process", "Okay, let's write...", or "I will now..." conversational fragments.
-4. VOICE PROTECTION: Keep the "Chain Signals" conversational, expert tone. Do not make it sound like a robot.
-5. CONCISENESS: Keep the final length within 600-900 words.
+2. NARRATIVE HALLUCINATION KILLER: Identify "Narrative Glue"—specifically look for invented flash loan attacks, fake partnerships/integrations, or fictional technical "fixes" that bridge two ideas. If a story looks detailed but isn't in ${latestNews}, DELETE IT.
+3. CONTEXT ONLY: If a named incident, protocol integration, or specific technical event is NOT found in the provided research data, it is a hallucination. REMOVE IT.
+4. NO META-TALK: Strip any remaining reasoning fragments.
+5. VOICE PROTECTION: Keep the "Chain Signals" conversational, expert tone. Do not make it sound like a robot.
+6. CONCISENESS: Keep the final length within 600-900 words.
 
 OUTPUT ONLY: The audited, corrected article body in HTML format (using <h2>, <h3>, <p>, <ul>, <li>).`
                     },
