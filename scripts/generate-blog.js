@@ -52,60 +52,27 @@ const PROJECT_KNOWLEDGE = {
 const RESEARCH_SEEDS = ['Celestia', 'EigenLayer', 'Monad', 'Berachain', 'Jito', 'Drift Protocol', 'Starknet', 'zkSync'];
 
 const AUTHORS = {
-    intelligence: {
-        name: 'Sarah Mitchell',
-        initials: 'SM',
-        title: 'Senior Macro Strategist',
-        bio: 'Sarah focuses on macro liquidity and institutional capital flows across the crypto ecosystem.'
-    },
-    alpha: {
-        name: 'Alex Rivera',
-        initials: 'AR',
-        title: 'Technical Analyst',
-        bio: 'Alex specializes in smart contract monitoring, MEV-flow analysis, and identifying delta-neutral yield opportunities.'
-    },
-    spotlight: {
-        name: 'Marcus Chen',
-        initials: 'MC',
-        title: 'Protocol Architect',
-        bio: 'Marcus is dedicated to the technical analysis of foundational infrastructure, including modular data availability and ZK-rollups.'
+    research: {
+        name: 'Crypto Offers Research',
+        initials: 'COR',
+        title: 'Lead Research Desk',
+        bio: 'Professional-grade on-chain analysis and institutional market intelligence.'
     }
 };
 
 const STATE_PATH = path.join(ADMIN_DIR, 'state.json');
 
 const CATEGORIES = [
-    {
-        id: 'intelligence',
-        name: 'Macro Insights',
-        badge: 'purple',
-        systemPrompt: `PEPR: Sarah Mitchell, Senior Macro Strategist. 
-VOICE: Professional, analytical, clinical. 
-STYLE: Highly technical analysis. No fluff. NO GREETINGS. NO INTROS. 
-MANDATE: Start with a technical observation (TVL, volumes, or on-chain anomalies). 
-TONE: Formal research briefing.`
-    },
-    {
-        id: 'alpha',
-        name: 'Technical Alpha',
-        badge: 'green',
-        systemPrompt: `REPR: Alex Rivera, Technical Analyst. 
-VOICE: Fast-paced, precision, data-driven.
-STYLE: Direct start. NO GREETINGS. 
-MANDATE: Focus on liquidity flows, smart contract mechanics, and arbitrage opportunities. 
-TONE: Internal market memo.`
-    },
-    {
-        id: 'spotlight',
-        name: 'Protocol Engineering',
-        badge: 'blue',
-        systemPrompt: `REPR: Marcus Chen, Protocol Architect. 
-VOICE: Engineering-first, architectural analysis.
-STYLE: Direct start. NO GREETINGS. 
-MANDATE: Analyze the "plumbing"—modular DA, ZK-tech, and consensus mechanisms. 
-TONE: Deep-dive whitepaper analysis.`
-    }
+    { id: 'intelligence', name: 'Macro Insights', badge: 'purple' },
+    { id: 'alpha', name: 'Technical Alpha', badge: 'green' },
+    { id: 'spotlight', name: 'Protocol Engineering', badge: 'blue' }
 ];
+
+// This will be replaced by the user's provided voice prompt
+const UNIFIED_VOICE_PROMPT = `Start the response immediately with the article.
+Focus on: Technical moats, VC backing (Paradigm, a16z), and engineering breakthroughs.
+NO META-TALK. NO INTROS. NO GREETINGS. 
+Sophisticated, clinical, and data-driven tone.`;
 
 function getNextCategory() {
     let state = { lastCategoryIndex: -1 };
@@ -250,9 +217,9 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
                 messages: [
                     {
                         role: 'system',
-                        content: `${category.systemPrompt}
+                        content: `${UNIFIED_VOICE_PROMPT}
 - CRITICAL: Length 800-1500 words. Sophisticated tone. 
-- NO META-TALK: Do NOT include your "thinking process", "scratchpad", or any conversational preamble (e.g. "Okay, let's look at..."). 
+- NO META-TALK: Do NOT include your "thinking process", "scratchpad", or any conversational preamble. 
 - OUTPUT ONLY: Start the response immediately with the article title or the first sentence of the lead. Nothing else.`
                     },
                     {
@@ -306,7 +273,7 @@ STRICT CONSTRAINTS:
             .split('</p><p>').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
 
         let template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
-        const author = AUTHORS[category.id];
+        const author = AUTHORS.research;
         let html = template
             .replaceAll('{{TITLE}}', title)
             .replaceAll('{{DATE}}', today)
