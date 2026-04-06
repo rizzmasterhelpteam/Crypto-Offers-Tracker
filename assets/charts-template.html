@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Market Charts | Crypto Digest</title>
+    <meta name="description"
+        content="Top crypto performers of the month, year, and upcoming project highlights. Updated weekly.">
+    <link rel="stylesheet" href="blog/style.css">
+    <style>
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 24px;
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            color: var(--accent-secondary);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            text-align: left;
+            padding: 12px 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .data-table th {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .trend-up {
+            color: #10b981;
+        }
+
+        .trend-down {
+            color: #ef4444;
+        }
+
+        .upcoming-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .upcoming-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container header-inner">
+            <a href="/" class="logo">
+                <img src="assets/logo.png" alt="Logo">
+                <span>Crypto Digest</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/">Tracker</a>
+                <a href="/blog/">Digest</a>
+                <a href="/charts.html" style="color: var(--accent-secondary)">Charts</a>
+                <a href="/about.html">Architecture</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero animate">
+            <div class="hero-content">
+                <span class="hero-tag">Weekly Performance Report</span>
+                <h1>Weekly Market Charts & <br>Upcoming Titans.</h1>
+                <p>Data-driven insights into the current market structure and projected moonshots. Updated every Monday
+                    at 1:10 PM IST.</p>
+            </div>
+        </section>
+
+        <div class="charts-container">
+            <div class="chart-card animate" style="animation-delay: 0.2s;">
+                <h3>Top 10 Performers (Yearly)</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Asset</th>
+                            <th>Price</th>
+                            <th>Yearly Gain</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topYearly">
+                        <!-- {{TOP_YEARLY}} -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="chart-card animate" style="animation-delay: 0.3s;">
+                <h3>Top 10 Performers (Monthly)</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Asset</th>
+                            <th>Price</th>
+                            <th>Monthly Gain</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topMonthly">
+                        <!-- {{TOP_MONTHLY}} -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="chart-card animate" style="animation-delay: 0.4s; grid-column: 1 / -1;">
+                <h3>Top 5 High-Potential Upcoming Projects</h3>
+                <div class="upcoming-list" id="upcomingProjects">
+                    <!-- {{UPCOMING_PROJECTS}} -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer
+        style="margin-top: 60px; padding: 40px 0; border-top: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); text-align: center;">
+        <div class="container">
+            <p>&copy; 2026 Crypto Offers Tracker. All data verified weekly.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

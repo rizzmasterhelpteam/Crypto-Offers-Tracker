@@ -1,0 +1,36 @@
+name: Weekly Market Charts Refresh
+
+on:
+  schedule:
+    # 1:10 PM IST (7:40 AM UTC) every Monday
+    - cron: '40 7 * * 1'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  refresh-charts:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate Weekly Charts
+        run: node scripts/generate-charts.js
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add charts.html
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto-refresh weekly market charts - $(date +'%Y-%m-%d')"
+            git push
+          fi
