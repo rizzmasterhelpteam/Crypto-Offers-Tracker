@@ -121,11 +121,10 @@ async function fetchCurrentOffers(keywords, news) {
                         content: `You are a crypto research assistant. Identify 3-5 currently active, high-value crypto offers.
 For each project, you MUST provide:
 1. Project Name and Ticker.
-2. CATEGORY (e.g., Oracle, Liquid Staking, Lending, Options, Layer 2).
-3. THE OFFER/REWARD (Airdrop, Staking Yield, Bonus).
-Ground your response in these trending topics: ${keywords} and recent news: ${news}.
-CRITICAL: Do NOT hallucinate. If RedStone is mentioned, it is an ORACLE. If Siren is mentioned, it is OPTIONS. 
-Return a concise bulleted list.`
+2. CATEGORY (Oracle, L2, Dex, etc.).
+3. THE OFFER (Qualitative description).
+CRITICAL: Do NOT invent TVL or APY. If the specific % or $ is not in your training data for TODAY's date, omit it.
+Ground your response in: ${keywords} and news: ${news}.`
                     }
                 ],
                 temperature: 0.3,
@@ -225,10 +224,10 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
                     {
                         role: 'system',
                         content: `${category.systemPrompt}
-Avoid first-person perspective ('I', 'me', 'my'). Focus on data-driven reporting.
-Always provide 1-2 clear, actionable pieces of professional advice or "Key Takeaways" for the reader.
-Keep it sophisticated yet easy to understand.
-CRITICAL: The article must be detailed and comprehensive, aiming for a length between 600 and 1500 words.`
+- NO HALLUCINATIONS: If you do not have a specific TVL, APY, or user count in the Dossier, DO NOT make one up. Use qualitative descriptions (e.g., "significant liquidity") instead of fake stats.
+- THESIS-DRIVEN: Start with an argument or a market observation. Do NOT just say "Today we are looking at...".
+- NO LISTS: Avoid the "Project A, Project B, Project C" formula. Interleave the projects into a cohesive story about a single market trend.
+- CRITICAL: Length 800-1500 words. Sophisticated tone. No AI summary buzzwords at the end.`
                     },
                     {
                         role: 'user',
@@ -238,16 +237,14 @@ CONTEXT DOSSIER:
 - Market News: ${await fetchLatestNews()}
 - Identified Rewards: ${await fetchCurrentOffers(keywords, await fetchLatestNews())}
 
-GOAL: Write a technical, narrative-driven deep dive titled: "${title}".
-LENGTH: 800 - 1500 words.
+GOAL: Write a technical, thesis-driven deep dive titled: "${title}".
+STYLE: Hard-hitting journalism. Use cross-references between projects.
 
-REQUIREMENTS:
-1. NO FORMULAS: Avoid the "Introduction -> Project A -> Project B -> Conclusion" structure. 
-2. NARRATIVE FLOW: Connect the news to the technical mechanics of the tokens. Explain the "Why" behind the "How".
-3. TECHNICAL PROOF: If you mention a DeFi protocol, explain its core mechanism (e.g., "Isolated lending pools", "Push-model Oracles", "Batching ZK-STARKs").
-4. OPINIONATED ANALYSIS: Don't just list facts. Provide a professional perspective on the sustainability of the rewards mentioned.
-5. NO SLOP: Do not use common AI transition words.
-6. MANDATORY: You MUST accurately identify the project category (Oracle, Dex, etc.) as provided in the Dossier.`
+STRICT CONSTRAINTS:
+1. ZERO HALLUCINATION: Do NOT invent TVL, APY, or percentage numbers. If the Dossier doesn't have it, don't write it. If you invent a number, the article is useless.
+2. NO PROJECT-BY-PROJECT LISTS: Do not use the "Spotlight" formula. Write a flowing narrative where projects are examples of a broader technical or economic shift.
+3. CONTRARIAN ANGLE: Provide at least one significant risk or "Bear Case" for the tokens mentioned.
+4. AUDIT YOURSELF: Before concluding, ensure you haven't used words like "delve", "tapestry", or "landscape".`
                     }
                 ],
                 temperature: 0.7,
