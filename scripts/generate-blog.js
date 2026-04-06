@@ -264,7 +264,7 @@ Close with a dedicated "Expert Outlook" section containing 1-2 strategic pieces 
             .replace('{{AUTHOR_BIO}}', author.bio);
 
         const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-        const fileName = `${slug}.html`;
+        const fileName = `${today}-${slug}.html`;
         fs.writeFileSync(path.join(BLOG_DIR, fileName), html);
         console.log(`- Saved: blog/${fileName}`);
 
