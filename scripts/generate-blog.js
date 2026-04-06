@@ -102,7 +102,7 @@ async function fetchCurrentOffers(keywords, news) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-4-scout-109b',
+                model: 'llama-3.1-8b-instant',
                 messages: [
                     {
                         role: 'system',
