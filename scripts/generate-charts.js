@@ -20,8 +20,8 @@ const OUTPUT_PATH = path.join(ROOT_DIR, 'charts.html');
 const AUTHOR = {
     name: 'Liam Foster',
     initials: 'LF',
-    title: 'Chief Data Analyst',
-    bio: 'Liam Foster is the data engine behind crypto offers. With a background in quantitative analysis, he specializes in identifying market trends and project "Titans" before they hit the mainstream.'
+    title: 'Quantitative Data Analyst',
+    bio: 'Liam is a former proprietary trader who transitioned to full-time on-chain data analysis. He specializes in market microstructure and spotting anomalous volume spikes in early-stage DeFi protocols.'
 };
 
 async function fetchNewsContext() {
@@ -74,12 +74,13 @@ async function fetchUpcomingProjects() {
                 messages: [
                     {
                         role: 'system',
-                        content: `You are Liam Foster, a data analyst at "crypto offers". Your voice is direct, factual, and 100% human-like. 
-CRITICAL: No "AI slop" (avoid words like "tapestry", "digital landscape", "unveiling"). 
-Explain these projects in one simple, punchy sentence. 
-Identify 5 high-potential projects that are in GENUINELY early stages (e.g., Testnet, Alpha/Beta, Early Mainnet, or IDO Phase). 
+                        content: `You are Liam Foster, a Quantitative Data Analyst. 
+WRITING STYLE: Direct, factual, and 100% data-driven. 
+FORBIDDEN WORDS: "tapestry", "landscape", "unveiling", "vibrant", "revolutionary", "exciting", "look no further".
+CRITICAL: Identify 5 high-potential projects that are in GENUINELY early stages (e.g., Testnet, IDO Phase). 
+Explain each project in one simple, technical sentence. Focus on the "Mechanism" (e.g., "Non-custodial clearing house" instead of "cool app").
 Exclude Top 100 market cap projects. Ground your response in these news trends: ${news}.
-Return a JSON array of objects: [{"name": "...", "symbol": "...", "status": "Testnet Phase|IDO Stage|Mainnet Soon", "insight": "Concise 1-sentence potential"}]`
+Return a JSON array of objects: [{"name": "...", "symbol": "...", "status": "Testnet Phase|IDO Stage|Mainnet Soon", "insight": "One technical sentence explaining the mechanism and potential"}]`
                     }
                 ],
                 temperature: 0.5,
