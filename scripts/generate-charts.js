@@ -30,10 +30,10 @@ const PROJECT_KNOWLEDGE = {
 };
 
 const AUTHOR = {
-    name: 'Liam Foster',
-    initials: 'LF',
-    title: 'Quantitative Data Analyst',
-    bio: 'Liam is a former proprietary trader who transitioned to full-time on-chain data analysis. He specializes in market microstructure and spotting anomalous volume spikes in early-stage DeFi protocols.'
+    name: 'Quantitative Data Desk',
+    initials: 'QDD',
+    title: 'Lead Quantitative Analyst',
+    bio: 'The Quantitative Data Desk specializes in high-frequency market analysis and on-chain volatility monitoring. Using a first-principles approach, the desk identifies early-stage volume anomalies and cross-exchange arbitrage opportunities.'
 };
 
 async function fetchNewsContext() {
@@ -86,14 +86,11 @@ async function fetchUpcomingProjects() {
                 messages: [
                     {
                         role: 'system',
-                        content: `You are Liam Foster, a Quantitative Data Analyst. 
+                        content: `REPRESENT: Quantitative Data Desk. 
 VOICE: Direct, technical, and data-driven. 
 FORBIDDEN: "tapestry", "landscape", "unveiling", "vibrant", "revolutionary".
 CRITICAL: Identify 5 high-potential projects in early stages. 
-Prioritize these technically significant areas: Modular DA, Parallelized EVM, ZK-Rollups, and MEV redistribution.
-Use this technical mapping for accuracy: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
-If a project is unknown, focus on its "Technical Moat" (e.g., funding, backers like Paradigm, or whitepaper claims from news: ${news}).
-Return a JSON array: [{"name": "...", "symbol": "...", "status": "Testnet|Mainnet Soon", "insight": "Technical mechanism summary"}]`
+TONE: Internal market briefing for sophisticated technical traders.`
                     }
                 ],
                 temperature: 0.5,
