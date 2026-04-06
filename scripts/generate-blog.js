@@ -53,26 +53,53 @@ const RESEARCH_SEEDS = ['Celestia', 'EigenLayer', 'Monad', 'Berachain', 'Jito', 
 
 const AUTHORS = {
     research: {
-        name: 'Crypto Offers Research',
-        initials: 'COR',
-        title: 'Lead Research Desk',
-        bio: 'Professional-grade on-chain analysis and institutional market intelligence.'
+        name: 'Chain Signals',
+        initials: 'CS',
+        title: 'Lead Crypto Strategist',
+        bio: 'Write for an audience of intermediate-to-advanced crypto readers — people who hold, trade, and build in the space.'
     }
 };
 
 const STATE_PATH = path.join(ADMIN_DIR, 'state.json');
 
 const CATEGORIES = [
-    { id: 'intelligence', name: 'Macro Insights', badge: 'purple' },
-    { id: 'alpha', name: 'Technical Alpha', badge: 'green' },
-    { id: 'spotlight', name: 'Protocol Engineering', badge: 'blue' }
+    { id: 'intelligence', name: 'Market Intelligence', badge: 'purple' },
+    { id: 'alpha', name: 'Protocol Alpha', badge: 'green' },
+    { id: 'spotlight', name: 'Deep Tech', badge: 'blue' }
 ];
 
-// This will be replaced by the user's provided voice prompt
-const UNIFIED_VOICE_PROMPT = `Start the response immediately with the article.
-Focus on: Technical moats, VC backing (Paradigm, a16z), and engineering breakthroughs.
-NO META-TALK. NO INTROS. NO GREETINGS. 
-Sophisticated, clinical, and data-driven tone.`;
+// This is the definitive "Chain Signals" unified voice prompt
+const UNIFIED_VOICE_PROMPT = `You are a crypto writer with 4+ years of hands-on experience in DeFi, 
+on-chain trading, and blockchain infrastructure. You write a weekly blog 
+called "Chain Signals" for an audience of intermediate-to-advanced crypto 
+readers — people who hold, trade, and build in the space.
+
+Your writing rules:
+- Write like you're explaining something to a smart friend over coffee, 
+  not presenting a whitepaper
+- Use short paragraphs (2-3 sentences max), varied sentence lengths, 
+  and occasional one-liners for emphasis
+- Never invent statistics, yield figures, TVL numbers, or incident details 
+  — if you don't have a verified fact, say "as of last check" or 
+  "worth verifying" instead of fabricating
+- Never stack buzzwords. Only mention a protocol or tool if it's 
+  genuinely relevant to the point being made
+- Include at least one moment of honest uncertainty or nuance per article 
+  — e.g. "this is still early, and the risk isn't fully priced in"
+- Vary your structure — not every section needs a risk/mitigation pair. 
+  Sometimes just observe something interesting
+- Avoid corporate hedging phrases like "it is worth noting that" or 
+  "institutions must therefore" — just say what you mean
+- Add personality: light sarcasm, occasional rhetorical questions, 
+  real opinions are welcome
+
+Fact handling:
+- Only reference protocols, exploits, or on-chain events that are 
+  publicly documented
+- If referencing data (TVL, APY, gas costs), state the source 
+  (e.g. "per DefiLlama" or "based on Dune data") even informally
+- When covering AI x crypto automation topics, focus on what's actually 
+  shipping — not speculative roadmaps dressed up as current features`;
 
 function getNextCategory() {
     let state = { lastCategoryIndex: -1 };
@@ -218,28 +245,20 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
                     {
                         role: 'system',
                         content: `${UNIFIED_VOICE_PROMPT}
-- CRITICAL: Length 800-1500 words. Sophisticated tone. 
-- NO META-TALK: Do NOT include your "thinking process", "scratchpad", or any conversational preamble. 
-- OUTPUT ONLY: Start the response immediately with the article title or the first sentence of the lead. Nothing else.`
+
+- CRITICAL: NO META-TALK. Do NOT include your "thinking process" or conversational preamble. 
+- OUTPUT ONLY: Start the response immediately with the article title or the first sentence. Nothing else.`
                     },
                     {
                         role: 'user',
-                        content: `Today is ${today}. 
-CONTEXT DOSSIER:
-- Trending Tokens: ${keywords}
-- Market News: ${await fetchLatestNews()}
-- Identified Rewards: ${await fetchCurrentOffers(keywords, await fetchLatestNews())}
+                        content: `Write a blog post about ${title.toUpperCase()}.
 
-GOAL: Write a technical, raw, and opinionated market analysis titled: "${title}".
-STYLE: Insider Technical Thread. NOT A NEWS DIGEST.
-
-STRICT CONSTRAINTS:
-1. NO INTROS: Do not start with "In today's market..." or "Welcome back...". Start with the most important technical fact immediately.
-2. NO LISTS: Do not use bullet points for project descriptions. Weave the projects into a logical argument about crypto infrastructure.
-3. KNOWLEDGE BRIDGE: You MUST use this project mapping for accuracy: ${JSON.stringify(PROJECT_KNOWLEDGE)}. 
-4. CALL OUT THE SLOP: If you find yourself using generic phrases like "making waves" or "poised for growth," stop and rewrite with technical data (e.g., "TPS capacity," "latency reduction," "delta-neutral strategies").
-5. RISK-FIRST: Spend as much time on what could go WRONG (liquidation risks, exploit history, oracle latency) as you do on the upside.
-6. ZERO FAKE NUMBERS: If you don't see a TVL or APY in the Dossier, you are forbidden from using one. Use qualitative comparisons (e.g., "Aave's TVL dwarfs the newcomers").`
+Context: ${keywords} - focusing on technical moats, recent events, and protocol mechanics.
+Tone: conversational but informed — like a knowledgeable friend, not a research report
+Length: ~600-800 words
+Structure: use 3-4 natural sections with short headers, no bullet-point dumps
+Avoid: made-up numbers, fake incidents, jargon stacking, robotic transition phrases
+End with: a genuine open question or honest take on where things are headed`
                     }
                 ],
                 temperature: 0.7,
