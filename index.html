@@ -109,10 +109,13 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #0a0e1a;
-            color: white;
+            background: #0f172a;
+            /* Slate 900 */
+            color: #f1f5f9;
+            /* Slate 100 - softer than pure white */
             min-height: 100vh;
             overflow-x: hidden;
+            line-height: 1.6;
         }
 
         body::before {
@@ -123,8 +126,8 @@
             width: 100%;
             height: 100%;
             background:
-                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
             pointer-events: none;
             z-index: 0;
         }
@@ -148,7 +151,8 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            background: rgba(10, 14, 26, 0.85);
+            background: rgba(15, 23, 42, 0.9);
+            /* Slate 900 with opacity */
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             padding: 12px 0;
@@ -221,10 +225,11 @@
             text-align: center;
             margin-bottom: 30px;
             padding: 80px 20px;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(30, 41, 59, 0.4);
+            /* Slate 800 with opacity */
             backdrop-filter: blur(10px);
             border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             position: relative;
             overflow: hidden;
         }
@@ -236,7 +241,7 @@
             left: 50%;
             width: 140%;
             height: 140%;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 60%);
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 60%);
             transform: translate(-50%, -50%);
             pointer-events: none;
         }
@@ -491,11 +496,12 @@
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(30, 41, 59, 0.5);
+            /* Slate 800 with opacity */
             backdrop-filter: blur(20px);
             padding: 28px;
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             transition: all 0.4s ease;
             position: relative;
         }
