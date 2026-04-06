@@ -22,6 +22,18 @@ const TEMPLATE_PATH = path.join(BLOG_DIR, 'template.html');
 const INDEX_PATH = path.join(BLOG_DIR, 'index.html');
 const SITEMAP_PATH = path.join(ROOT_DIR, 'sitemap.xml');
 
+async function fetchLatestNews() {
+    try {
+        console.log("Fetching latest crypto news...");
+        const response = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
+        const data = await response.json();
+        return data.Data.slice(0, 5).map(n => `- ${n.title} (${n.source})`).join('\n');
+    } catch (err) {
+        console.error("Error fetching news:", err);
+        return "No recent news available.";
+    }
+}
+
 function parseCSV(content) {
     const lines = content.trim().split('\n');
     if (lines.length < 2) return [];
@@ -104,16 +116,23 @@ async function generatePost(title, tone, keywords) {
                 messages: [
                     {
                         role: 'system',
-                        content: `You are a professional crypto analyst and blogger. Use a first-person perspective ('I', 'me', 'my'). 
-Your tone should be: ${tone}.
-Incorporate these keywords naturally and professionally: ${keywords}.
-Ensure the content feels human, deeply informed, and expert-level.`
+                        content: `You are an elite crypto market strategist and financial journalist. 
+Your tone is professional, objective, and high-information. 
+Avoid first-person perspective ('I', 'me', 'my'). Focus on data-driven reporting and industry-standard analysis.
+Expertise, Authoritativeness, and Trustworthiness (E-E-A-T) are paramount.
+Always provide 1-2 clear, actionable pieces of professional advice or "Key Takeaways" for the reader based on the current data.
+Ensure the content is sophisticated yet easy to understand for a general audience.`
                     },
                     {
                         role: 'user',
-                        content: `Today is ${today}. Write a professional blog post titled: "${title}".
-Focus on ${keywords}. Discuss current market moves and share your expert outlook.
-Relatable, sophisticated, and impactful.`
+                        content: `Today is ${today}. 
+Trending Tokens: ${keywords}
+Latest News Headlines:
+${await fetchLatestNews()}
+
+Write a professional market update titled: "${title}".
+Structure the post with clear headings. Incorporate the trending tokens and news headlines naturally to provide a comprehensive market overview. 
+Close with a dedicated "Expert Outlook" section containing 1-2 pieces of strategic advice.`
                     }
                 ],
                 temperature: 0.7,
