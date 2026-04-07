@@ -258,7 +258,7 @@ async function forensicFactAudit(content, title, keywords) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+                model: 'qwen/qwen3-32b',
                 messages: [
                     {
                         role: 'system',
@@ -296,10 +296,57 @@ Key Context: ${keywords}`
     }
 }
 
+async function enhancePostSEO(draftContent, title, keywords) {
+    try {
+        const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
+        console.log(`Enhancing & SEO Optimizing: "${title}" (Model: ${model})...`);
+
+        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: model,
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are an expert SEO Content Strategist and Copywriter for "Chain Signals".
+Your task is to take a technical draft and make it highly engaging, authoritative, and SEO-optimized.
+- Use compelling headings.
+- Ensure natural keyword density for: ${keywords}.
+- Maintain a professional, deep-tech tone.
+- Do NOT hallucinate new technical facts. Just improve the narrative flow and readability.
+- Output ONLY the HTML body content (using <h2>, <h3>, <p>, <ul>, <li>). Do not include any HTML head or body tags, just the content.`
+                    },
+                    {
+                        role: 'user',
+                        content: `ENHANCE THIS DRAFT:
+                        
+Title: ${title}
+Draft: ${draftContent}`
+                    }
+                ],
+                temperature: 0.6,
+                max_tokens: 3200
+            })
+        });
+
+        if (!groqResponse.ok) return draftContent;
+
+        const data = await groqResponse.json();
+        return data.choices[0].message.content.trim();
+    } catch (err) {
+        console.error("Enhance error:", err.message);
+        return draftContent;
+    }
+}
+
 async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
     try {
         const today = new Date().toISOString().split('T')[0];
-        const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
+        const model = 'gpt-oss';
         console.log(`Generating: [${category.name}] "${title}" (Model: ${model})...`);
 
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -345,10 +392,13 @@ End with: a genuine open question or honest take on where things are headed`
         }
         let bodyContent = data.choices[0].message.content;
 
-        // Stage 2: Initial Fact-Check & Fix
+        // Stage 2: Enhance and SEO Optimize
+        bodyContent = await enhancePostSEO(bodyContent, title, keywords);
+
+        // Stage 3: Secondary Fact-Check & Fix
         bodyContent = await factCheckPost(bodyContent, title, keywords);
 
-        // Stage 3: Secondary Forensic Fact-Audit (Step 4)
+        // Stage 4: Final Forensic Fact-Audit
         bodyContent = await forensicFactAudit(bodyContent, title, keywords);
 
         // Final Scrubber for residual slop
