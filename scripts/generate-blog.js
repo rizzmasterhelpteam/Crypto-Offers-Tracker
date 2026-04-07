@@ -421,28 +421,71 @@ End with: a genuine open question or honest take on where things are headed`
         fs.writeFileSync(path.join(BLOG_DIR, fileName), html);
         console.log(`- Saved: blog/${fileName}`);
 
-        const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-        const d = new Date();
-        const formattedDate = `${monthNames[d.getMonth()]} ${d.getDate().toString().padStart(2, '0')}, ${d.getFullYear()}`;
-
-        let indexHtml = fs.readFileSync(INDEX_PATH, 'utf8');
-        const postEntry = `
-            <a href="${fileName}" class="post-card">
-                <div class="category-badge ${category.badge}">${category.name}</div>
-                <span class="date">${formattedDate}</span>
-                <h3>${title}</h3>
-                <div class="excerpt">${keywords}</div>
-                <span class="read-more">Read Full Insight</span>
-            </a>
-            <!-- POST_ITEM_TEMPLATE -->`;
-
-        indexHtml = indexHtml.replace('<!-- POST_ITEM_TEMPLATE -->', postEntry);
-        fs.writeFileSync(INDEX_PATH, indexHtml);
-
+        fileName = fileName; // No-op to keep variable in scope if needed, but we use sync now
         return true;
     } catch (err) {
         console.error(`❌ CRITICAL ERROR generating "${title}":`, err.message);
         throw err; // Re-throw to fail the GitHub Action
+    }
+}
+
+// Rebuilds the blog/index.html list based on actual files in the blog directory
+function syncBlogIndex() {
+    console.log("\nSyncing Blog Index with filesystem...");
+    try {
+        const blogFiles = fs.readdirSync(BLOG_DIR)
+            .filter(f => f.endsWith('.html') && f !== 'template.html' && f !== 'index.html')
+            .sort((a, b) => b.localeCompare(a)); // Newest first (assuming YYYY-MM-DD prefix)
+
+        let postEntries = '';
+        const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+
+        blogFiles.forEach(file => {
+            const content = fs.readFileSync(path.join(BLOG_DIR, file), 'utf8');
+
+            // Extract metadata using robust regex
+            const titleMatch = content.match(/<title>(.*?)<\/title>/);
+            const dateMatch = content.match(/<span>🗓️ (.*?)<\/span>/) || content.match(/• ([\d\-]+)/);
+            const categoryMatch = content.match(/<div class="category-badge (.*?)">(.*?)<\/div>/);
+            const descriptionMatch = content.match(/<meta name="description" content="(.*?)"/);
+
+            let title = titleMatch ? titleMatch[1].replace(' | crypto offers Digest', '') : file;
+            const date = dateMatch ? dateMatch[1] : 'Recent';
+            const categoryName = categoryMatch ? categoryMatch[2] : 'Insight';
+            const categoryBadge = categoryMatch ? categoryMatch[1] : 'blue';
+
+            // Clean up description: remove "Expert crypto analysis on..." prefix if possible
+            let excerpt = descriptionMatch ? descriptionMatch[1] : '';
+            excerpt = excerpt.replace(/^Expert crypto analysis on /i, '').split(' by Chain Signals')[0];
+
+            postEntries += `
+            <a href="${file}" class="post-card">
+                <div class="category-badge ${categoryBadge}">${categoryName}</div>
+                <span class="date">${date}</span>
+                <h3>${title}</h3>
+                <div class="excerpt">${excerpt}</div>
+                <span class="read-more">Read Full Insight</span>
+            </a>`;
+        });
+
+        let indexHtml = fs.readFileSync(INDEX_PATH, 'utf8');
+
+        // Replace everything between the start of postList and the template marker
+        const listStartTag = '<div class="post-list" id="postList">';
+        const templateMarker = '<!-- POST_ITEM_TEMPLATE -->';
+
+        const startIndex = indexHtml.indexOf(listStartTag) + listStartTag.length;
+        const endIndex = indexHtml.indexOf(templateMarker);
+
+        if (startIndex > listStartTag.length - 1 && endIndex > -1) {
+            indexHtml = indexHtml.substring(0, startIndex) + postEntries + '\n            ' + indexHtml.substring(endIndex);
+            fs.writeFileSync(INDEX_PATH, indexHtml);
+            console.log(`- Synced: ${blogFiles.length} posts found.`);
+        } else {
+            console.error("❌ ERROR: Could not find post-list markers in blog/index.html");
+        }
+    } catch (err) {
+        console.error("❌ Error syncing blog index:", err.message);
     }
 }
 
@@ -511,6 +554,7 @@ async function run() {
         await autoDiscoverAndGenerate();
     }
 
+    syncBlogIndex();
     buildSitemap();
 }
 
