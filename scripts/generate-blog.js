@@ -119,6 +119,10 @@ async function fetchLatestNews() {
         console.log("Fetching latest crypto news...");
         const response = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
         const data = await response.json();
+        if (!data || !data.Data || !Array.isArray(data.Data)) {
+            console.log("No news data received or invalid format.");
+            return "No recent news available.";
+        }
         return data.Data.slice(0, 5).map(n => `- ${n.title} (${n.source})`).join('\n');
     } catch (err) {
         console.error("Error fetching news:", err);
@@ -187,47 +191,7 @@ function writeCSV(headers, rows) {
     fs.writeFileSync(QUEUE_PATH, content);
 }
 
-// Automatically builds a sitemap by scanning the file system
-function buildSitemap() {
-    console.log("\nBuilding Sitemap...");
-    const today = new Date().toISOString().split('T')[0];
 
-    // 1. Define Static Pages
-    const staticPages = [
-        'index.html',
-        'about.html',
-        'contact.html',
-        'privacy.html',
-        'terms.html',
-        'blog/index.html',
-        'charts.html'
-    ];
-
-    // 2. Scan Blog Directory for Generated Posts
-    const blogFiles = fs.readdirSync(BLOG_DIR)
-        .filter(f => f.endsWith('.html') && f !== 'template.html' && f !== 'index.html')
-        .map(f => `blog/${f}`);
-
-    const allPages = [...staticPages, ...blogFiles];
-
-    // 3. Generate XML
-    const urls = allPages.map(page => {
-        const url = `${SITE_URL}/${page.replace('index.html', '')}`;
-        return `  <url>
-    <loc>${url}</loc>
-    <lastmod>${today}</lastmod>
-    <priority>${page.includes('blog/') ? '0.8' : '1.0'}</priority>
-  </url>`;
-    }).join('\n');
-
-    const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls}
-</urlset>`;
-
-    fs.writeFileSync(SITEMAP_PATH, sitemapContent);
-    console.log(`- Sitemap updated at: ${SITEMAP_PATH} (${allPages.length} links)`);
-}
 
 async function factCheckPost(draftContent, title, keywords) {
     try {
@@ -421,7 +385,6 @@ End with: a genuine open question or honest take on where things are headed`
         fs.writeFileSync(path.join(BLOG_DIR, fileName), html);
         console.log(`- Saved: blog/${fileName}`);
 
-        fileName = fileName; // No-op to keep variable in scope if needed, but we use sync now
         return true;
     } catch (err) {
         console.error(`❌ CRITICAL ERROR generating "${title}":`, err.message);
@@ -555,7 +518,6 @@ async function run() {
     }
 
     syncBlogIndex();
-    buildSitemap();
 }
 
 run();
