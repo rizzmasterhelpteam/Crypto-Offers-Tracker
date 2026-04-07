@@ -1,6 +1,6 @@
 /**
  * generator-v3.js - 4-Step High-Authority Pipeline
- * Version: Hostile Grounded (Anti-Hallucination)
+ * Version: Expert Writer + Hostile Auditor (separated concerns)
  */
 const config = require('./config');
 
@@ -59,53 +59,69 @@ OUTPUT ONLY: The selected keyword.`;
 }
 
 /**
- * STEP 2: Source Analysis & E-E-A-T Drafting (gpt-oss-120b)
+ * STEP 2: Expert Drafting (gpt-oss-120b)
+ * Role: Confident expert writer. Produces vivid, specific, high-quality prose.
+ * All grounding/hallucination checks happen AFTER in Steps 3 & 4.
  */
 async function draftProfessionalBlog(keyword, sourceText) {
-    console.log(`[Step 2] Grounded Drafting (gpt-oss-120b)...`);
-    const knowledgeBase = JSON.stringify(config.PROJECT_KNOWLEDGE, null, 2);
+    console.log(`[Step 2] Expert Drafting (gpt-oss-120b)...`);
 
-    const systemPrompt = `You are a Hostilely Grounded technical crypto researcher. 
+    const systemPrompt = `You are a world-class technical crypto journalist — the kind that writes for CoinDesk Pro and Bankless Research.
 Today's Date: ${config.CURRENT_DATE}.
-GOAL: Write a 800-word professional blog post for the keyword "${keyword}".
+ASSIGNMENT: Write a confident, vivid, 900-word technical deep-dive article targeting the keyword: "${keyword}".
 
-ANTI-HALLUCINATION RULES:
-1. SOURCE ONLY: If a protocol/project is NOT in the "SOURCE DOCUMENTS" or the "PROJECT KNOWLEDGE" base below, it DOES NOT EXIST. Never invent projects.
-2. INTENT ALIGNMENT: Strictly follow the technical layer (L1, L2, or L3) and category (RWA, AI, etc.) requested in the keyword. If it asks for L2, do NOT write about L1 or L3.
-3. GROUND TRUTH: Use the PROJECT KNOWLEDGE base as the final arbiter of truth for specific protocol mechanics.
+YOUR WRITING STANDARDS:
+- Write with authority and precision. Name exact versions, protocols, TPS numbers, and dates from the sources.
+- Use the SOURCES below as your primary data. Quote and cite specific technical facts.
+- Every claim must come from the source material. Do NOT invent projects or statistics.
+- The article should read like it was written by a former quant/engineer who now explains things for smart crypto traders.
+- Open with a punchy hook that immediately establishes why this topic matters RIGHT NOW in 2026.
 
-HTML FORMATTING RULES:
-1. NO MARKDOWN: Absolutely zero '#', '*', or '---' symbols. Use pure HTML only.
-2. STRUCTURE: Use 'takeaways-card', 'insight-card', and 'comparison-table' as defined in global CSS.
-3. P.O.V.: Objective third-person only. 
+ARTICLE STRUCTURE (mandatory sections):
+1. Opening hook paragraph (no h1 — the template handles that).
+2. <div class="takeaways-card"><h4>Key Takeaways</h4><ul>...</ul></div> with 3-5 specific, actionable bullets.
+3. At least two <h2> sections with technical depth — include specific protocol mechanics, not vague generalities.
+4. One <div class="comparison-table-wrapper"><table class="comparison-table">...</table></div> with real benchmark data from the sources.
+5. One <div class="insight-card"><strong>Analyst Note:</strong> ...</div> with a sharp, specific expert perspective.
+6. Final <h2>Forward-Looking Signals</h2> section — what to watch in the next 30-90 days, based on source material.
+
+FORBIDDEN (will be caught in audit):
+- Markdown characters: #, ##, *, **, ***, --, ---, ===
+- Vague filler: "exciting developments", "the future of finance", "game changer"
+- "Conclusion" headers or sign-off clichés
+- First-person "Our", "We", "My"
+
+OUTPUT: Pure HTML only. No markdown. No preamble or explanation — just the article HTML body.
 
 SOURCE DOCUMENTS:
-${sourceText}
-
-PROJECT KNOWLEDGE (Ground Truth):
-${knowledgeBase}`;
+${sourceText}`;
 
     return await callGroq([
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Write the HOSTILELY GROUNDED premium HTML blog post for: ${keyword}` }
-    ], 'openai/gpt-oss-120b', 0.5);
+        { role: 'user', content: `Write the premium 900-word technical deep-dive for: "${keyword}"` }
+    ], 'openai/gpt-oss-120b', 0.65);
 }
 
 /**
- * STEP 3: Source Verification & Correction (llama-4-scout-17b)
+ * STEP 3: Hallucination & Factual Audit (llama-4-scout-17b)
+ * Role: Hostile auditor. Finds fabricated projects, fixes architecture intent.
  */
 async function firstFactCheck(draftContent, sourceText) {
-    console.log(`[Step 3] Factual Audit (llama-4-scout-17b)...`);
+    console.log(`[Step 3] Hallucination Audit (llama-4-scout-17b)...`);
     const knowledgeBase = JSON.stringify(config.PROJECT_KNOWLEDGE, null, 2);
 
-    const systemPrompt = `You are a Hostile Factual Auditor. 
-TASK: Cross-reference the DRAFT against the SOURCE DOCUMENTS and PROJECT KNOWLEDGE.
-STRICT AUDIT TASKS:
-1. DETECT FABRICATION: Identify any protocol/project mentioned in the draft that IS NOT present in the sources or Knowledge Base. DELETE them immediately.
-2. FIX INTENT: Ensure the article strictly addresses the requested technical architecture (e.g., if keyword is about L2, ensure L1 content is minimized).
-3. PURE HTML: Ensure zero markdown symbols remain.
+    const systemPrompt = `You are a Hostile Factual Auditor for a high-authority crypto publication.
+SOURCE DOCUMENTS and PROJECT KNOWLEDGE are your only sources of truth.
 
-OUTPUT ONLY: The ground-truthed, corrected HTML body.
+AUDIT TASKS (fix in place, do not summarize):
+1. FABRICATION CHECK: Any protocol/project mentioned in the DRAFT that does NOT appear in SOURCE DOCUMENTS or PROJECT KNOWLEDGE must be DELETED. Replace deleted claims with verified info from sources.
+2. ARCHITECTURE CHECK: If the keyword references a specific layer (e.g., L2, L3) or category (e.g., RWA, AI agents), the article must stay on that topic. Remove off-topic layer references.
+3. MARKDOWN SCRUB: Delete all '#', '*', '**', '---' symbols. Replace with proper HTML tags.
+4. FILLER SCRUB: Delete "Conclusion" sections and generic sign-offs.
+
+DO NOT REWRITE the article style. Only fix the above issues. Preserve vivid, specific writing.
+
+OUTPUT ONLY: The corrected, pure HTML article body.
 
 PROJECT KNOWLEDGE:
 ${knowledgeBase}
@@ -115,27 +131,30 @@ ${sourceText}`;
 
     return await callGroq([
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: `DRAFT:\n${draftContent}` }
+        { role: 'user', content: `DRAFT TO AUDIT:\n${draftContent}` }
     ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.1);
 }
 
 /**
- * STEP 4: Final Intent & Technical Audit (llama-4-scout-17b)
+ * STEP 4: Final Polish & POV Audit (llama-4-scout-17b)
+ * Role: Final editor. Ensures clean HTML, correct POV, no AI artifacts.
  */
 async function finalFactCheck(draftContent, sourceText) {
-    console.log(`[Step 4] Final Intent Audit (llama-4-scout-17b)...`);
-    const systemPrompt = `You are the Lead Technical Editor.
-TASK: Final audit for "Intent Alignment" and "Zero-Hallucination".
-RULES:
-1. INTENT MISMATCH: If the user asked for "RWA on L2" and you wrote about "Solana L1", this is a FAIL. Rewrite sections to align with the specific layer/intent requested.
-2. PROTOCOL VERIFICATION: Ensure every cited project is real and present in the sources.
-3. VISUALS: Ensure all cards and tables are rendered with pure HTML tags.
+    console.log(`[Step 4] Final Polish (llama-4-scout-17b)...`);
 
-OUTPUT ONLY: The final, high-authority, 100% grounded HTML article.`;
+    const systemPrompt = `You are the Lead Editor doing a final quality pass.
+DO NOT change the substance or style of the article. Only fix these specific issues:
+
+1. POV: Replace any "Our", "We", "My" with the specific project name (e.g., "The Starknet team").
+2. HTML CLEANLINESS: Ensure all visual components (takeaways-card, insight-card, comparison-table) are correctly closed.
+3. ZERO MARKDOWN: If any '#', '*', or '---' remain, convert them to proper HTML tags now.
+4. FINAL CHECK: Ensure the article ends cleanly — no "Conclusion" headers, no "Back to all posts" links.
+
+OUTPUT ONLY: The final, polished HTML article body. Nothing else.`;
 
     return await callGroq([
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: `SOURCES:\n${sourceText}\n\nDRAFT:\n${draftContent}` }
+        { role: 'user', content: `FINAL POLISH:\n${draftContent}` }
     ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.1);
 }
 
