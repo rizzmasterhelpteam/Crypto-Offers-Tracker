@@ -55,7 +55,7 @@ OUTPUT ONLY: The selected keyword.`;
     return await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `TRENDING CONTEXT:\n${trendingContext}` }
-    ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.7);
+    ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.8);
 }
 
 /**
@@ -67,22 +67,21 @@ async function draftProfessionalBlog(keyword, sourceText) {
 Today's Date: ${config.CURRENT_DATE}.
 GOAL: Write a 600-800 word professional blog post about the keyword "${keyword}".
 
-E-E-A-T & PREMIUM FORMATTING REQUIREMENTS:
-1. SEO: Use "${keyword}" as the H1 title. Naturalize the opening paragraph.
-2. TAKEAWAYS: Mandatory '<div class="takeaways-card"><h4>Key Takeaways</h4><ul>...</ul></div>' immediately below the intro.
-3. INSIGHTS: Include at least one '<div class="insight-card">...</div>' for analyst perspective.
-4. STRUCTURE: Use H2s for main sections and H3s for nested details. 
-5. DATA: Every benchmark (fees, TPS, finality) MUST be in a '<div class="comparison-table-wrapper"><table class="comparison-table">...</table></div>'.
-6. P.O.V.: Use third-person objective voice. NEVER use "Our", "We", or "My". Always name the projects (e.g., "The Provenance platform").
-7. NO FILLER: Absolutely NO "Conclusion" headers or cliché AI sign-offs. End cleanly after "Future Outlook".
-8. BACKLINKS: Include 2-3 direct <a> links to source URLs.
+STRICT HTML OUTPUT RULES - NO MARKDOWN:
+1. NO Markdown symbols (#, ##, *, **, etc.).
+2. USE ONLY HTML TAGS: <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>.
+3. STRUCTURE: Mandatory '<div class="takeaways-card"><h4>Key Takeaways</h4><ul>...</ul></div>' immediately below the intro.
+4. INSIGHTS: Include at least one '<div class="insight-card">...</div>'.
+5. DATA: Benchmarks MUST be in '<div class="comparison-table-wrapper"><table class="comparison-table">...</table></div>'.
+6. P.O.V.: Use third-person objective. No "Our", "We", or "My".
+7. NO FILLER: Absolutely NO "Conclusion" headers or generic AI sign-offs. End cleanly after "Future Outlook".
 
 SOURCE DOCUMENTS:
 ${sourceText}`;
 
     return await callGroq([
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Write the premium, 800-word SEO-optimized blog post for: ${keyword}` }
+        { role: 'user', content: `Write the premium, 800-word SEO-optimized blog post in PURE HTML for: ${keyword}` }
     ], 'openai/gpt-oss-120b', 0.6);
 }
 
@@ -93,12 +92,12 @@ async function firstFactCheck(draftContent, sourceText) {
     console.log(`[Step 3] First Fact-Check & Fix (llama-4-scout-17b)...`);
     const systemPrompt = `You are a Hostile Technical Fact-Checker. 
 TASK: Compare the draft against the sources. Identify and FIX errors.
-STRICT AUDIT RULES:
-1. P.O.V. AUDIT: Change first-person "Our/We/My" to the specific project name from the source.
-2. VISUAL AUDIT: Ensure '<div class="takeaways-card">', '<div class="insight-card">', and '<table class="comparison-table">' are used correctly.
-3. SCRUB FILLER: Delete "Conclusion" headers and generic sign-offs.
-4. FACTUAL FIX: Fix inaccuracies based on the sources.
-OUTPUT ONLY: The corrected HTML article body.`;
+STRICT HTML ENFORCEMENT:
+1. PURE HTML ONLY: Delete all markdown symbols (#, ##, *, **). Replace them with <h2>, <h3>, <strong>, <p>.
+2. P.O.V. AUDIT: Change first-person "Our/We/My" to project names.
+3. VISUAL AUDIT: Ensure '<div class="takeaways-card">', '<div class="insight-card">', and '<table class="comparison-table">' are used correctly.
+4. SCRUB FILLER: Delete "Conclusion" headers and generic sign-offs.
+OUTPUT ONLY: The corrected PURE HTML article body.`;
 
     return await callGroq([
         { role: 'system', content: systemPrompt },
@@ -111,13 +110,13 @@ OUTPUT ONLY: The corrected HTML article body.`;
  */
 async function finalFactCheck(draftContent, sourceText) {
     console.log(`[Step 4] Final Fact-Check & Publish (llama-4-scout-17b)...`);
-    const systemPrompt = `You are the Final Auditor. Ensure the draft is perfect.
+    const systemPrompt = `You are the Final Auditor. 
 STRICT RULES:
-1. SCRUB AI ARTIFACTS: Ensure NO "Conclusion" sections remain.
-2. P.O.V. ENFORCEMENT: Ensure 100% objective third-person project-based naming.
-3. VISUAL POLISH: Verify all tables and cards use premium CSS classes (takeaways-card, comparison-table, insight-card).
-4. FACTUAL CONSISTENCY: Match the sources perfectly.
-OUTPUT ONLY: The final, polished HTML article for publication.`;
+1. NO MARKDOWN: Ensure zero '#' or '*' characters remain. The result must be raw HTML.
+2. SCRUB AI ARTIFACTS: Ensure NO "Conclusion" sections.
+3. P.O.V. ENFORCEMENT: Ensure 100% objective third-person naming.
+4. VISUAL POLISH: Verify all tables and cards use premium CSS classes.
+OUTPUT ONLY: The final, polished PURE HTML article for publication.`;
 
     return await callGroq([
         { role: 'system', content: systemPrompt },
