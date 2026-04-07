@@ -4,3 +4,6 @@
 2026-04-07T09:11:41.296Z | Model: openai/gpt-oss-120b | Prompt: 1255 | Completion: 2000 | Total: 3255
 2026-04-07T09:11:43.435Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 2738 | Completion: 734 | Total: 3472
 2026-04-07T09:11:46.097Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 2074 | Completion: 843 | Total: 2917
+2026-04-07T09:35:36.048Z | Model: openai/gpt-oss-120b | Prompt: 1500 | Completion: 1493 | Total: 2993
+2026-04-07T09:35:38.089Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 2829 | Completion: 677 | Total: 3506
+2026-04-07T09:35:39.894Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 1717 | Completion: 601 | Total: 2318
