@@ -224,7 +224,7 @@ async function forensicFactAudit(content, title, keywords) {
     try {
         console.log(`Forensic Audit: Finalizing technical accuracy for "${title}"...`);
 
-        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -283,7 +283,7 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
         const model = 'openai/gpt-oss-120b';
         console.log(`Generating: [${category.name}] "${title}" (Model: ${model})...`);
 
-        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
