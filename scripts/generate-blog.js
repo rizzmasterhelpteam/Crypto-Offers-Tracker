@@ -26,9 +26,6 @@ const QUEUE_PATH = path.join(ADMIN_DIR, 'queue.csv');
 const SITEMAP_PATH = path.join(PROJECT_ROOT, 'sitemap.xml');
 const USAGE_LOG_PATH = path.join(ADMIN_DIR, 'usage.log');
 const CONTEXT_CACHE_PATH = path.join(ADMIN_DIR, 'ground-truth-context.json');
-const REVIEW_DIR = path.join(ADMIN_DIR, 'review');
-
-if (!fs.existsSync(REVIEW_DIR)) fs.mkdirSync(REVIEW_DIR, { recursive: true });
 
 // SOURCE OF TRUTH: Hard-coded 2026 technical knowledge to prevent AI hallucinations
 const PROJECT_KNOWLEDGE = {
@@ -424,12 +421,9 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
                 '<p>Bitgert is an EVM-compatible Layer 1 blockchain optimized for low-fee throughput [Per Bitgert documentation April 2026].</p>');
         }
 
-        // [Stage 4] MANDATORY REVIEW GATE: Save to review folder first
-        const reviewPath = path.join(REVIEW_DIR, fileName);
-        fs.writeFileSync(reviewPath, html);
-        console.log(`\n✅ GENERATION COMPLETE: [REVIEW REQUIRED]`);
-        console.log(`- File: admin/review/${fileName}`);
-        console.log(`- Action: Manually verify and move to /blog to publish.`);
+        // Full Automation: Save directly to blog folder
+        fs.writeFileSync(path.join(BLOG_DIR, fileName), html);
+        console.log(`- Saved: blog/${fileName}`);
 
         return true;
     } catch (err) {
