@@ -1,6 +1,6 @@
 /**
- * generator-v3.js - 4-Step High-Authority Pipeline
- * Version: Expert Writer + Hostile Auditor (separated concerns)
+ * generator-v3.js - 5-Step High-Authority Pipeline
+ * Hardened: Negative Prompts, Arch Boundaries, No Fake Quotes, No Fake Reg News, Artifact Scrub
  */
 const config = require('./config');
 
@@ -50,20 +50,24 @@ CRITERIA:
 - Low-competition: Not dominated by mainstream media; technical or niche.
 - Topic: Must be related to the 2026 technical roadmap (L2/L3 scaling, AI agents, RWA, or Institutional DeFi).${historyBlock}
 
-OUTPUT ONLY: The selected keyword.`;
+OUTPUT RULES (CRITICAL):
+- Output ONLY the keyword itself — nothing else.
+- Do NOT prefix it with "Selected Keyword:", "Keyword:", or any label.
+- Do NOT wrap it in quotes or markdown.
+- Do NOT output multiple lines or explanations.`;
 
     const raw = await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `TRENDING CONTEXT:\n${trendingContext}` }
     ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.8);
 
-    // Clean up any AI formatting artifacts from the response
+    // Strip any AI formatting artifacts from the response
     const cleaned = raw
-        .replace(/<think>[\s\S]*?<\/think>/gi, '')  // safety: strip any CoT blocks
+        .replace(/<think>[\s\S]*?<\/think>/gi, '')  // safety: strip CoT blocks
         .trim()
-        .replace(/^(?:\**)?Selected Keyword:?(?:\**)?\s*/gi, '')
-        .replace(/^["'\s]+|["'\s]+$/g, '')           // strip quotes and whitespace
-        .split('\n')[0]                               // take only the first line
+        .replace(/^(?:\**)?(?:Selected )?Keyword:?(?:\**)?\s*/gi, '')
+        .replace(/^["'\s]+|["'\s]+$/g, '')
+        .split('\n')[0]
         .trim();
 
     console.log(`[Step 1] Cleaned keyword: "${cleaned}"`);
@@ -72,8 +76,7 @@ OUTPUT ONLY: The selected keyword.`;
 
 /**
  * STEP 2: Expert Drafting (gpt-oss-120b)
- * Role: Confident expert writer. Produces vivid, specific, high-quality prose.
- * All grounding/hallucination checks happen AFTER in Steps 3 & 4.
+ * Role: Confident expert writer. Grounding/hallucination checks happen in Steps 3-5.
  */
 async function draftProfessionalBlog(keyword, sourceText) {
     console.log(`[Step 2] Expert Drafting (gpt-oss-120b)...`);
@@ -83,30 +86,49 @@ async function draftProfessionalBlog(keyword, sourceText) {
 Today's Date: ${config.CURRENT_DATE}.
 ASSIGNMENT: Write a confident, vivid, 900-word technical deep-dive article targeting the keyword: "${keyword}".
 
-YOUR WRITING STANDARDS:
-- Write with authority and precision. Use specific protocol names, TPS numbers, and dates from the PROJECT KNOWLEDGE and sources below.
-- Prioritize facts from PROJECT KNOWLEDGE and SOURCE DOCUMENTS. If a specific detail isn't covered, use publicly known, verifiable information — do NOT invent fictional companies or statistics.
-- The article should read like it was written by a former quant/engineer who explains things for smart crypto traders.
+═══════════════════════════════════════════
+STEP 0 — ARCHITECTURE DECLARATION (MANDATORY)
+Before writing a single sentence, state internally:
+  - What layer is this technology? (L1, L2, L3, DA layer, etc.)
+  - What is its consensus or execution mechanism?
+  - What real protocols are relevant to this keyword?
+Then write ONLY about those defined technologies. Do NOT drift into adjacent chains.
+═══════════════════════════════════════════
+
+WRITING STANDARDS:
+- Use specific protocol names, TPS numbers, and dates ONLY from PROJECT KNOWLEDGE and SOURCE DOCUMENTS below.
+- If a source doesn't mention a specific figure, write a general qualifier ("hundreds of transactions per second", "sub-cent fees") — do NOT invent a number.
+- The article reads like a former quant/engineer explaining things for smart crypto traders.
 - Open with a punchy hook that immediately establishes why this topic matters RIGHT NOW in 2026.
 
-ARTICLE STRUCTURE (mandatory sections):
+ARTICLE STRUCTURE (mandatory):
 1. Opening hook paragraph (no h1 — the template handles that).
 2. <div class="takeaways-card"><h4>Key Takeaways</h4><ul>...</ul></div> with 3-5 specific, actionable bullets.
-3. At least two <h2> sections with technical depth — include specific protocol mechanics, not vague generalities.
+3. At least two <h2> sections with technical depth — includes specific mechanics, not vague generalities.
 4. One <div class="comparison-table-wrapper"><table class="comparison-table">...</table></div> with benchmark data.
 5. One <div class="insight-card"><strong>Analyst Note:</strong> ...</div> with a sharp expert perspective.
 6. Final <h2>Forward-Looking Signals</h2> section — what to watch in the next 30-90 days.
 
-FORBIDDEN ELEMENTS (will be caught in audit):
-- Markdown characters: #, ##, *, **, ***, --, ---, ===
-- Vague filler: "exciting developments", "the future of finance", "game changer"
-- "Conclusion" headers or sign-off clichés
-- First-person "Our", "We", "My"
-- Fictional companies, made-up TPS figures, or fabricated protocol names
+═══════════════════════════════════════════
+CRITICAL — ABSOLUTE PROHIBITIONS (auditors will delete violations):
+═══════════════════════════════════════════
+FABRICATION RULES:
+- NEVER invent protocol upgrade names (e.g., do not write "MONAD_NINE", "STRK20", or any named upgrade not in PROJECT KNOWLEDGE or SOURCES).
+- NEVER invent company names, researcher names, analyst firms, or quotes from human beings.
+- NEVER attribute a quote to any named person ("According to [Name], CTO of...") unless that exact quote appears in SOURCE DOCUMENTS.
+- NEVER fabricate specific regulatory actions: no invented SEC rulings, Fed pilots, EU directives, or Treasury announcements. Reference only broad, established frameworks (e.g., MiCA, existing EIP numbers).
+- NEVER claim a mainnet launch date that is not in PROJECT KNOWLEDGE or SOURCES.
+- NEVER start multiple sentences in a row with the same subject (e.g., "The Starknet team ... The Starknet team ...").
 
-OUTPUT: Pure HTML only. No markdown. No preamble — just the article HTML body.
+FORMATTING RULES:
+- No markdown characters: #, ##, *, **, ***, --, ---, ===
+- No "Conclusion" headers or sign-off clichés
+- No first-person "Our", "We", "My"
+- No meta-tags, keyword labels, or template footer text in the output
 
-PROJECT KNOWLEDGE (2026 ground truth — use this as your primary reference):
+OUTPUT: Pure HTML only. No markdown. No preamble. Start directly with the first paragraph.
+
+PROJECT KNOWLEDGE (2026 ground truth — primary reference):
 ${knowledgeBase}
 
 SOURCE DOCUMENTS:
@@ -119,22 +141,33 @@ ${sourceText}`;
 }
 
 /**
- * STEP 3: Hallucination & Factual Audit (llama-4-scout-17b)
- * Role: Hostile auditor. Finds fabricated projects, fixes architecture intent.
+ * STEP 3: Hallucination & Fabrication Audit (llama-4-scout-17b)
+ * Role: Hostile auditor. Kills invented names, fake quotes, fake regulatory news, architecture drift.
  */
 async function firstFactCheck(draftContent, sourceText) {
     console.log(`[Step 3] Hallucination Audit (llama-4-scout-17b)...`);
 
-    const systemPrompt = `You are a Hostile Factual Auditor for a high-authority crypto publication.
+    const systemPrompt = `You are a Hostile Factual Auditor for a high-authority institutional crypto publication.
+Your job is to SILENTLY FIX errors — do NOT summarize, explain, or rewrite style.
 
-AUDIT TASKS (fix in place, do not summarize or rewrite style):
-1. FABRICATION CHECK: Any protocol/project mentioned in the DRAFT that does NOT appear in the SOURCE DOCUMENTS must be DELETED or replaced with a general statement.
-2. ARCHITECTURE CHECK: If the keyword references a specific layer (e.g., L2, L3) or category (e.g., RWA, AI agents), the article must stay on that topic.
-3. MARKDOWN SCRUB: Delete all '#', '*', '**', '---' symbols. Replace with proper HTML tags.
-4. FILLER SCRUB: Delete "Conclusion" sections and generic sign-offs.
+AUDIT CHECKLIST (apply all in one pass):
 
-DO NOT REWRITE the article style. Only fix the above issues. Preserve vivid, specific writing.
-OUTPUT ONLY: The corrected, pure HTML article body.
+1. FABRICATED PROTOCOLS: Any named protocol upgrade, version, or product (e.g., "MONAD_NINE", "STRK20") that does NOT appear word-for-word in SOURCES → DELETE the specific name, replace with a general description ("a recent performance upgrade" / "Starknet's proof system improvements").
+
+2. FABRICATED QUOTES: Any sentence attributing words to a named human being (e.g., 'According to Jane Doe...', 'CTO of X said...') → DELETE the entire quote and attribution. Replace with a factual observation from the sources if possible, otherwise remove the sentence.
+
+3. FABRICATED REGULATORY NEWS: Any claim about a specific SEC ruling, Federal Reserve pilot, Treasury announcement, or EU directive that is not explicitly in SOURCES → DELETE and replace with reference to an established framework only (e.g., "Under the EU's MiCA framework...").
+
+4. ARCHITECTURE DRIFT: If the article's keyword is about Ethereum L2s but the article discusses Solana, or if it's about L3s but covers L1 restaking → Flag and remove the off-topic section. Replace with a sentence acknowledging the correct layer.
+
+5. SENTENCE REPETITION: If any subject phrase (e.g., "The Starknet team", "Monad's architecture") appears at the start of 2+ consecutive sentences → Rewrite the second sentence to start differently.
+
+6. MARKDOWN SCRUB: Delete all '#', '*', '**', '---' symbols. Replace with proper HTML tags (h2, strong, hr).
+
+7. ARTIFACT SCRUB: Delete any text that looks like a meta-tag (e.g., "Selected Keyword:", "**Keyword:**"), template footer ("Back to all Digests"), or scraping artifact.
+
+DO NOT REWRITE style or substance beyond the above. Preserve vivid, specific writing.
+OUTPUT ONLY: The corrected, pure HTML article body. Nothing else.
 
 SOURCES:
 ${sourceText}`;
@@ -146,19 +179,20 @@ ${sourceText}`;
 }
 
 /**
- * STEP 4: Final Polish & POV Audit (llama-4-scout-17b)
- * Role: Final editor. Ensures clean HTML, correct POV, no AI artifacts.
+ * STEP 4: Final Polish & HTML Integrity (llama-4-scout-17b)
+ * Role: Final editor. Clean HTML, correct POV, no AI artifacts, no trailing junk.
  */
 async function finalFactCheck(draftContent, sourceText) {
     console.log(`[Step 4] Final Polish (llama-4-scout-17b)...`);
 
-    const systemPrompt = `You are the Lead Editor doing a final quality pass.
-DO NOT change the substance or style of the article. Only fix these specific issues:
+    const systemPrompt = `You are the Lead Editor doing a final quality pass on a crypto article.
+DO NOT change the substance or rewrite the style. Only fix the following specific issues:
 
-1. POV: Replace any "Our", "We", "My" with the specific project name (e.g., "The Starknet team").
-2. HTML CLEANLINESS: Ensure all visual components (takeaways-card, insight-card, comparison-table) are correctly closed.
-3. ZERO MARKDOWN: If any '#', '*', or '---' remain, convert them to proper HTML tags now.
-4. FINAL CHECK: Ensure the article ends cleanly — no "Conclusion" headers, no "Back to all posts" links.
+1. POV FIX: Replace any "Our", "We", "My" with the specific project name (e.g., "The Starknet team", "EigenLayer's validators").
+2. HTML CLEANLINESS: Ensure all visual components (takeaways-card, insight-card, comparison-table-wrapper, comparison-table) are correctly opened AND closed with matching tags.
+3. ZERO MARKDOWN: If any '#', '*', '**', or '---' characters remain, convert them to proper HTML now.
+4. CLEAN ENDING: The article must end on a forward-looking insight or signal. Remove any "Conclusion" headers, "Back to all posts" links, sign-off lines, or template boilerplate.
+5. TOP ARTIFACT CHECK: Ensure the article does NOT start with any label text like "**Selected Keyword:**", "Keyword:", "Title:", or any meta-prefix. The first output character must be an HTML tag or a content word.
 
 OUTPUT ONLY: The final, polished HTML article body. Nothing else.`;
 
@@ -170,7 +204,7 @@ OUTPUT ONLY: The final, polished HTML article body. Nothing else.`;
 
 /**
  * STEP 5: Data Sanitizer (llama-4-scout-17b)
- * Role: Laser-focused on correcting inaccurate dates, TPS figures, TVL numbers, and protocol versions.
+ * Role: Corrects inaccurate dates, TPS figures, TVL numbers, and protocol versions.
  */
 async function dataSanitizer(draftContent, sourceText) {
     console.log(`[Step 5] Data Sanitizer (llama-4-scout-17b)...`);
@@ -178,14 +212,15 @@ async function dataSanitizer(draftContent, sourceText) {
     const systemPrompt = `You are a Data Accuracy Auditor for a high-authority financial publication.
 Today's Date: ${config.CURRENT_DATE}.
 
-YOUR ONLY JOB is to fix factual data errors. Do NOT rewrite the article, change the style, or restructure sections.
+YOUR ONLY JOB is to fix factual data errors in the article below. Do NOT rewrite style, restructure sections, or change tone.
 
-AUDIT CHECKLIST — check each item against the SOURCE DOCUMENTS:
-1. DATES: All dates must be consistent with the current date (${config.CURRENT_DATE}). Flag any future dates claimed as past events, or past dates used incorrectly.
-2. TPS / THROUGHPUT: Cross-reference all TPS, transactions-per-second, and throughput figures against sources. If a figure has no source backing, delete the specific number and replace with a general qualifier (e.g., "thousands of TPS" or "sub-cent fees").
-3. TVL / MARKET FIGURES: Cross-reference TVL, market cap, and funding figures against sources. Remove any fabricated round numbers not found in sources.
-4. PROTOCOL VERSIONS: Ensure version numbers, upgrade names, and launch dates match the sources.
-5. HTML INTEGRITY: Do not break any HTML tags. Preserve all visual components (takeaways-card, comparison-table, insight-card).
+AUDIT CHECKLIST:
+1. DATES: All dates must be consistent with ${config.CURRENT_DATE}. Delete any future date claimed as a past event, or any past date used incorrectly for a "coming soon" claim.
+2. TPS / THROUGHPUT: Cross-reference all TPS and throughput numbers against SOURCES. Any figure with no source backing → delete the exact number and replace with a general qualifier ("thousands of transactions per second").
+3. TVL / MARKET FIGURES: Cross-reference all TVL, market cap, and funding figures against SOURCES. Remove any round fabricated numbers not found in sources.
+4. PROTOCOL VERSIONS: Ensure all version numbers, upgrade names, and launch dates match SOURCES exactly.
+5. QUOTE REMNANTS: If any attributed human quote survived earlier audits, delete it now.
+6. HTML INTEGRITY: Do not break any HTML tags. Preserve all visual components (takeaways-card, comparison-table, insight-card).
 
 OUTPUT ONLY: The corrected HTML article body with all data errors fixed. Nothing else.
 
