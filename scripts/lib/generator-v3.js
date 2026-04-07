@@ -55,11 +55,13 @@ OUTPUT ONLY: The selected keyword.`;
     const raw = await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `TRENDING CONTEXT:\n${trendingContext}` }
-    ], 'qwen/qwen3-32b', 0.8);
+    ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.8);
 
-    // Qwen3 leaks <think>...</think> chain-of-thought blocks — strip them
+    // Clean up any AI formatting artifacts from the response
     const cleaned = raw
-        .replace(/<think>[\s\S]*?<\/think>/gi, '')  // remove CoT block
+        .replace(/<think>[\s\S]*?<\/think>/gi, '')  // safety: strip any CoT blocks
+        .trim()
+        .replace(/^(?:\**)?Selected Keyword:?(?:\**)?\s*/gi, '')
         .replace(/^["'\s]+|["'\s]+$/g, '')           // strip quotes and whitespace
         .split('\n')[0]                               // take only the first line
         .trim();
