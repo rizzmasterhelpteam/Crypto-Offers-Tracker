@@ -234,11 +234,48 @@ function writeCSV(headers, rows) {
 
 
 
+async function stage2aExtractClaims(draftContent) {
+    try {
+        const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
+        console.log(`[Stage 2a] Claim Extraction (Model: ${model})...`);
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model,
+                messages: [
+                    {
+                        role: 'system', content: `You are a technical data extractor. 
+YOUR TASK: Pull every factual assertion from the crypto article into a numbered list.
+ASSERTIONS TO EXTRACT:
+- Protocol roles and architecture claims (e.g. "Starknet uses S-two").
+- Integration/Partnership claims (e.g. "RedStone is on Starknet").
+- Statistical claims (e.g. "$18B TVL").
+- Temporal claims (e.g. "Launched in March").
+
+OUTPUT ONLY: A numbered list of extracted claims. No preamble.` },
+                    { role: 'user', content: `EXTRACT FROM:\n${draftContent}` }
+                ],
+                temperature: 0.1,
+                max_tokens: 1500
+            })
+        });
+        if (!res.ok) return [];
+        const data = await res.json();
+        if (data.usage) logUsage(model, data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
+        if (!data.choices || data.choices.length === 0) return [];
+        return data.choices[0].message.content.trim().split('\n').filter(l => l.trim().length > 0);
+    } catch (err) {
+        console.error("Extraction error:", err.message);
+        return [];
+    }
+}
+
 async function stage3Recheck(draftContent, title, keywords) {
     try {
-        // Stage 3: Claim Extraction + Individual Verification (llama-4-scout-17b)
+        // Stage 3: Second Pass Verification (llama-4-scout-17b)
         const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
-        console.log(`[Stage 3] Technical Precision Pass: "${title}" (Model: ${model})...`);
+        console.log(`[Stage 3] Final Verification Pass: "${title}" (Model: ${model})...`);
         const latestNews = await fetchLatestNews();
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -248,19 +285,17 @@ async function stage3Recheck(draftContent, title, keywords) {
                 model,
                 messages: [
                     {
-                        role: 'system', content: `You are a senior technical editor performing an uncompromising final verification. Today's date is ${CURRENT_DATE}.
+                        role: 'system', content: `You are a senior technical editor performing a final verification. Today's date is ${CURRENT_DATE}.
 
 YOUR PROCESS:
 1. TECHNICAL PRECISION: Ensure terms like "validity rollup", "L1 finality", "preconfirmations", "STRK20", "MONAD_NINE", and "Vertical AVS" are used accurately per: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
 2. BAN SYNTHETIC HYPE (SLOP): Delete mentions of: "inflection point", "convergence of signals", "poised for significant growth", "deeper structural shifts", "subtle but measurable signal", "market narrative", "the future of finance".
 3. SOURCE ATTRIBUTION: Every substantive claim must have an inline qualifier (e.g. "[Per L2Beat]", "[Per Official Roadmap]"). Ensure these are present.
-4. HOOK AUDIT: The first sentence must not start with "The", "In", "As", or "Crypto".
-5. ACTIONABLE SIGNALS: If the article mentions Starknet, Monad, or EigenLayer, ensure it includes a "Signals to Monitor" bullet point with a placeholder for a dashboard link (e.g. "[Monitor L1 Finality Latency here]").
 
-OUTPUT ONLY: The polished HTML article. Final length: 780-850 words. Priority on quality over exact count.` },
+OUTPUT ONLY: The final, polished HTML article. Final length: 780-850 words.` },
                     { role: 'user', content: `FINALIZE AND POLISH:\nTitle: ${title}\nKeywords: ${keywords}\nNews: ${latestNews}\n\nARTICLE:\n${draftContent}` }
                 ],
-                temperature: 0.15,
+                temperature: 0.1,
                 max_tokens: 3500
             })
         });
@@ -277,11 +312,11 @@ OUTPUT ONLY: The polished HTML article. Final length: 780-850 words. Priority on
 
 
 
-async function stage2FactCheck(draftContent, title, keywords, sourceText) {
+async function stage2bFactCheck(draftContent, claims, title, keywords, sourceText) {
     try {
-        // Stage 2: Hostile Fact Check (llama-4-scout-17b)
+        // Stage 2b: Hostile Fact Check (llama-4-scout-17b)
         const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
-        console.log(`[Stage 2] Hostile Fact-Checking: "${title}" (Model: ${model})...`);
+        console.log(`[Stage 2b] Hostile Fact-Checking: "${title}" (Model: ${model})...`);
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -290,13 +325,14 @@ async function stage2FactCheck(draftContent, title, keywords, sourceText) {
                 model,
                 messages: [
                     {
-                        role: 'system', content: `You are a ruthless technical auditor. Every integration, synergy, or pilot claim in the draft is "Guilty Until Proven Innocent". 
+                        role: 'system', content: `You are a hostile technical editor. 
+Given these source documents: [${sourceText}]
+Find every claim in the extracted list that is NOT supported by these sources. DELETE the unsupported claims from the article.
 
-YOUR TASK:
-1. BAN SYNTHETIC SYNERGY: If the draft connects two projects (e.g., Starknet + RedStone) without verbatim 2026 support in the SOURCE DOCUMENTS, DELETE the connection.
-2. DELETE OUTDATED FRAMING: Identify 2024-era facts (e.g., Celestia Blobstream for L2s) and delete them if they conflict with 2026 state (L3 appchains only).
-3. FORCE VERBATIM ATTRIBUTION: Every technical claim MUST be attributed (e.g. "[Per Official Roadmap March 2026]").
-4. CONFIDENCE SCORE: Rank the remaining claims' reliability (1-10). Only an 8+ is acceptable for Chain Signals.
+STRICT RULES:
+1. BAN UNSOURCED SYNERGY: If a claim connects two protocols without verbatim 2026 support in the sources: DELETE IT.
+2. DO NOT PASS UNSUPPORTED CLAIMS. If a date (e.g. 2024 Celestia integration) conflicts with the 2026 status (L3 only), DELETE IT.
+3. OUTPUT ONLY the cleaned article.
 
 OUTPUT FORMAT:
 [DELETED_CLAIMS_LOG]
@@ -308,9 +344,9 @@ OUTPUT FORMAT:
 [/CONFIDENCE_SCORE]
 
 [ARTICLE_BODY]
-(The ruthless fact-checked HTML)
+(The cleaned HTML article)
 [/ARTICLE_BODY]` },
-                    { role: 'user', content: `SOURCE DOCUMENTS:\n${sourceText}\n\nKNOWLEDGE BASE: ${JSON.stringify(PROJECT_KNOWLEDGE)}\n\n---\n\nFACT CHECK THIS DRAFT:\n${draftContent}` }
+                    { role: 'user', content: `EXTRACTED CLAIMS TO VERIFY:\n${claims.join('\n')}\n\nDRAFT ARTICLE:\n${draftContent}` }
                 ],
                 temperature: 0.1,
                 max_tokens: 3500
@@ -324,7 +360,7 @@ OUTPUT FORMAT:
         // Log auditing metadata
         const logMatch = content.match(/\[DELETED_CLAIMS_LOG\]([\s\S]*?)\[\/DELETED_CLAIMS_LOG\]/);
         const scoreMatch = content.match(/\[CONFIDENCE_SCORE\]([\s\S]*?)\[\/CONFIDENCE_SCORE\]/);
-        if (logMatch) console.log(`\n--- Ruthless Editor: Deleted Claims ---\n${logMatch[1].trim()}\n`);
+        if (logMatch) console.log(`\n--- Hostile Editor v3: Deleted Claims ---\n${logMatch[1].trim()}\n`);
         if (scoreMatch) console.log(`--- Claims Confidence Score: ${scoreMatch[1].trim()}/10 ---\n`);
 
         const bodyMatch = content.match(/\[ARTICLE_BODY\]([\s\S]*?)\[\/ARTICLE_BODY\]/);
@@ -334,6 +370,7 @@ OUTPUT FORMAT:
         return draftContent;
     }
 }
+
 
 async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
     try {
@@ -373,20 +410,21 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
         if (data.usage) logUsage(model, data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
         let bodyContent = data.choices[0].message.content;
 
-        // Stage 2: Hostile Fact Check against live-fetched sources
-        bodyContent = await stage2FactCheck(bodyContent, title, keywords, sourceText);
+        // Stage 2a: Claim Extraction (New v3 Step)
+        const extractedClaims = await stage2aExtractClaims(bodyContent);
 
-        // Stage 3: Claim-by-Claim Verification
+        // Stage 2b: Hostile Fact Check against live-fetched sources
+        bodyContent = await stage2bFactCheck(bodyContent, extractedClaims, title, keywords, sourceText);
+
+        // Stage 3: Second Pass Verification
         bodyContent = await stage3Recheck(bodyContent, title, keywords);
 
-        // Post-processing: Strip meta-prompt leakage / chain-of-thought
-        // Strip everything before the first HTML tag
-        const firstTagIndex = bodyContent.search(/<(h[1-6]|p|ul|li|strong)/);
+        // Stage 4: Robust Post-Processing (Strip Meta-Prompt)
+        // Hardened regex: find the first <h2>, <h3>, or <p> block and delete everything before it.
+        const firstTagIndex = bodyContent.search(/<(h[2-3]|p|ul)/i);
         if (firstTagIndex > 0) bodyContent = bodyContent.slice(firstTagIndex);
-        bodyContent = bodyContent
-            .replace(/^(Thinking|Step \d|Let me|Okay,|I will|Here is|Here's|Starting with)[^\n]*\n/gim, '')
-            .replace(/^(Thinking Process|Scratchpad|Reasoning|Chain of Thought):[\s\S]*?\n\n/gi, '')
-            .trim();
+
+        bodyContent = bodyContent.trim();
 
         bodyContent = bodyContent.replace(/### (.*)/g, '<h3>$1</h3>')
             .replace(/## (.*)/g, '<h2>$1</h2>')
