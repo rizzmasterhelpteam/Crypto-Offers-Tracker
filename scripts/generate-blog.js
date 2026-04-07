@@ -45,15 +45,27 @@ async function run() {
 
         // STEP 3: First Fact-Check & Fix (llama-4-scout-17b)
         console.log("[Flow] Step 3 Starting...");
-        content = await generator.firstFactCheck(content, sourceText);
+        try {
+            const step3out = await generator.firstFactCheck(content, sourceText);
+            if (step3out && step3out.length > 200) { content = step3out; console.log(`[Flow] Step 3 OK (${step3out.length} chars)`); }
+            else { console.warn(`[Flow] Step 3 returned short or empty output (${step3out?.length || 0} chars), keeping Step 2 output.`); }
+        } catch (e) { console.warn(`[Flow] Step 3 FAILED: ${e.message}. Keeping Step 2 output.`); }
 
         // STEP 4: Final Fact-Check & Publish (llama-4-scout-17b)
         console.log("[Flow] Step 4 Starting...");
-        content = await generator.finalFactCheck(content, sourceText);
+        try {
+            const step4out = await generator.finalFactCheck(content, sourceText);
+            if (step4out && step4out.length > 200) { content = step4out; console.log(`[Flow] Step 4 OK (${step4out.length} chars)`); }
+            else { console.warn(`[Flow] Step 4 returned short or empty output (${step4out?.length || 0} chars), keeping Step 3 output.`); }
+        } catch (e) { console.warn(`[Flow] Step 4 FAILED: ${e.message}. Keeping Step 3 output.`); }
 
         // STEP 5: Data Sanitizer — corrects inaccurate dates, figures, TPS numbers (llama-4-scout-17b)
         console.log("[Flow] Step 5 Starting...");
-        content = await generator.dataSanitizer(content, sourceText);
+        try {
+            const step5out = await generator.dataSanitizer(content, sourceText);
+            if (step5out && step5out.length > 200) { content = step5out; console.log(`[Flow] Step 5 OK (${step5out.length} chars)`); }
+            else { console.warn(`[Flow] Step 5 returned short or empty output (${step5out?.length || 0} chars), keeping Step 4 output.`); }
+        } catch (e) { console.warn(`[Flow] Step 5 FAILED: ${e.message}. Keeping Step 4 output.`); }
 
         // Final assembly
         const today = config.CURRENT_DATE;

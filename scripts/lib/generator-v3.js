@@ -108,23 +108,17 @@ ${sourceText}`;
  */
 async function firstFactCheck(draftContent, sourceText) {
     console.log(`[Step 3] Hallucination Audit (llama-4-scout-17b)...`);
-    const knowledgeBase = JSON.stringify(config.PROJECT_KNOWLEDGE, null, 2);
 
     const systemPrompt = `You are a Hostile Factual Auditor for a high-authority crypto publication.
-SOURCE DOCUMENTS and PROJECT KNOWLEDGE are your only sources of truth.
 
-AUDIT TASKS (fix in place, do not summarize):
-1. FABRICATION CHECK: Any protocol/project mentioned in the DRAFT that does NOT appear in SOURCE DOCUMENTS or PROJECT KNOWLEDGE must be DELETED. Replace deleted claims with verified info from sources.
-2. ARCHITECTURE CHECK: If the keyword references a specific layer (e.g., L2, L3) or category (e.g., RWA, AI agents), the article must stay on that topic. Remove off-topic layer references.
+AUDIT TASKS (fix in place, do not summarize or rewrite style):
+1. FABRICATION CHECK: Any protocol/project mentioned in the DRAFT that does NOT appear in the SOURCE DOCUMENTS must be DELETED or replaced with a general statement.
+2. ARCHITECTURE CHECK: If the keyword references a specific layer (e.g., L2, L3) or category (e.g., RWA, AI agents), the article must stay on that topic.
 3. MARKDOWN SCRUB: Delete all '#', '*', '**', '---' symbols. Replace with proper HTML tags.
 4. FILLER SCRUB: Delete "Conclusion" sections and generic sign-offs.
 
 DO NOT REWRITE the article style. Only fix the above issues. Preserve vivid, specific writing.
-
 OUTPUT ONLY: The corrected, pure HTML article body.
-
-PROJECT KNOWLEDGE:
-${knowledgeBase}
 
 SOURCES:
 ${sourceText}`;
