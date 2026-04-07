@@ -52,7 +52,7 @@ OUTPUT ONLY: The selected keyword.`;
     return await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `TRENDING CONTEXT:\n${trendingContext}` }
-    ], 'openai/gpt-oss-120b', 0.7);
+    ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.7);
 }
 
 /**
