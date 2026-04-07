@@ -22,12 +22,12 @@ module.exports = {
 
     // 2026 PROJECT KNOWLEDGE: SOURCE OF TRUTH
     PROJECT_KNOWLEDGE: {
-        'STRK': { role: 'Validity Rollup (Starknet)', mechanism: 'STARK-based proof systems. 2026 Focus: S-two prover (L1 finality <1hr), STRK20 privacy protocol (March 2026 launch), and preconfirmations for <1s transaction latency.' },
-        'STARKNET': { role: 'Validity Rollup', mechanism: 'STARK-based scaling. 2026 Pillars: STRK20 native privacy, S-two prover efficiency, and Rust-based committers for 3x capacity.' },
+        'STRK': { role: 'Validity Rollup (Starknet)', mechanism: 'STARK-based proof systems. 2026 Focus: Stwo prover (L1 finality <1hr), STRK20 privacy protocol (March 2026 launch), and preconfirmations for <1s transaction latency.' },
+        'STARKNET': { role: 'Validity Rollup', mechanism: 'STARK-based scaling. 2026 Pillars: STRK20 native privacy, Stwo prover efficiency, and Rust-based committers for 3x capacity.' },
         'MONAD': { role: 'Parallel EVM L1', mechanism: 'Mainnet launched Nov 2025. 10k TPS, 0.4s blocks. 2026 Focus: MONAD_NINE upgrade (optimized memory costs/EIP-7823 alignment) and ecosystem growth via Monad AI Blueprint.' },
         'MON': { role: 'Parallel EVM L1 (Monad)', mechanism: '10k TPS with parallel execution and MonadDB. Mainnet operational since late 2025.' },
-        'EIGEN': { role: 'Verifiable Cloud (EigenLayer)', mechanism: 'Restaked security marketplace. Feb 2026: $18B+ TVL. Focus: Vertical AVS (EigenAI, EigenCompute) and Multichain Verification across L2s.' },
-        'EIGENLAYER': { role: 'Verifiable Cloud / Restaking', mechanism: 'Shared security for AVS. 2026 Roadmap: Scaling decentralized AI inference and model evaluation via specialized AVS instances.' },
+        'EIGEN': { role: 'Verifiable Cloud (EigenLayer)', mechanism: 'Restaked security marketplace. Feb 2026: $18B+ TVL. Focus: Vertical Actively Validated Services (AVS) like EigenAI, EigenCompute and Multichain Verification across L2s.' },
+        'EIGENLAYER': { role: 'Verifiable Cloud / Restaking', mechanism: 'Shared security for Actively Validated Services (AVS). 2026 Roadmap: Scaling decentralized AI inference and model evaluation via specialized AVS instances.' },
         'BERA': { role: 'DeFi-Focused L1 (Berachain)', mechanism: 'Proof of Liquidity (PoL) aligning security with liquidity. Mainnet launched Feb 2025. 2026: Bera Builds Businesses focus.' },
         'BERACHAIN': { role: 'DeFi-Focused L1', mechanism: 'PoL consensus. 2026 Focus: Revenue-generating apps over pure emission incentives ($BERA, $BGT, $HONEY).' },
         'TIA': { role: 'Modular Data Availability Layer (Celestia)', mechanism: 'Data Availability Sampling (DAS). 2026: Expansion beyond Ethereum L3s toward native modular alignment.' },

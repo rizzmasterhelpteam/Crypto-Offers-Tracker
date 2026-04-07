@@ -119,12 +119,15 @@ FABRICATION RULES:
 - NEVER fabricate specific regulatory actions: no invented SEC rulings, Fed pilots, EU directives, or Treasury announcements. Reference only broad, established frameworks (e.g., MiCA, existing EIP numbers).
 - NEVER claim a mainnet launch date that is not in PROJECT KNOWLEDGE or SOURCES.
 - NEVER start multiple sentences in a row with the same subject (e.g., "The Starknet team ... The Starknet team ...").
+- NEVER use vague "Mad-Libs" placeholders (e.g., "A joint pilot between a major asset manager..."). Ground forward-looking signals with real industry entities (e.g., "BlackRock's BUIDL fund integration...").
+- TERMINOLOGY STRICTNESS: AVS stands for "Actively Validated Services" ONLY. Never "Application-Specific Verifiers".
 
 FORMATTING RULES:
 - No markdown characters: #, ##, *, **, ***, --, ---, ===
 - No "Conclusion" headers or sign-off clichés
 - No first-person "Our", "We", "My"
 - No meta-tags, keyword labels, or template footer text in the output
+- TABLES MUST HAVE CORRECT UNITS: "Total value secured" must have a dollar amount (e.g. "$18 Billion"). "Cost" must have a fee (e.g. "$0.003"). Never put "TPS" in a cost or TVL column.
 
 OUTPUT: Pure HTML only. No markdown. No preamble. Start directly with the first paragraph.
 
@@ -162,9 +165,11 @@ AUDIT CHECKLIST (apply all in one pass):
 
 5. SENTENCE REPETITION: If any subject phrase (e.g., "The Starknet team", "Monad's architecture") appears at the start of 2+ consecutive sentences → Rewrite the second sentence to start differently.
 
-6. MARKDOWN SCRUB: Delete all '#', '*', '**', '---' symbols. Replace with proper HTML tags (h2, strong, hr).
+6. AVS TERMINOLOGY: If AVS is defined as "Application-Specific Verifiers", you MUST change it to "Actively Validated Services".
 
-7. ARTIFACT SCRUB: Delete any text that looks like a meta-tag (e.g., "Selected Keyword:", "**Keyword:**"), template footer ("Back to all Digests"), or scraping artifact.
+7. MARKDOWN SCRUB: Delete all '#', '*', '**', '---' symbols. Replace with proper HTML tags (h2, strong, hr).
+
+8. ARTIFACT SCRUB: Delete any text that looks like a meta-tag (e.g., "Selected Keyword:", "**Keyword:**"), template footer ("Back to all Digests", "CS Chain Signals"), or scraping artifact (e.g., "🗓️ 2026-04-07", "🔥Trending:").
 
 DO NOT REWRITE style or substance beyond the above. Preserve vivid, specific writing.
 OUTPUT ONLY: The corrected, pure HTML article body. Nothing else.
@@ -191,8 +196,8 @@ DO NOT change the substance or rewrite the style. Only fix the following specifi
 1. POV FIX: Replace any "Our", "We", "My" with the specific project name (e.g., "The Starknet team", "EigenLayer's validators").
 2. HTML CLEANLINESS: Ensure all visual components (takeaways-card, insight-card, comparison-table-wrapper, comparison-table) are correctly opened AND closed with matching tags.
 3. ZERO MARKDOWN: If any '#', '*', '**', or '---' characters remain, convert them to proper HTML now.
-4. CLEAN ENDING: The article must end on a forward-looking insight or signal. Remove any "Conclusion" headers, "Back to all posts" links, sign-off lines, or template boilerplate.
-5. TOP ARTIFACT CHECK: Ensure the article does NOT start with any label text like "**Selected Keyword:**", "Keyword:", "Title:", or any meta-prefix. The first output character must be an HTML tag or a content word.
+4. CLEAN ENDING: The article must end on a forward-looking insight or signal. Remove any "Conclusion" headers, "Back to all posts" links, sign-off lines, "Back to all Digests", "CS Chain Signals", or template boilerplate.
+5. TOP ARTIFACT CHECK: Ensure the article does NOT start with any label text like "**Selected Keyword:**", "Keyword:", "Title:", "🗓️", "🔥Trending:", or any meta-prefix. The first output character must be an HTML tag or a content word.
 
 OUTPUT ONLY: The final, polished HTML article body. Nothing else.`;
 
@@ -217,10 +222,11 @@ YOUR ONLY JOB is to fix factual data errors in the article below. Do NOT rewrite
 AUDIT CHECKLIST:
 1. DATES: All dates must be consistent with ${config.CURRENT_DATE}. Delete any future date claimed as a past event, or any past date used incorrectly for a "coming soon" claim.
 2. TPS / THROUGHPUT: Cross-reference all TPS and throughput numbers against SOURCES. Any figure with no source backing → delete the exact number and replace with a general qualifier ("thousands of transactions per second").
-3. TVL / MARKET FIGURES: Cross-reference all TVL, market cap, and funding figures against SOURCES. Remove any round fabricated numbers not found in sources.
-4. PROTOCOL VERSIONS: Ensure all version numbers, upgrade names, and launch dates match SOURCES exactly.
-5. QUOTE REMNANTS: If any attributed human quote survived earlier audits, delete it now.
-6. HTML INTEGRITY: Do not break any HTML tags. Preserve all visual components (takeaways-card, comparison-table, insight-card).
+3. TABLES AND METRICS: Ensure table column units make sense. TVL and "value secured" MUST be dollar amounts. Cost MUST be a fee amount (e.g., gas cost). Fix any instance where TPS is used in a cost or value column.
+4. TVL / MARKET FIGURES: Cross-reference all TVL, market cap, and funding figures against SOURCES. Remove any round fabricated numbers not found in sources.
+5. PROTOCOL VERSIONS: Ensure all version numbers, upgrade names, and launch dates match SOURCES exactly.
+6. QUOTE REMNANTS: If any attributed human quote survived earlier audits, delete it now.
+7. HTML INTEGRITY: Do not break any HTML tags. Preserve all visual components (takeaways-card, comparison-table, insight-card).
 
 OUTPUT ONLY: The corrected HTML article body with all data errors fixed. Nothing else.
 
