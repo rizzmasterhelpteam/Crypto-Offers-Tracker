@@ -26,36 +26,33 @@ const QUEUE_PATH = path.join(ADMIN_DIR, 'queue.csv');
 const SITEMAP_PATH = path.join(PROJECT_ROOT, 'sitemap.xml');
 const USAGE_LOG_PATH = path.join(ADMIN_DIR, 'usage.log');
 
-// SOURCE OF TRUTH: Hard-coded knowledge to prevent AI hallucinations on project types
+// SOURCE OF TRUTH: Hard-coded 2026 technical knowledge to prevent AI hallucinations
 const PROJECT_KNOWLEDGE = {
-    'TIA': { role: 'Modular Data Availability Layer (Celestia)', mechanism: 'Data Availability Sampling (DAS) and Namespace Merkle Trees' },
-    'CELESTIA': { role: 'Modular Data Availability Layer', mechanism: 'Data Availability Sampling (DAS) and Namespace Merkle Trees' },
-    'EIGEN': { role: 'Ethereum Restaking Primitive (EigenLayer)', mechanism: 'Shared security via Actively Validated Services (AVS)' },
-    'EIGENLAYER': { role: 'Ethereum Restaking Primitive', mechanism: 'Shared security via Actively Validated Services (AVS)' },
-    'MON': { role: 'Parallelized EVM Layer 1 (Monad)', mechanism: 'Parallel execution and MonadDb for high-performance consensus. As of April 2026 the mainnet has not launched — claims about a shipped zk-rollup engine are NOT verified.' },
-    'MONAD': { role: 'Parallelized EVM Layer 1', mechanism: 'Parallel execution and MonadDb for high-performance consensus. As of April 2026 the mainnet has not launched — claims about a shipped zk-rollup engine are NOT verified.' },
-    'BERA': { role: 'DeFi-Focused Layer 1 (Berachain)', mechanism: 'Proof of Liquidity (PoL) and tri-token system ($BERA, $BGT, $HONEY)' },
-    'BERACHAIN': { role: 'DeFi-Focused Layer 1', mechanism: 'Proof of Liquidity (PoL) and tri-token system' },
-    'JTO': { role: 'Solana MEV-Powered Liquid Staking (Jito)', mechanism: 'Maximum Extractable Value (MEV) redistribution to stakers' },
-    'DRIFT': { role: 'Decentralized Perpetual DEX on Solana', mechanism: 'Dynamic Virtual AMM (dAMM) and cross-margined trading' },
-    'JUP': { role: 'Solana Liquidity & Swap Aggregator (Jupiter)', mechanism: 'Metis routing and decentralized limit order engine' },
-    'REDSTONE': { role: 'Modular Oracle Provider', mechanism: 'Push/Pull data delivery for low-latency L1s/L2s' },
-    'SIREN': { role: 'Decentralized Options & Derivatives Protocol', mechanism: 'On-chain option writing and AMM-based trading' },
-    'TRUEFI': { role: 'Uncollateralized Institutional Lending', mechanism: 'Credit-based lending pools on Ethereum' },
-    'TRU': { role: 'Uncollateralized Institutional Lending', mechanism: 'Credit-based lending pools on Ethereum' },
-    'LDO': { role: 'Liquid Staking Protocol (Lido)', mechanism: 'Tokenized staked ETH and decentralized validator sets' },
-    'TAIKO': { role: 'Based Rollup (Taiko)', mechanism: 'Decentralized sequencing via Ethereum L1' },
-    'STARKNET': { role: 'ZK-Rollup (Starknet)', mechanism: 'STARK-based scaling with Cairo language' },
-    'ZKSYNC': { role: 'ZK-Rollup (zkSync Era)', mechanism: 'ZK-SNARK scalability with native account abstraction' },
-    'BRISE': { role: 'EVM-Compatible Layer 1 (Bitgert chain)', mechanism: 'Bitgert is a low-fee EVM-compatible chain. It is NOT a Layer-0 bridge, NOT a ZK rollup, and has no verified institutional DeFi integrations. Treat all unverified Bitgert architecture claims as hallucinations.' },
-    'BITGERT': { role: 'EVM-Compatible Layer 1', mechanism: 'Bitgert is a low-fee EVM-compatible chain, NOT a Layer-0 bridge or ZK rollup.' },
-    'TAO': { role: 'Decentralized AI Network (Bittensor)', mechanism: 'Incentivized machine learning marketplace where validators rank subnets and miners earn TAO for producing useful AI outputs' },
-    'BITTENSOR': { role: 'Decentralized AI Network', mechanism: 'Incentivized machine learning marketplace with subnet structure' },
-    'PENGU': { role: 'NFT Collection & Community Token (Pudgy Penguins)', mechanism: 'Pudgy Penguins is an Ethereum NFT collection. PENGU is their governance/community token. Any staking mechanics or governance claims should be qualified as unverified unless independently confirmed.' },
-    'PUDGY_PENGUINS': { role: 'Ethereum NFT Collection with community token PENGU', mechanism: 'Consumer-focused NFT brand with physical toy licensing. Staking claims are unverified — do not state as fact.' }
+    'STRK': { role: 'Validity Rollup (Starknet)', mechanism: 'STARK-based proof systems. 2026 Focus: S-two prover (L1 finality <1hr), STRK20 privacy protocol (March 2026 launch), and preconfirmations for <1s transaction latency.' },
+    'STARKNET': { role: 'Validity Rollup', mechanism: 'STARK-based scaling. 2026 Pillars: STRK20 native privacy, S-two prover efficiency, and Rust-based committers for 3x capacity.' },
+    'MONAD': { role: 'Parallel EVM L1', mechanism: 'Mainnet launched Nov 2025. 10k TPS, 0.4s blocks. 2026 Focus: MONAD_NINE upgrade (optimized memory costs/EIP-7823 alignment) and ecosystem growth via Monad AI Blueprint.' },
+    'MON': { role: 'Parallel EVM L1 (Monad)', mechanism: '10k TPS with parallel execution and MonadDB. Mainnet operational since late 2025.' },
+    'EIGEN': { role: 'Verifiable Cloud (EigenLayer)', mechanism: 'Restaked security marketplace. Feb 2026: $18B+ TVL. Focus: Vertical AVS (EigenAI, EigenCompute) and Multichain Verification across L2s.' },
+    'EIGENLAYER': { role: 'Verifiable Cloud / Restaking', mechanism: 'Shared security for AVS. 2026 Roadmap: Scaling decentralized AI inference and model evaluation via specialized AVS instances.' },
+    'BERA': { role: 'DeFi-Focused L1 (Berachain)', mechanism: 'Proof of Liquidity (PoL) with tri-token system ($BERA, $BGT, $HONEY). 2026 Focus: Bera Builds Businesses (revenue-generating apps over pure emission incentives).' },
+    'BERACHAIN': { role: 'DeFi-Focused L1', mechanism: 'PoL consensus aligning security with liquidity. Mainnet launched Feb 2025.' },
+    'TIA': { role: 'Modular Data Availability Layer (Celestia)', mechanism: 'Data Availability Sampling (DAS). 2026: Expansion beyond Ethereum L3s toward native modular alignment with Avail and internal throughput optimizations.' },
+    'CELESTIA': { role: 'Modular DA Layer', mechanism: 'Data Availability Sampling (DAS) and Namespace Merkle Trees (NMTs).' },
+    'JTO': { role: 'Solana Liquid Staking (Jito)', mechanism: 'MEV-boosted rewards and stake delegation. Core part of Solana high-performance ecosystem.' },
+    'DRIFT': { role: 'Decentralized Perps (Drift)', mechanism: 'Dynamic VAMM and cross-margined trading on Solana.' },
+    'PENGU': { role: 'NFT Brand (Pudgy Penguins)', mechanism: 'Consumer IP and physical toys. PENGU token launched for governance. Note: Staking integration claims are speculative and require 2+ sources before inclusion.' },
+    'BRISE': { role: 'Low-fee L1 (Bitgert)', mechanism: 'EVM-compatible chain with near-zero fees. Note: Bitgert is NOT a Layer-0 bridge. Claims of 2026 "consensus re-engineering" for L0 are fabricated hallucinations.' },
+    'BITGERT': { role: 'Low-fee L1', mechanism: 'EVM chain. Avoid architectural bridge/rollup claims without official roadmap support.' }
 };
 
-const CURRENT_DATE = new Date().toISOString().split('T')[0]; // e.g. 2026-04-07
+const CURRENT_DATE = new Date().toISOString().split('T')[0]; // Current source of truth: 2026-04-07
+
+// Known Hallucination Patterns to detect and delete
+const BANNED_AI_PATTERNS = [
+    "narrative convergence", "convergence of signals", "synergy between project X and Y",
+    "poised for growth", "inflection point", "structural shift", "market narrative investors monitor",
+    "subtle but measurable signal", "paving the way", "the future of finance", "game changer"
+];
 
 // Research seeds for high-authority content
 const RESEARCH_SEEDS = ['Celestia', 'EigenLayer', 'Monad', 'Berachain', 'Jito', 'Drift Protocol', 'Starknet', 'zkSync'];
@@ -78,30 +75,19 @@ const CATEGORIES = [
 ];
 
 // Master voice prompt: the "Chain Signals" brand identity
-const UNIFIED_VOICE_PROMPT = `You are a senior crypto analyst and writer for "Chain Signals" — a trusted independent blog for serious DeFi and blockchain readers. Today's date is ${CURRENT_DATE}.
+const UNIFIED_VOICE_PROMPT = `You are a senior technical crypto analyst for "Chain Signals". Today is ${CURRENT_DATE}.
 
-YOUR AUDIENCE: Intermediate-to-advanced crypto readers who already hold, trade, and build. Skip basic definitions.
+STYLE — CONVERSATIONAL EXPERT:
+- Write for advanced readers. Use precise terminology (L1 finality, preconfirmations, AVS scaling).
+- Vary sentence length aggressively. Mix short statements with deep analysis.
+- Tone: Coldly objective, technically precise, and skeptically grounded.
 
-WRITING STYLE — HUMAN VARIATION IS MANDATORY:
-- Vary your sentence length aggressively. Mix short punchy sentences with longer analytical ones.
-- Vary your paragraph length. Some paragraphs can be 1 sentence. Others 4. Never two identical-length paragraphs in a row.
-- Vary your register: switch between analytical observation, direct opinion, and honest uncertainty.
-- Sound like one person writing, not a template being filled in.
-- Use rhetorical questions and light skepticism naturally — not as a formula.
-
-SEO STRUCTURE RULES:
-- Start with a hook that states a tension, surprise, or genuine insight
-- Use H2 headers every 150-200 words, each containing a natural keyword
-- Include "Key Takeaways" bullets at the end
-- Target 750-850 words
-
-FACT DISCIPLINE — NON-NEGOTIABLE:
-- NEVER state on-chain data (TVL, volume, APY, price) as fact without a source qualifier: "per DefiLlama", "according to Dune", "reportedly", "per on-chain trackers"
-- NEVER make architectural claims about a protocol that are not in the provided knowledge base
-- NEVER reference a roadmap date that is in the past without stating whether it shipped
-- If the current date is ${CURRENT_DATE}, any date before this is in the past — do NOT frame past dates as upcoming milestones
-- If you are unsure whether something shipped, write "reportedly" or "worth verifying independently"
-- Do NOT fabricate integrations, exploits, or partnerships as narrative bridges`;
+GROUNDED DRAFTING RULES:
+1. NO SYNTHESIS: Do NOT claim "convergence" or "synergy" between protocols unless explicitly stated in the SOURCE DOCUMENTS.
+2. SOURCE ATTRIBUTION: Every technical claim MUST have an inline qualifier (e.g., "[Verified via L2Beat]", "[Per Monad April 2026 Ops Update]").
+3. ROADMAP PRECISION: If quoting a roadmap, use the official date and specify if it has shipped. (Today is ${CURRENT_DATE}).
+4. NO FILLER: Avoid banned patterns like "poised for growth" or "narrative convergence".
+5. HUMAN VARIATION: Every section must have a unique paragraph structure. No repetition in rhythm.`;
 
 function logUsage(model, promptTokens, completionTokens, totalTokens) {
     const timestamp = new Date().toISOString();
@@ -150,7 +136,24 @@ async function fetchGroundedSources(topicTitle, keywords) {
         ...topicTitle.split(/[\s:,]+/).filter(t => t.length > 3)
     ])].slice(0, 6);
 
+    // Primary Technical Source Pack (Hard-coded for 2026 High-Authority projects)
+    const TECHNICAL_DOCS = {
+        'starknet': 'https://docs.starknet.io/documentation/ (Roadmap: S-two, STRK20, Preconfirmations)',
+        'monad': 'https://docs.monad.xyz/ (Technical: Parallel EVM, MonadBFT, MonadDB)',
+        'eigenlayer': 'https://docs.eigenlayer.xyz/ (AVS: Vertical Scaling, Multichain Verification)',
+        'berachain': 'https://docs.berachain.com/ (Mechanism: Proof of Liquidity PoL)',
+        'celestia': 'https://docs.celestia.org/ (Modular DA: DAS, NMTs)'
+    };
+
     for (const term of terms) {
+        // Append technical docs if term matches
+        const lowerTerm = term.toLowerCase();
+        for (const [key, url] of Object.entries(TECHNICAL_DOCS)) {
+            if (lowerTerm.includes(key)) {
+                sources.push(`PRIMARY TECHNICAL SOURCE: ${key.toUpperCase()}\nURL: ${url}`);
+            }
+        }
+
         try {
             const searchRes = await fetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(term)}`);
             if (!searchRes.ok) continue;
@@ -224,7 +227,7 @@ async function stage3Recheck(draftContent, title, keywords) {
     try {
         // Stage 3: Claim Extraction + Individual Verification (llama-4-scout-17b)
         const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
-        console.log(`[Stage 3] Claim Verification: "${title}" (Model: ${model})...`);
+        console.log(`[Stage 3] Technical Precision Pass: "${title}" (Model: ${model})...`);
         const latestNews = await fetchLatestNews();
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -236,25 +239,17 @@ async function stage3Recheck(draftContent, title, keywords) {
                     {
                         role: 'system', content: `You are a senior technical editor performing an uncompromising final verification. Today's date is ${CURRENT_DATE}.
 
-YOUR PROCESS — APPLY IN ORDER:
-STEP 1 — EXTRACT CLAIMS: Mentally list every factual assertion in the article (protocol roles, architecture claims, on-chain data, dates, integrations).
-STEP 2 — VERIFY EACH CLAIM against: ${JSON.stringify(PROJECT_KNOWLEDGE)}
-  - If a claim is supported by the knowledge base: keep it.
-  - If a claim is NOT in the knowledge base and is not qualified: add "reportedly" or delete it.
-  - If a claim references a date in the past (before ${CURRENT_DATE}) as an upcoming milestone: fix it.
-STEP 3 — STRIP AI ARTIFACTS:
-  BANNED phrases (delete on sight): "In summary", "In conclusion", "Let's explore", "It is crucial to",
-  "It is important to note", "As we can see", "In the ever-evolving", "The world of crypto",
-  "Navigate the landscape", "Delve into", "Undoubtedly", "It's worth noting".
-STEP 4 — HUMAN VOICE: If any two consecutive sections have the same sentence count or rhythm, vary one of them.
-STEP 5 — HOOK CHECK: The first sentence must not start with "The", "In", "As", or "Crypto". If it does, rewrite it.
-STEP 6 — HTML CLEANUP: Only <h2>, <h3>, <p>, <ul>, <li>, <strong> allowed. Strip <div>, <span>, inline styles, and chain-of-thought output.
-STEP 7 — WORD COUNT: Final must be 780-850 words.
+YOUR PROCESS:
+1. TECHNICAL PRECISION: Ensure terms like "validity rollup", "L1 finality", "preconfirmations", "STRK20", and "Vertical AVS" are used accurately per: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
+2. BAN SYNTHETIC HYPE (SLOP): Delete mentions of: "inflection point", "convergence of signals", "poised for significant growth", "deeper structural shifts", "subtle but measurable signal", "market narrative", "the future of finance".
+3. SOURCE ATTRIBUTION: Every substantive claim must have an inline qualifier (e.g. "[Per L2Beat]", "[Per Official Roadmap]"). Ensure these are present.
+4. HOOK AUDIT: The first sentence must not start with "The", "In", "As", or "Crypto".
+5. ACTIONABLE SIGNALS: If the article mentions Starknet, Monad, or EigenLayer, ensure it includes a "Signals to Monitor" bullet point with a placeholder for a dashboard link (e.g. "[Monitor L1 Finality Latency here]").
 
-OUTPUT ONLY: The final article in clean HTML. No preamble. No list of changes.` },
-                    { role: 'user', content: `VERIFY AND FINALIZE:\nTitle: ${title}\nKeywords: ${keywords}\nRecent news context: ${latestNews}\n\nARTICLE:\n${draftContent}` }
+OUTPUT ONLY: The polished HTML article. Final length: 780-850 words. Priority on quality over exact count.` },
+                    { role: 'user', content: `FINALIZE AND POLISH:\nTitle: ${title}\nKeywords: ${keywords}\nNews: ${latestNews}\n\nARTICLE:\n${draftContent}` }
                 ],
-                temperature: 0.25,
+                temperature: 0.15,
                 max_tokens: 3500
             })
         });
@@ -273,9 +268,9 @@ OUTPUT ONLY: The final article in clean HTML. No preamble. No list of changes.` 
 
 async function stage2FactCheck(draftContent, title, keywords, sourceText) {
     try {
-        // Stage 2: Hostile Fact Check against live-fetched sources (llama-4-scout-17b)
+        // Stage 2: Hostile Fact Check (llama-4-scout-17b)
         const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
-        console.log(`[Stage 2] Hostile Fact Check: "${title}" (Model: ${model})...`);
+        console.log(`[Stage 2] Hostile Fact-Checking: "${title}" (Model: ${model})...`);
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -284,33 +279,42 @@ async function stage2FactCheck(draftContent, title, keywords, sourceText) {
                 model,
                 messages: [
                     {
-                        role: 'system', content: `You are a hostile technical editor with zero tolerance for unsourced claims. Today's date is ${CURRENT_DATE}.
+                        role: 'system', content: `You are a hostile technical editor. "Guilty until proven innocent" is your motto. Today is ${CURRENT_DATE}.
 
-You have been given SOURCE DOCUMENTS containing live, verified information about the protocols in this article.
-Your job: find every claim in the draft that is NOT directly supported by the SOURCE DOCUMENTS and either fix or delete it.
+YOUR TASK:
+Find every integration, pilot, roadmap date, or synergy claim in the draft. If it is NOT supported verbatim in the SOURCE DOCUMENTS or Knowledge Base: DELETE IT.
 
-HOSTILE FACT-CHECK RULES:
-1. SUPPORTED CLAIMS ONLY: If a protocol architecture claim (e.g. "Layer-0 bridge", "zk-rollup engine", "staking mechanism") is NOT present in the SOURCE DOCUMENTS, DELETE it immediately. Do not give it the benefit of the doubt.
-2. UNSOURCED DATA: Any TVL, APY, price, volume, or percentage not in the SOURCE DOCUMENTS must be preceded by "reportedly" or removed.
-3. TEMPORAL ACCURACY: Any date before ${CURRENT_DATE} is PAST. Reframe "upcoming" past dates as "was scheduled for [date] — verify if shipped".
-4. KNOWLEDGE BASE CROSS-CHECK: Also verify against this hard knowledge base: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
-5. NO HALLUCINATED ARCHITECTURE: Specific claims like "Layer-0 bridge", "re-engineered consensus", "institutional-grade liquidity migration" require source support. If missing from SOURCE DOCUMENTS, delete them.
-6. NARRATIVE GLUE REMOVAL: Delete paragraphs that exist only to connect sections with no factual content.
-7. PRESERVE VALID HTML: Keep all <h2>, <h3>, <p>, <ul>, <li>, <strong>. Do not add tags.
-8. WORD COUNT: Keep ~800 words.
+STRICT RULES:
+1. BAN UNSOURCED SYNERGY: If the draft says "Project A and B are converging" but the source doesn't show a partnership: DELETE the connection.
+2. BAN HALLUCINATED ARCHITECTURE: Bitgert is NOT a Layer-0 bridge. Monad has NOT shipped a zk-rollup engine. Delete these if found.
+3. TEMPORAL ENFORCEMENT: Any 2026 claim must be tied to post-March 2026 data. Reframe all past dates as "was scheduled/reportedly shipped".
+4. SOURCE ATTRIBUTION: Ensure every claim has a source qualifier (e.g. "[Per Official Docs]"). Add it if the draft forgot.
 
-OUTPUT ONLY: The fact-checked article in HTML. No explanation of what you changed.` },
-                    { role: 'user', content: `SOURCE DOCUMENTS (use these as ground truth):\n${sourceText}\n\n---\n\nFACT CHECK THIS DRAFT:\nTitle: ${title}\nKeywords: ${keywords}\n\nDRAFT:\n${draftContent}` }
+OUTPUT FORMAT:
+[DELETED_CLAIMS_LOG]
+- (List each specific hallucination or unsourced claim you removed)
+[/DELETED_CLAIMS_LOG]
+
+[ARTICLE_BODY]
+(The fact-checked HTML article)
+[/ARTICLE_BODY]` },
+                    { role: 'user', content: `SOURCE DOCUMENTS:\n${sourceText}\n\nKNOWLEDGE BASE: ${JSON.stringify(PROJECT_KNOWLEDGE)}\n\n---\n\nFACT CHECK THIS DRAFT:\n${draftContent}` }
                 ],
-                temperature: 0.15,
+                temperature: 0.1,
                 max_tokens: 3500
             })
         });
-        if (!res.ok) { console.error("Fact check error:", res.status); return draftContent; }
+        if (!res.ok) return draftContent;
         const data = await res.json();
         if (data.usage) logUsage(model, data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
-        if (!data.choices || data.choices.length === 0) return draftContent;
-        return data.choices[0].message.content.trim();
+        const content = data.choices[0].message.content;
+
+        // Log the deleted claims for transparency
+        const logMatch = content.match(/\[DELETED_CLAIMS_LOG\]([\s\S]*?)\[\/DELETED_CLAIMS_LOG\]/);
+        if (logMatch) console.log(`\n--- Hostile Editor: Deleted Claims Log ---\n${logMatch[1].trim()}\n---------------------------------------\n`);
+
+        const bodyMatch = content.match(/\[ARTICLE_BODY\]([\s\S]*?)\[\/ARTICLE_BODY\]/);
+        return bodyMatch ? bodyMatch[1].trim() : content;
     } catch (err) {
         console.error("Fact check exception:", err.message);
         return draftContent;
