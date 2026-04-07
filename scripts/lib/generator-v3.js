@@ -55,7 +55,7 @@ OUTPUT ONLY: The selected keyword.`;
     return await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `TRENDING CONTEXT:\n${trendingContext}` }
-    ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.8);
+    ], 'qwen/qwen3-32b', 0.8);
 }
 
 /**
