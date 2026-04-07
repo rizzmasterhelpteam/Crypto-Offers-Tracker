@@ -184,9 +184,9 @@ function writeCSV(headers, rows) {
 
 async function stage3Recheck(draftContent, title, keywords) {
     try {
-        // Stage 3: Recheck & SEO Polish (llama-4-scout-17b)
+        // Stage 3: Strict Recheck & Polish (llama-4-scout-17b)
         const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
-        console.log(`[Stage 3] Recheck & Polish: "${title}" (Model: ${model})...`);
+        console.log(`[Stage 3] Strict Recheck: "${title}" (Model: ${model})...`);
         const latestNews = await fetchLatestNews();
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -196,20 +196,24 @@ async function stage3Recheck(draftContent, title, keywords) {
                 model,
                 messages: [
                     {
-                        role: 'system', content: `You are a senior technical editor doing the FINAL RECHECK.
+                        role: 'system', content: `You are a senior technical editor performing an uncompromising final recheck before publication.
 
-YOUR TASKS:
-1. FINAL REVIEW: Ensure absolute factual accuracy using: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
-2. NO AI ARTIFACTS: Strip phrases like "In summary", "Let's explore", "It is crucial to note". 
-3. HUMAN TOUCH: Ensure the tone is conversational, confident, and demonstrates high E-E-A-T (Experience, Expertise, Authoritativeness, Trust).
-4. LENGTH CHECK: Ensure the post remains ~800 words.
-5. PRESERVE HTML: Keep the HTML structure intact (<h2>, <p>, <ul>, <li>).
+STRICT RECHECK RULES — NO EXCEPTIONS:
+1. SECOND FACT PASS: Re-verify every protocol name, ticker, and role claim against: ${JSON.stringify(PROJECT_KNOWLEDGE)}. If still wrong after Stage 2, fix it now.
+2. ZERO AI ARTIFACTS: These phrases are BANNED — delete on sight: "In summary", "In conclusion", "Let's explore", "It is crucial to", "It is important to note", "As we can see", "In the ever-evolving", "The world of crypto", "Navigate the landscape", "Delve into", "Tapestry", "Let's dive in", "Undoubtedly".
+3. ACTIVE VOICE ENFORCEMENT: Convert all passive voice to active. "The protocol was upgraded by the team" → "The team upgraded the protocol".
+4. PARAGRAPH QUALITY: Every paragraph must state a single clear point. If a paragraph is vague or filler, DELETE it — do not soften or paraphrase.
+5. HOOK STRENGTH: The very first sentence must grab the reader immediately. If it starts with "Crypto", "The", "In", or "As" — rewrite it.
+6. E-E-A-T CHECK: Ensure the article demonstrates real expertise. Remove any generic statements that a non-expert would write.
+7. TITLE FINAL CHECK: Confirm title has no generic prefixes. Must be specific, keyword-rich, under 65 characters.
+8. HTML VALIDITY: Only these tags allowed: <h2>, <h3>, <p>, <ul>, <li>, <strong>. Strip anything else.
+9. WORD COUNT: Final article MUST be 780-850 words. Count carefully and trim or expand the last section if needed.
 
-OUTPUT ONLY: The polished article body in HTML.` },
-                    { role: 'user', content: `FINAL RECHECK THIS ARTICLE:\nTitle: ${title}\nKeywords: ${keywords}\nContext: ${latestNews}\n\nDRAFT:\n${draftContent}` }
+OUTPUT ONLY: The final article body in clean HTML. No preamble.` },
+                    { role: 'user', content: `STRICT RECHECK THIS ARTICLE:\nTitle: ${title}\nKeywords: ${keywords}\nRecent context: ${latestNews}\n\nDRAFT TO RECHECK:\n${draftContent}` }
                 ],
-                temperature: 0.3,
-                max_tokens: 2500
+                temperature: 0.25,
+                max_tokens: 3500
             })
         });
         if (!res.ok) return draftContent;
@@ -227,9 +231,9 @@ OUTPUT ONLY: The polished article body in HTML.` },
 
 async function stage2FactCheck(draftContent, title, keywords) {
     try {
-        // Stage 2: Fact Check (llama-4-scout-17b)
+        // Stage 2: Strict Fact Check (llama-4-scout-17b)
         const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
-        console.log(`[Stage 2] Fact Checking: "${title}" (Model: ${model})...`);
+        console.log(`[Stage 2] Strict Fact Checking: "${title}" (Model: ${model})...`);
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -238,19 +242,23 @@ async function stage2FactCheck(draftContent, title, keywords) {
                 model,
                 messages: [
                     {
-                        role: 'system', content: `You are a specialist crypto fact-checker. Your job is to verify all claims in a draft article.
+                        role: 'system', content: `You are a rigorous senior fact-checker at a specialist crypto publication. You have ZERO tolerance for inaccuracies.
 
-FACT CHECK TASKS:
-1. TRUTH VERIFICATION: Check all protocol descriptions, tickers, and narratives against this Source of Truth: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
-2. HALLUCINATION KILLER: Remove any fabricated events, fake partnerships, or impossible data.
-3. NO GENERIC BRANDING: Ensure there are no placeholder titles like "Alpha Report".
-4. PRESERVE SEO & STRUCTURE: Keep the HTML length (~800 words) and all SEO headers.
+STRICT FACT CHECK RULES — APPLY EVERY ONE:
+1. TICKER ACCURACY: Every coin/token ticker mentioned MUST match exactly: ${JSON.stringify(PROJECT_KNOWLEDGE)}. Wrong ticker? Delete the sentence.
+2. PROTOCOL ROLE ACCURACY: If a protocol's described role does not match its actual function in the knowledge base, REWRITE the sentence using the correct description.
+3. HALLUCINATION REMOVAL: Any fabricated on-chain event, exploit, partnership, integration, or launch date NOT present in the knowledge base MUST BE DELETED — do NOT replace it with something else.
+4. DATA QUALIFICATION: Any TVL, APY, price, or percentage figure without a source qualifier (e.g. "reportedly", "per DefiLlama") MUST be qualified or removed.
+5. NARRATIVE INTEGRITY: Do NOT let AI narrative glue survive. If a paragraph only exists to connect two sections but contains no factual substance, DELETE it.
+6. TITLE CLEANUP: The article title MUST NOT contain generic phrases like "Alpha Report", "Technical Deep Dive", "Deep Tech", or "Protocol Alpha". If present, rewrite it.
+7. PRESERVE STRUCTURE: Keep all valid HTML (<h2>, <h3>, <p>, <ul>, <li>, <strong>). Do not add or remove tags.
+8. WORD COUNT: Keep the article approximately 800 words. Do not expand beyond 900 words.
 
-OUTPUT ONLY: The fact-checked article body in HTML (<h2>, <h3>, <p>, <ul>, <li>). No head/body tags.` },
-                    { role: 'user', content: `FACT CHECK THIS DRAFT:\nTopic keywords: ${keywords}\n\nDRAFT:\n${draftContent}` }
+OUTPUT ONLY: The fact-checked article in HTML. No preamble. No explanations.` },
+                    { role: 'user', content: `STRICTLY FACT CHECK THIS DRAFT:\nTitle: ${title}\nTopic keywords: ${keywords}\n\nDRAFT:\n${draftContent}` }
                 ],
-                temperature: 0.2,
-                max_tokens: 2500
+                temperature: 0.15,
+                max_tokens: 3500
             })
         });
         if (!res.ok) { console.error("Fact check error:", res.status); return draftContent; }
@@ -418,11 +426,11 @@ async function autoDiscoverAndGenerate() {
 
         const category = getNextCategory();
 
-        // Customize title based on category
+        // Customize title based on category — no generic label prefixes
         let title = "";
-        if (category.id === 'intelligence') title = `Deep Research: ${firstCoin} Infrastructure & Market Dominance`;
-        else if (category.id === 'alpha') title = `Alpha Report: Professional Staking & Institutional Yield for ${firstCoin}`;
-        else title = `Technical Deep Dive: ${combinedResearch} Ecosystem Evolution`;
+        if (category.id === 'intelligence') title = `${firstCoin} Market Outlook: On-Chain Signals Worth Watching`;
+        else if (category.id === 'alpha') title = `${firstCoin} Staking & Yield Opportunities in 2026`;
+        else title = `${combinedResearch}: What's Actually Happening On-Chain`;
 
         const tone = "Deeply Technical, Professional, Investigative";
         const keywords = `${combinedResearch}, institutional DeFi, modular infrastructure, 2026 technical roadmap`;
