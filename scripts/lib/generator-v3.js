@@ -65,11 +65,14 @@ async function draftProfessionalBlog(keyword, sourceText) {
 Today's Date: ${config.CURRENT_DATE}.
 GOAL: Write a 600-800 word professional blog post about the keyword "${keyword}".
 
-E-E-A-T REQUIREMENTS:
-- Depth: Technical, analytical, and authoritative.
-- Logic: Direct source attribution (e.g., "[Verified via L2Beat]").
-- BACKLINKS: You MUST include at least 2-3 direct <a> links to the provided source URLs.
-- Format: HTML with <h2>, <p>, <ul>, and <strong>.
+E-E-A-T & FORMATTING REQUIREMENTS:
+- SEO: Use the keyword "${keyword}" as the H1 title. Naturalize the opening paragraph (no keyword stuffing).
+- TAKEAWAYS: Insert a 3-bullet "Key Takeaways" section immediately below the introduction.
+- STRUCTURE: Strict hierarchy using H2s for main sections and H3s for nested details. 
+- DATA: Convert performance benchmarks (fees, finality, speeds) into a simple HTML comparison table.
+- P.O.V.: Use third-person objective voice. Avoid "Our platform" or "We"; use project names (e.g., "The Starknet platform").
+- NO FILLER: Do NOT include "Conclusion" headers or cliché sign-offs. End with a "Future Outlook" section.
+- BACKLINKS: Include at least 2-3 direct <a> links to source URLs.
 
 SOURCE DOCUMENTS:
 ${sourceText}`;
@@ -89,9 +92,10 @@ async function firstFactCheck(draftContent, sourceText) {
 TASK: Compare the draft against the sources. 
 Identify and FIX every technical error, hallucination, or synthetic hype.
 STRICT RULES:
-1. DO NOT DELETE entire sections if they contain salvageable info; FIX the inaccuracies instead.
-2. DELETION is only permitted if a statement or claim is FULLY IMAGINARY and lacks any grounding in the sources.
-3. Ensure the technical depth is maintained while ensuring 100% accuracy.
+1. P.O.V. FIX: Change first-person "Our/We" to project names (e.g., "The Provenance platform").
+2. SCRUB FILLER: Delete "Conclusion" headers, cliché sign-offs (e.g., "For developers... alike"), and administrative footers. End after "Future Outlook".
+3. FACTUAL FIX: Identify and FIX every technical error or hallucination. Fix inaccuracies instead of deleting salvageable sections.
+4. DELETION: Only delete if a statement is FULLY IMAGINARY.
 OUTPUT ONLY: The corrected HTML article.`;
 
     return await callGroq([
@@ -108,9 +112,11 @@ async function finalFactCheck(draftContent, sourceText) {
     const systemPrompt = `You are the Final Auditor.
 TASK: Perform a second, independent fact-check pass. 
 STRICT RULES:
-1. FOCUS ON FIXING: Adjust language and data to match the sources perfectly.
-2. MINIMAL DELETION: Only remove content that is demonstrably and entirely fabricated (hallucinated).
-3. Ensure technical consistency, professional tone, and valid formatting.
+1. SCRUB AI ARTIFACTS: Ensure no "Conclusion" sections or cliché AI-style summarizing remains.
+2. P.O.V. ENFORCEMENT: Ensure 100% objective third-person project-based naming.
+3. FOCUS ON FIXING: Adjust language and data to match the sources perfectly.
+4. MINIMAL DELETION: Only remove content that is demonstrably and entirely fabricated.
+5. Ensure technical consistency, professional tone, and valid formatting.
 OUTPUT ONLY: The final, polished HTML article for publication.`;
 
     return await callGroq([
