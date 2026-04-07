@@ -218,7 +218,7 @@ STRICT AUDIT RULES:
 3. CONTEXT ONLY: If a named incident, protocol integration, or specific technical event is NOT found in the provided research data, it is a hallucination. REMOVE IT.
 4. NO META-TALK: Strip any remaining reasoning fragments.
 5. VOICE PROTECTION: Keep the "Chain Signals" conversational, expert tone. Do not make it sound like a robot.
-6. CONCISENESS: Keep the final length within 600-900 words.
+6. CONCISENESS: Keep the final length within 800-1200 words.
 
 OUTPUT ONLY: The audited, corrected article body in HTML format (using <h2>, <h3>, <p>, <ul>, <li>).`
                     },
@@ -317,7 +317,8 @@ Your task is to take a technical draft and make it highly engaging, authoritativ
 - Use compelling headings.
 - Ensure natural keyword density for: ${keywords}.
 - Maintain a professional, deep-tech tone.
-- Do NOT hallucinate new technical facts. Just improve the narrative flow and readability.
+- EXPAND CONTENT: If the draft is thin or short, you MUST expand it by adding technical context, explaining protocol mechanisms, and detailing the ecosystem impact. Target a final length of 1000-1200 words.
+- DO NOT hallucinate new technical facts. Just improve the narrative flow, readability, and depth.
 - Output ONLY the HTML body content (using <h2>, <h3>, <p>, <ul>, <li>). Do not include any HTML head or body tags, just the content.`
                     },
                     {
@@ -370,11 +371,11 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
                         content: `Write a blog post about ${title.toUpperCase()}.
 
 Context: ${keywords} - focusing on technical moats, recent events, and protocol mechanics.
-Tone: conversational but informed — like a knowledgeable friend, not a research report
-Length: ~600-800 words
-Structure: use 3-4 natural sections with short headers, no bullet-point dumps
-Avoid: made-up numbers, fake incidents, jargon stacking, robotic transition phrases
-End with: a genuine open question or honest take on where things are headed`
+Tone: conversational but informed — like a knowledgeable friend, not a research report.
+Length: ~1000-1200 words (Deep Technical Analysis).
+Structure: Use 5-6 natural sections with technical headers. Ensure each section has 3-4 meaty paragraphs.
+Avoid: Brevity. Do not summarize; explain the architecture and the mechanisms.
+End with: A genuine open question or honest take on where things are headed.`
                     }
                 ],
                 temperature: 0.7,
