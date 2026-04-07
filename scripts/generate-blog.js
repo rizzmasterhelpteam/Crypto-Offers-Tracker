@@ -347,7 +347,7 @@ Draft: ${draftContent}`
 async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
     try {
         const today = new Date().toISOString().split('T')[0];
-        const model = 'gpt-oss';
+        const model = 'openai/gpt-oss-120b';
         console.log(`Generating: [${category.name}] "${title}" (Model: ${model})...`);
 
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -390,6 +390,9 @@ End with: A genuine open question or honest take on where things are headed.`
         const data = await groqResponse.json();
         if (!data.choices || data.choices.length === 0) {
             throw new Error("Invalid response from Groq: No choices returned.");
+        }
+        if (data.usage) {
+            logUsage('openai/gpt-oss-120b', data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
         }
         let bodyContent = data.choices[0].message.content;
 
