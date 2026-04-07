@@ -71,27 +71,27 @@ Today's Date: ${config.CURRENT_DATE}.
 ASSIGNMENT: Write a confident, vivid, 900-word technical deep-dive article targeting the keyword: "${keyword}".
 
 YOUR WRITING STANDARDS:
-- Write with authority and precision. Name exact versions, protocols, TPS numbers, and dates from the sources.
-- Use the SOURCES below as your primary data. Quote and cite specific technical facts.
-- Every claim must come from the source material. Do NOT invent projects or statistics.
-- The article should read like it was written by a former quant/engineer who now explains things for smart crypto traders.
+- Write with authority and precision. Use specific protocol names, TPS numbers, and dates from the sources below.
+- Prioritize facts from the SOURCE DOCUMENTS. If sources lack a specific detail, use publicly known, verifiable information — do NOT invent fictional companies or statistics.
+- The article should read like it was written by a former quant/engineer who explains things for smart crypto traders.
 - Open with a punchy hook that immediately establishes why this topic matters RIGHT NOW in 2026.
 
 ARTICLE STRUCTURE (mandatory sections):
 1. Opening hook paragraph (no h1 — the template handles that).
 2. <div class="takeaways-card"><h4>Key Takeaways</h4><ul>...</ul></div> with 3-5 specific, actionable bullets.
 3. At least two <h2> sections with technical depth — include specific protocol mechanics, not vague generalities.
-4. One <div class="comparison-table-wrapper"><table class="comparison-table">...</table></div> with real benchmark data from the sources.
-5. One <div class="insight-card"><strong>Analyst Note:</strong> ...</div> with a sharp, specific expert perspective.
-6. Final <h2>Forward-Looking Signals</h2> section — what to watch in the next 30-90 days, based on source material.
+4. One <div class="comparison-table-wrapper"><table class="comparison-table">...</table></div> with benchmark data.
+5. One <div class="insight-card"><strong>Analyst Note:</strong> ...</div> with a sharp expert perspective.
+6. Final <h2>Forward-Looking Signals</h2> section — what to watch in the next 30-90 days.
 
-FORBIDDEN (will be caught in audit):
+FORBIDDEN ELEMENTS (will be caught in audit):
 - Markdown characters: #, ##, *, **, ***, --, ---, ===
 - Vague filler: "exciting developments", "the future of finance", "game changer"
 - "Conclusion" headers or sign-off clichés
 - First-person "Our", "We", "My"
+- Fictional companies, made-up TPS figures, or fabricated protocol names
 
-OUTPUT: Pure HTML only. No markdown. No preamble or explanation — just the article HTML body.
+OUTPUT: Pure HTML only. No markdown. No preamble — just the article HTML body.
 
 SOURCE DOCUMENTS:
 ${sourceText}`;
