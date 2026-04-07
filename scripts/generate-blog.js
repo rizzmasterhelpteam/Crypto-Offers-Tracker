@@ -25,6 +25,10 @@ const INDEX_PATH = path.join(BLOG_DIR, 'index.html');
 const QUEUE_PATH = path.join(ADMIN_DIR, 'queue.csv');
 const SITEMAP_PATH = path.join(PROJECT_ROOT, 'sitemap.xml');
 const USAGE_LOG_PATH = path.join(ADMIN_DIR, 'usage.log');
+const CONTEXT_CACHE_PATH = path.join(ADMIN_DIR, 'ground-truth-context.json');
+const REVIEW_DIR = path.join(ADMIN_DIR, 'review');
+
+if (!fs.existsSync(REVIEW_DIR)) fs.mkdirSync(REVIEW_DIR, { recursive: true });
 
 // SOURCE OF TRUTH: Hard-coded 2026 technical knowledge to prevent AI hallucinations
 const PROJECT_KNOWLEDGE = {
@@ -186,13 +190,23 @@ async function fetchGroundedSources(topicTitle, keywords) {
     const news = await fetchLatestNews();
     sources.push(`RECENT CRYPTO NEWS HEADLINES (for context only — do not state as protocol facts):\n${news}`);
 
+    // Load 2026 Ground Truth Cache (Primary Source Override)
+    let contextCache = '';
+    if (fs.existsSync(CONTEXT_CACHE_PATH)) {
+        try {
+            const cache = JSON.parse(fs.readFileSync(CONTEXT_CACHE_PATH, 'utf8'));
+            contextCache = `[CRITICAL 2026 GROUND TRUTH CACHE]:\n${JSON.stringify(cache.protocols, null, 2)}`;
+        } catch (e) { /* non-fatal */ }
+    }
+
+    if (contextCache) sources.unshift(contextCache);
     if (warnings.length > 0) warnings.forEach(w => console.warn(w));
 
     const sourceText = sources.length > 0
         ? sources.join('\n\n---\n\n')
         : 'No live source data available. Use only verified knowledge base facts and qualify all claims.';
 
-    console.log(`Grounded sources fetched: ${sources.length - 1} protocols + news.`);
+    console.log(`Grounded sources fetched: ${sources.length - (contextCache ? 1 : 0) - 1} protocols + news.`);
     return { sourceText, warnings };
 }
 
@@ -240,7 +254,7 @@ async function stage3Recheck(draftContent, title, keywords) {
                         role: 'system', content: `You are a senior technical editor performing an uncompromising final verification. Today's date is ${CURRENT_DATE}.
 
 YOUR PROCESS:
-1. TECHNICAL PRECISION: Ensure terms like "validity rollup", "L1 finality", "preconfirmations", "STRK20", and "Vertical AVS" are used accurately per: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
+1. TECHNICAL PRECISION: Ensure terms like "validity rollup", "L1 finality", "preconfirmations", "STRK20", "MONAD_NINE", and "Vertical AVS" are used accurately per: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
 2. BAN SYNTHETIC HYPE (SLOP): Delete mentions of: "inflection point", "convergence of signals", "poised for significant growth", "deeper structural shifts", "subtle but measurable signal", "market narrative", "the future of finance".
 3. SOURCE ATTRIBUTION: Every substantive claim must have an inline qualifier (e.g. "[Per L2Beat]", "[Per Official Roadmap]"). Ensure these are present.
 4. HOOK AUDIT: The first sentence must not start with "The", "In", "As", or "Crypto".
@@ -279,24 +293,25 @@ async function stage2FactCheck(draftContent, title, keywords, sourceText) {
                 model,
                 messages: [
                     {
-                        role: 'system', content: `You are a hostile technical editor. "Guilty until proven innocent" is your motto. Today is ${CURRENT_DATE}.
+                        role: 'system', content: `You are a ruthless technical auditor. Every integration, synergy, or pilot claim in the draft is "Guilty Until Proven Innocent". 
 
 YOUR TASK:
-Find every integration, pilot, roadmap date, or synergy claim in the draft. If it is NOT supported verbatim in the SOURCE DOCUMENTS or Knowledge Base: DELETE IT.
-
-STRICT RULES:
-1. BAN UNSOURCED SYNERGY: If the draft says "Project A and B are converging" but the source doesn't show a partnership: DELETE the connection.
-2. BAN HALLUCINATED ARCHITECTURE: Bitgert is NOT a Layer-0 bridge. Monad has NOT shipped a zk-rollup engine. Delete these if found.
-3. TEMPORAL ENFORCEMENT: Any 2026 claim must be tied to post-March 2026 data. Reframe all past dates as "was scheduled/reportedly shipped".
-4. SOURCE ATTRIBUTION: Ensure every claim has a source qualifier (e.g. "[Per Official Docs]"). Add it if the draft forgot.
+1. BAN SYNTHETIC SYNERGY: If the draft connects two projects (e.g., Starknet + RedStone) without verbatim 2026 support in the SOURCE DOCUMENTS, DELETE the connection.
+2. DELETE OUTDATED FRAMING: Identify 2024-era facts (e.g., Celestia Blobstream for L2s) and delete them if they conflict with 2026 state (L3 appchains only).
+3. FORCE VERBATIM ATTRIBUTION: Every technical claim MUST be attributed (e.g. "[Per Official Roadmap March 2026]").
+4. CONFIDENCE SCORE: Rank the remaining claims' reliability (1-10). Only an 8+ is acceptable for Chain Signals.
 
 OUTPUT FORMAT:
 [DELETED_CLAIMS_LOG]
-- (List each specific hallucination or unsourced claim you removed)
+- (List specifically what was removed and why)
 [/DELETED_CLAIMS_LOG]
 
+[CONFIDENCE_SCORE]
+(Rank 1-10)
+[/CONFIDENCE_SCORE]
+
 [ARTICLE_BODY]
-(The fact-checked HTML article)
+(The ruthless fact-checked HTML)
 [/ARTICLE_BODY]` },
                     { role: 'user', content: `SOURCE DOCUMENTS:\n${sourceText}\n\nKNOWLEDGE BASE: ${JSON.stringify(PROJECT_KNOWLEDGE)}\n\n---\n\nFACT CHECK THIS DRAFT:\n${draftContent}` }
                 ],
@@ -309,9 +324,11 @@ OUTPUT FORMAT:
         if (data.usage) logUsage(model, data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
         const content = data.choices[0].message.content;
 
-        // Log the deleted claims for transparency
+        // Log auditing metadata
         const logMatch = content.match(/\[DELETED_CLAIMS_LOG\]([\s\S]*?)\[\/DELETED_CLAIMS_LOG\]/);
-        if (logMatch) console.log(`\n--- Hostile Editor: Deleted Claims Log ---\n${logMatch[1].trim()}\n---------------------------------------\n`);
+        const scoreMatch = content.match(/\[CONFIDENCE_SCORE\]([\s\S]*?)\[\/CONFIDENCE_SCORE\]/);
+        if (logMatch) console.log(`\n--- Ruthless Editor: Deleted Claims ---\n${logMatch[1].trim()}\n`);
+        if (scoreMatch) console.log(`--- Claims Confidence Score: ${scoreMatch[1].trim()}/10 ---\n`);
 
         const bodyMatch = content.match(/\[ARTICLE_BODY\]([\s\S]*?)\[\/ARTICLE_BODY\]/);
         return bodyMatch ? bodyMatch[1].trim() : content;
@@ -399,13 +416,25 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
 
         const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         const fileName = `${today}-${slug}.html`;
-        fs.writeFileSync(path.join(BLOG_DIR, fileName), html);
-        console.log(`- Saved: blog/${fileName}`);
+
+        // Bitgert / Thin Data Handler: Force exact marketing attribution only
+        if (title.toLowerCase().includes('bitgert') || keywords.toLowerCase().includes('bitgert')) {
+            console.log("⚠️ Applied Thin-Data Handler for Bitgert — restricting to 1 attributed sentence.");
+            bodyContent = bodyContent.replace(/<p>.*?Bitgert.*?<\/p>/gi,
+                '<p>Bitgert is an EVM-compatible Layer 1 blockchain optimized for low-fee throughput [Per Bitgert documentation April 2026].</p>');
+        }
+
+        // [Stage 4] MANDATORY REVIEW GATE: Save to review folder first
+        const reviewPath = path.join(REVIEW_DIR, fileName);
+        fs.writeFileSync(reviewPath, html);
+        console.log(`\n✅ GENERATION COMPLETE: [REVIEW REQUIRED]`);
+        console.log(`- File: admin/review/${fileName}`);
+        console.log(`- Action: Manually verify and move to /blog to publish.`);
 
         return true;
     } catch (err) {
         console.error(`❌ CRITICAL ERROR generating "${title}":`, err.message);
-        throw err; // Re-throw to fail the GitHub Action
+        throw err;
     }
 }
 

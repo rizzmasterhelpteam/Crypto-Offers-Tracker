@@ -1,0 +1,64 @@
+{
+    "last_updated": "2026-04-07",
+    "protocols": {
+        "starknet": {
+            "status": "Operational L2",
+            "milestones": [
+                {
+                    "date": "2025-Q4",
+                    "event": "S-two prover mainnet deployment",
+                    "impact": "Proving costs reduced significantly"
+                },
+                {
+                    "date": "2026-03-31",
+                    "event": "STRK20 privacy protocol launch",
+                    "impact": "Native shielded balances on Starknet"
+                },
+                {
+                    "date": "2026-04",
+                    "event": "Preconfirmations",
+                    "impact": "Sub-1s latency for 95% of transactions"
+                }
+            ],
+            "technical_specs": "STARK-based Validity Rollup using Cairo. 10k+ TPS target. Uses Ethereum EIP-4844 blobs for DA (not external modular DA for mainnet)."
+        },
+        "monad": {
+            "status": "Mainnet Live",
+            "milestones": [
+                {
+                    "date": "2025-11-24",
+                    "event": "Public Mainnet Launch",
+                    "impact": "High-performance Parallel EVM accessible"
+                },
+                {
+                    "date": "2026-03",
+                    "event": "MONAD_NINE Hard Fork",
+                    "impact": "Memory expansion cost optimization and EIP-7823 alignment"
+                }
+            ],
+            "technical_specs": "10k TPS, 0.4s block time, single-slot finality (~0.8s). Parallel execution, MonadBFT, MonadDB."
+        },
+        "eigenlayer": {
+            "status": "Verifiable Cloud Infrastructure",
+            "stats": {
+                "tvl": "$18B+",
+                "date": "2026-02",
+                "operators": "1,900+"
+            },
+            "focus": "Vertical AVS specialization (EigenAI, EigenCompute). Multichain Verification for L2 security inheritance."
+        },
+        "celestia": {
+            "starknet_integration": "Blobstream for Starknet (Cairo-port of Blobstream X). ONLY for Layer 3 (L3) appchains. Not used by Starknet mainnet L2.",
+            "status": "Modular DA Layer operational."
+        },
+        "redstone": {
+            "starknet_integration": "Pull-based oracle model using @redstone-finance/starknet-connector. Data verified on-chain only when needed.",
+            "status": "AVS-secured verifiable data infrastructure."
+        },
+        "bitgert": {
+            "warning": "THIN DATA / ANONYMOUS TEAM",
+            "status": "EVM L1 operational since 2022.",
+            "tech": "PoSA consensus. 100k TPS claim. Bridge V2 for cross-chain. Paybrise payment gateway Focal point 2026: Decentralized Marketplace."
+        }
+    }
+}
