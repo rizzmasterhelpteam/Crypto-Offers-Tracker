@@ -136,7 +136,7 @@ async function fetchCurrentOffers(keywords, news) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'openai/gpt-oss-120b',
+                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
                 messages: [
                     {
                         role: 'system',
@@ -241,7 +241,7 @@ async function factCheckPost(draftContent, title, keywords) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'openai/gpt-oss-120b',
+                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
                 messages: [
                     {
                         role: 'system',
@@ -283,10 +283,59 @@ Latest News for verification: ${latestNews}`
     }
 }
 
+async function forensicFactAudit(content, title, keywords) {
+    try {
+        console.log(`Forensic Audit: Finalizing technical accuracy for "${title}"...`);
+
+        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+                messages: [
+                    {
+                        role: 'system',
+                        content: `You are a Lead Blockchain Engineer and Technical Reviewer. 
+Your task is a FINAL AUDIT of a crypto article for technical accuracy before publication.
+
+STRICT FORENSIC RULES:
+1. TICKER & ROLE CHECK: Ensure all tickers and protocol roles ALIGN PERFECTLY with: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
+2. NO HALLUCINATIONS: If any mechanism (DAS, DAS-DAS, Zero-Knowledge proofs) is described inaccurately vs standard industry docs, correct it.
+3. ELIMINATE FLUFF: Remove any remaining AI conversational filler (e.g., "In conclusion," "As mentioned above," "Let's dive in").
+4. CLEAN HTML: Ensure the structure is valid HTML (<h2>, <h3>, <p>, <ul>, <li>).
+
+OUTPUT ONLY: The final, forensic-grade article body in HTML.`
+                    },
+                    {
+                        role: 'user',
+                        content: `PERFORM FINAL FORENSIC AUDIT:
+                        
+Title: ${title}
+Content to Audit: ${content}
+Key Context: ${keywords}`
+                    }
+                ],
+                temperature: 0.1,
+                max_tokens: 3200
+            })
+        });
+
+        if (!groqResponse.ok) return content;
+        const data = await groqResponse.json();
+        return data.choices[0].message.content.trim();
+    } catch (err) {
+        console.error("Forensic audit error:", err.message);
+        return content;
+    }
+}
+
 async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
     try {
         const today = new Date().toISOString().split('T')[0];
-        const model = 'openai/gpt-oss-120b';
+        const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
         console.log(`Generating: [${category.name}] "${title}" (Model: ${model})...`);
 
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -332,8 +381,11 @@ End with: a genuine open question or honest take on where things are headed`
         }
         let bodyContent = data.choices[0].message.content;
 
-        // Stage 2: Fact-Check & Fix
+        // Stage 2: Initial Fact-Check & Fix
         bodyContent = await factCheckPost(bodyContent, title, keywords);
+
+        // Stage 3: Secondary Forensic Fact-Audit (Step 4)
+        bodyContent = await forensicFactAudit(bodyContent, title, keywords);
 
         // Final Scrubber for residual slop
         bodyContent = bodyContent
