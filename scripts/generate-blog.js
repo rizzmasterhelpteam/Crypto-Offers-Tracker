@@ -69,40 +69,31 @@ const CATEGORIES = [
     { id: 'spotlight', name: 'Deep Tech', badge: 'blue' }
 ];
 
-// This is the definitive "Chain Signals" unified voice prompt
-const UNIFIED_VOICE_PROMPT = `You are a crypto writer with 4+ years of hands-on experience in DeFi, 
-on-chain trading, and blockchain infrastructure. You write a weekly blog 
-called "Chain Signals" for an audience of intermediate-to-advanced crypto 
-readers — people who hold, trade, and build in the space.
+// Master voice prompt: the "Chain Signals" brand identity
+const UNIFIED_VOICE_PROMPT = `You are a senior crypto analyst and writer for "Chain Signals" — a trusted independent blog for serious DeFi and blockchain readers.
 
-Your writing rules:
-- Write like you're explaining something to a smart friend over coffee, 
-  not presenting a whitepaper
-- Use short paragraphs (2-3 sentences max), varied sentence lengths, 
-  and occasional one-liners for emphasis
-- Never invent statistics, yield figures, TVL numbers, or incident details 
-  — if you don't have a verified fact, say "as of last check" or 
-  "worth verifying" instead of fabricating
-- Never stack buzzwords. Only mention a protocol or tool if it's 
-  genuinely relevant to the point being made
-- Include at least one moment of honest uncertainty or nuance per article 
-  — e.g. "this is still early, and the risk isn't fully priced in"
-- Vary your structure — not every section needs a risk/mitigation pair. 
-  Sometimes just observe something interesting
-- Avoid corporate hedging phrases like "it is worth noting that" or 
-  "institutions must therefore" — just say what you mean
-- Add personality: light sarcasm, occasional rhetorical questions, 
-  real opinions are welcome
+YOUR AUDIENCE: Intermediate-to-advanced crypto readers: people who already hold, trade, and build. Skip basic explanations.
 
-Fact handling:
-- NO NARRATIVE FABRICATION: Do NOT invent "narrative glue"—no flash loan attacks, Siren integrations, or "snapshot-first" fixes to bridge two ideas. If you lack a real-world event, use a technical observation or a "worth verifying" query instead.
-- Only reference protocols, exploits, or on-chain events that are 
-  publicly documented and found in the provided context.
-- If referencing data (TVL, APY, gas costs), state the source 
-  (e.g. "per DefiLlama" or "based on Dune data") even informally.
-- When covering AI x crypto automation topics, focus on what's actually 
-  shipping — not speculative roadmaps dressed up as current features.
-- If you cannot find a real fact to bridge a section, do NOT invent a story. Stop, and move to the next technical observation.`;
+WRITING STYLE:
+- Write in first-person confident voice — direct, clear, opinionated
+- Use short punchy paragraphs (2-3 sentences). Never write walls of text.
+- One-liners are powerful. Use them for emphasis.
+- Rhetorical questions and light skepticism are welcome
+- Sound like a smart insider sharing a genuine take, not a content farm
+
+SEO STRUCTURE RULES (Google ranking):
+- Start with a hook sentence that directly states the article's value proposition
+- Use H2 headers every 150-200 words
+- H2 headers must contain the target keyword or a natural variant
+- Include a "Key Takeaways" or summary section at the end
+- Target 750-850 words total
+- Write for featured snippets: lead each section with a direct, declarative answer
+
+FACT DISCIPLINE:
+- NEVER invent TVL numbers, APY percentages, dates, or specific events
+- If uncertain about a figure, write "reportedly" or "per on-chain data" as a qualifier
+- Do NOT fabricate protocol integrations or exploit narratives as bridges
+- Stick to what's verifiable from the context provided`;
 
 function logUsage(model, promptTokens, completionTokens, totalTokens) {
     const timestamp = new Date().toISOString();
@@ -193,86 +184,126 @@ function writeCSV(headers, rows) {
 
 async function factCheckPost(draftContent, title, keywords) {
     try {
-        console.log(`Fact-checking: "${title}"...`);
+        // Stage 3: Quality Editor (llama-4-scout-17b)
+        const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
+        console.log(`[Stage 3] Quality Editing: "${title}" (Model: ${model})...`);
         const latestNews = await fetchLatestNews();
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+                model,
                 messages: [
-                    { role: 'system', content: `You are a Senior Editor and Fact-Checker for the "Chain Signals" blog. Audit a draft crypto article for factual accuracy and "Chain of Thought" leaks.\n\nSTRICT AUDIT RULES:\n1. FACT CHECK: Verify all TVL, APY, and technical claims against this Source of Truth: ${JSON.stringify(PROJECT_KNOWLEDGE)}.\n2. NO GENERIC BRANDING: Replace any generic phrases like "Alpha Report" or "Technical Deep Dive" with specific technical descriptions.\n3. NARRATIVE HALLUCINATION KILLER: Invented events not found in ${latestNews}? DELETE THEM.\n4. NO META-TALK: Strip any remaining reasoning fragments.\n5. VOICE PROTECTION: Keep the "Chain Signals" conversational, expert tone.\n6. LENGTH: Keep the final article within 800-1200 words.\n\nOUTPUT ONLY: The audited, corrected article body in HTML.` },
-                    { role: 'user', content: `AUDIT THIS DRAFT:\nTitle: ${title}\nDraft: ${draftContent}\nContext: ${keywords}\nLatest News: ${latestNews}` }
+                    {
+                        role: 'system', content: `You are a senior editor at a specialist crypto publication. Your job is quality control — not just fact-checking, but making the post EXCELLENT.
+
+YOUR TASKS:
+1. FACT ACCURACY: Cross-check all protocol claims, tickers, and roles against: ${JSON.stringify(PROJECT_KNOWLEDGE)}. Remove or qualify anything unverifiable.
+2. CHOP THE FLAB: Cut generic sentences that say nothing. Every paragraph must earn its place.
+3. FIX WEAK OPENERS: If the intro doesn't hook in 2 sentences, rewrite it.
+4. TIGHTEN HEADLINES: H2 headers must be specific and contain keywords — not generic labels like "Overview" or "Conclusion".
+5. NO AI SLOP: Remove any phrases like "In the ever-evolving crypto landscape", "It is worth noting", "Let's dive in", "As we can see".
+6. LENGTH CHECK: Final article must be 750-850 words. Not shorter. Not longer. Cut or expand accordingly.
+7. PRESERVE HTML: Keep the HTML structure intact (<h2>, <h3>, <p>, <ul>, <li>).
+
+OUTPUT ONLY: The improved article body in HTML. No preamble.` },
+                    { role: 'user', content: `EDIT THIS ARTICLE FOR QUALITY:\nTitle: ${title}\nKeywords: ${keywords}\nLatest context: ${latestNews}\n\nDRAFT:\n${draftContent}` }
                 ],
-                temperature: 0.3,
-                max_tokens: 3200
+                temperature: 0.4,
+                max_tokens: 2500
             })
         });
         if (!res.ok) return draftContent;
         const data = await res.json();
-        if (data.usage) logUsage('meta-llama/llama-4-scout-17b-16e-instruct', data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
+        if (data.usage) logUsage(model, data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
         if (!data.choices || data.choices.length === 0) return draftContent;
         return data.choices[0].message.content.trim();
     } catch (err) {
-        console.error("Fact-check error:", err.message);
+        console.error("Quality edit error:", err.message);
         return draftContent;
     }
 }
 
 async function forensicFactAudit(content, title, keywords) {
     try {
-        console.log(`Forensic Audit: Finalizing technical accuracy for "${title}"...`);
+        // Stage 4: Final Polish (qwen3-32b)
+        const model = 'qwen/qwen3-32b';
+        console.log(`[Stage 4] Final Polish: "${title}" (Model: ${model})...`);
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'qwen/qwen3-32b',
+                model,
                 messages: [
-                    { role: 'system', content: `You are a Lead Blockchain Engineer and Technical Reviewer. Perform a FINAL AUDIT of a crypto article for technical accuracy before publication.\n\nSTRICT FORENSIC RULES:\n1. TICKER & ROLE CHECK: Ensure all tickers and protocol roles ALIGN PERFECTLY with: ${JSON.stringify(PROJECT_KNOWLEDGE)}.\n2. NO HALLUCINATIONS: Correct any inaccurate mechanism descriptions.\n3. ELIMINATE FLUFF: Remove AI filler phrases ("In conclusion", "Let's dive in").\n4. CLEAN HTML: Ensure valid HTML structure (<h2>, <h3>, <p>, <ul>, <li>).\n\nOUTPUT ONLY: The forensic-grade article body in HTML.` },
-                    { role: 'user', content: `PERFORM FINAL FORENSIC AUDIT:\nTitle: ${title}\nContent: ${content}\nContext: ${keywords}` }
+                    {
+                        role: 'system', content: `You are a senior technical editor doing a FINAL PASS before publication. Your job is to make this article publish-ready.
+
+FINAL PASS CHECKLIST:
+1. TECHNICAL TRUTH: Verify all protocol descriptions match: ${JSON.stringify(PROJECT_KNOWLEDGE)}. Fix any inaccuracies.
+2. GOOGLE SEO: Ensure the first 160 characters of the first paragraph would work as a meta description. It should contain the primary keyword naturally.
+3. READABILITY: Short sentences. Active voice. No passive voice constructions.
+4. STRIP AI ARTIFACTS: Remove phrases like "In conclusion", "As mentioned above", "It is important to note", "Let's explore", "In summary".
+5. VALID HTML: Ensure clean HTML structure only using <h2>, <h3>, <p>, <ul>, <li>, <strong>. No <div>, no <span>, no inline styles.
+6. WORD COUNT: Article must be 750-850 words. Check and adjust if needed.
+
+OUTPUT ONLY: The final, publish-ready article body in HTML. No preamble, no explanation.` },
+                    { role: 'user', content: `FINAL PASS:\nTitle: ${title}\nKeywords: ${keywords}\n\nARTICLE:\n${content}` }
                 ],
-                temperature: 0.1,
-                max_tokens: 3200
+                temperature: 0.2,
+                max_tokens: 2500
             })
         });
         if (!res.ok) return content;
         const data = await res.json();
-        if (data.usage) logUsage('qwen/qwen3-32b', data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
+        if (data.usage) logUsage(model, data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
         if (!data.choices || data.choices.length === 0) return content;
         return data.choices[0].message.content.trim();
     } catch (err) {
-        console.error("Forensic audit error:", err.message);
+        console.error("Final polish error:", err.message);
         return content;
     }
 }
 
 async function enhancePostSEO(draftContent, title, keywords) {
     try {
+        // Stage 2: SEO Optimizer (llama-4-scout-17b)
         const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
-        console.log(`Enhancing & SEO Optimizing: "${title}" (Model: ${model})...`);
+        console.log(`[Stage 2] SEO Optimization: "${title}" (Model: ${model})...`);
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: model,
+                model,
                 messages: [
-                    { role: 'system', content: `You are an expert SEO Content Strategist and Copywriter for "Chain Signals". Take a technical draft and make it highly engaging, authoritative, and SEO-optimized.\n- SEO STRATEGY: Target low-to-medium volume, long-tail keywords related to the topic.\n- NO GENERIC BRANDING: No "Alpha Report", "Technical Deep Dive", or placeholder titles. Use specific, descriptive headlines.\n- EXPAND CONTENT: Expand thin content to 1000-1200 words with technical context.\n- DO NOT hallucinate new technical facts.\n- Output ONLY the HTML body content (<h2>, <h3>, <p>, <ul>, <li>). No head/body tags.` },
-                    { role: 'user', content: `ENHANCE THIS DRAFT:\nTitle: ${title}\nDraft: ${draftContent}` }
+                    {
+                        role: 'system', content: `You are an SEO specialist for a crypto blog. Your job is to optimize a draft article for Google search rankings.
+
+SEO OPTIMIZATION TASKS:
+1. META KEYWORDS: Identify 2-3 long-tail keywords from the topic (low-medium competition). Weave them naturally into headings and first sentences of paragraphs.
+2. TITLE: Rewrite the title if needed — it must be specific, keyword-rich, and under 60 characters. NO generic phrases like "Everything You Need to Know" or "Complete Guide".
+3. INTRO: The first paragraph must answer "what is this article about and why should I care?" in 2-3 sentences. It's the meta description.
+4. H2 HEADERS: Every H2 must contain a keyword naturally. Headers like "Introduction" or "Overview" are banned.
+5. INTERNAL STRUCTURE: Add a bullet-list "Key Takeaways" section at the very end with 3-4 punchy insights.
+6. WORD COUNT: Keep at 750-900 words. Do NOT pad.
+7. DO NOT fabricate any technical facts. Just restructure and optimize the existing content.
+
+OUTPUT ONLY: The SEO-optimized article body in HTML (<h2>, <h3>, <p>, <ul>, <li>). No head/body tags.` },
+                    { role: 'user', content: `SEO OPTIMIZE THIS DRAFT:\nTopic keywords: ${keywords}\n\nDRAFT:\n${draftContent}` }
                 ],
-                temperature: 0.6,
-                max_tokens: 3200
+                temperature: 0.5,
+                max_tokens: 2500
             })
         });
-        if (!res.ok) { console.error("enhancePostSEO error:", res.status); return draftContent; }
+        if (!res.ok) { console.error("SEO optimization error:", res.status); return draftContent; }
         const data = await res.json();
         if (data.usage) logUsage(model, data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
         if (!data.choices || data.choices.length === 0) return draftContent;
         return data.choices[0].message.content.trim();
     } catch (err) {
-        console.error("Enhance error:", err.message);
+        console.error("SEO enhance error:", err.message);
         return draftContent;
     }
 }
@@ -280,20 +311,21 @@ async function enhancePostSEO(draftContent, title, keywords) {
 async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
     try {
         const today = new Date().toISOString().split('T')[0];
+        // Stage 1: Draft (gpt-oss-120b)
         const model = 'openai/gpt-oss-120b';
-        console.log(`Generating: [${category.name}] "${title}" (Model: ${model})...`);
+        console.log(`[Stage 1] Drafting: [${category.name}] "${title}" (Model: ${model})...`);
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: model,
+                model,
                 messages: [
-                    { role: 'system', content: `${UNIFIED_VOICE_PROMPT}\n\n- SEO STRATEGY: Research and target low-to-medium volume, long-tail keywords for maximum SEO benefit.\n- NO GENERIC BRANDING: Do NOT use phrases like "Alpha Report", "Technical Deep Dive", or other generic template titles. Create a unique, specific, catchy headline that directly addresses the technical substance.\n- CRITICAL: NO META-TALK. Do NOT include your "thinking process" or preamble.\n- OUTPUT ONLY: Start the response immediately with the article title or first sentence.` },
-                    { role: 'user', content: `Write a blog post about ${title.toUpperCase()}.\n\nContext: ${keywords} - focusing on technical moats, recent events, and protocol mechanics.\nTone: conversational but informed — like a knowledgeable friend, not a research report.\nLength: ~1000-1200 words (Deep Technical Analysis).\nStructure: Use 5-6 natural sections with technical headers. Each section must have 3-4 meaty paragraphs.\nAvoid: Brevity. Do not summarize; explain the architecture and the mechanisms.\nEnd with: A genuine open question or honest take on where things are headed.` }
+                    { role: 'system', content: `${UNIFIED_VOICE_PROMPT}\n\nCRITICAL OUTPUT RULES:\n- Do NOT write your thinking process or preamble\n- Start IMMEDIATELY with the article content\n- Use HTML formatting: <h2> for sections, <p> for paragraphs, <ul><li> for lists\n- Do NOT use placeholder headings like "Introduction" or "Conclusion" — make them specific\n- The article title should be the FIRST line as plain text (not wrapped in a tag)` },
+                    { role: 'user', content: `Write an 800-word article for "Chain Signals" blog about: ${title}\n\nTOPIC CONTEXT: ${keywords}\n\nSTRUCTURE BLUEPRINT:\n- Para 1 (Hook): State the core insight or tension in 2-3 sentences. Make it immediately interesting.\n- H2 Section 1: What the protocol/trend actually does and why it matters technically\n- H2 Section 2: The specific angle that makes this worth writing about right now\n- H2 Section 3: Real risks, trade-offs, or open questions — be honest, not promotional\n- H2 Section 4: What to watch or do next (practical takeaway)\n- DO NOT add a generic conclusion paragraph. End on something memorable.\n\nKEY RULES:\n- 750-850 words total\n- Every claim must be supportable — no invented numbers or events\n- Conversational but technically solid` }
                 ],
-                temperature: 0.7,
-                max_tokens: 3200
+                temperature: 0.75,
+                max_tokens: 2000
             })
         });
         if (!res.ok) {
