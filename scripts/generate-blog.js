@@ -182,11 +182,11 @@ function writeCSV(headers, rows) {
 
 
 
-async function factCheckPost(draftContent, title, keywords) {
+async function stage3Recheck(draftContent, title, keywords) {
     try {
-        // Stage 3: Quality Editor (llama-4-scout-17b)
+        // Stage 3: Recheck & SEO Polish (llama-4-scout-17b)
         const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
-        console.log(`[Stage 3] Quality Editing: "${title}" (Model: ${model})...`);
+        console.log(`[Stage 3] Recheck & Polish: "${title}" (Model: ${model})...`);
         const latestNews = await fetchLatestNews();
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -196,21 +196,19 @@ async function factCheckPost(draftContent, title, keywords) {
                 model,
                 messages: [
                     {
-                        role: 'system', content: `You are a senior editor at a specialist crypto publication. Your job is quality control — not just fact-checking, but making the post EXCELLENT.
+                        role: 'system', content: `You are a senior technical editor doing the FINAL RECHECK.
 
 YOUR TASKS:
-1. FACT ACCURACY: Cross-check all protocol claims, tickers, and roles against: ${JSON.stringify(PROJECT_KNOWLEDGE)}. Remove or qualify anything unverifiable.
-2. CHOP THE FLAB: Cut generic sentences that say nothing. Every paragraph must earn its place.
-3. FIX WEAK OPENERS: If the intro doesn't hook in 2 sentences, rewrite it.
-4. TIGHTEN HEADLINES: H2 headers must be specific and contain keywords — not generic labels like "Overview" or "Conclusion".
-5. NO AI SLOP: Remove any phrases like "In the ever-evolving crypto landscape", "It is worth noting", "Let's dive in", "As we can see".
-6. LENGTH CHECK: Final article must be 750-850 words. Not shorter. Not longer. Cut or expand accordingly.
-7. PRESERVE HTML: Keep the HTML structure intact (<h2>, <h3>, <p>, <ul>, <li>).
+1. FINAL REVIEW: Ensure absolute factual accuracy using: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
+2. NO AI ARTIFACTS: Strip phrases like "In summary", "Let's explore", "It is crucial to note". 
+3. HUMAN TOUCH: Ensure the tone is conversational, confident, and demonstrates high E-E-A-T (Experience, Expertise, Authoritativeness, Trust).
+4. LENGTH CHECK: Ensure the post remains ~800 words.
+5. PRESERVE HTML: Keep the HTML structure intact (<h2>, <p>, <ul>, <li>).
 
-OUTPUT ONLY: The improved article body in HTML. No preamble.` },
-                    { role: 'user', content: `EDIT THIS ARTICLE FOR QUALITY:\nTitle: ${title}\nKeywords: ${keywords}\nLatest context: ${latestNews}\n\nDRAFT:\n${draftContent}` }
+OUTPUT ONLY: The polished article body in HTML.` },
+                    { role: 'user', content: `FINAL RECHECK THIS ARTICLE:\nTitle: ${title}\nKeywords: ${keywords}\nContext: ${latestNews}\n\nDRAFT:\n${draftContent}` }
                 ],
-                temperature: 0.4,
+                temperature: 0.3,
                 max_tokens: 2500
             })
         });
@@ -220,16 +218,18 @@ OUTPUT ONLY: The improved article body in HTML. No preamble.` },
         if (!data.choices || data.choices.length === 0) return draftContent;
         return data.choices[0].message.content.trim();
     } catch (err) {
-        console.error("Quality edit error:", err.message);
+        console.error("Recheck error:", err.message);
         return draftContent;
     }
 }
 
-async function forensicFactAudit(content, title, keywords) {
+
+
+async function stage2FactCheck(draftContent, title, keywords) {
     try {
-        // Stage 4: Final Polish (qwen3-32b)
-        const model = 'qwen/qwen3-32b';
-        console.log(`[Stage 4] Final Polish: "${title}" (Model: ${model})...`);
+        // Stage 2: Fact Check (llama-4-scout-17b)
+        const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
+        console.log(`[Stage 2] Fact Checking: "${title}" (Model: ${model})...`);
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -238,72 +238,28 @@ async function forensicFactAudit(content, title, keywords) {
                 model,
                 messages: [
                     {
-                        role: 'system', content: `You are a senior technical editor doing a FINAL PASS before publication. Your job is to make this article publish-ready.
+                        role: 'system', content: `You are a specialist crypto fact-checker. Your job is to verify all claims in a draft article.
 
-FINAL PASS CHECKLIST:
-1. TECHNICAL TRUTH: Verify all protocol descriptions match: ${JSON.stringify(PROJECT_KNOWLEDGE)}. Fix any inaccuracies.
-2. GOOGLE SEO: Ensure the first 160 characters of the first paragraph would work as a meta description. It should contain the primary keyword naturally.
-3. READABILITY: Short sentences. Active voice. No passive voice constructions.
-4. STRIP AI ARTIFACTS: Remove phrases like "In conclusion", "As mentioned above", "It is important to note", "Let's explore", "In summary".
-5. VALID HTML: Ensure clean HTML structure only using <h2>, <h3>, <p>, <ul>, <li>, <strong>. No <div>, no <span>, no inline styles.
-6. WORD COUNT: Article must be 750-850 words. Check and adjust if needed.
+FACT CHECK TASKS:
+1. TRUTH VERIFICATION: Check all protocol descriptions, tickers, and narratives against this Source of Truth: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
+2. HALLUCINATION KILLER: Remove any fabricated events, fake partnerships, or impossible data.
+3. NO GENERIC BRANDING: Ensure there are no placeholder titles like "Alpha Report".
+4. PRESERVE SEO & STRUCTURE: Keep the HTML length (~800 words) and all SEO headers.
 
-OUTPUT ONLY: The final, publish-ready article body in HTML. No preamble, no explanation.` },
-                    { role: 'user', content: `FINAL PASS:\nTitle: ${title}\nKeywords: ${keywords}\n\nARTICLE:\n${content}` }
+OUTPUT ONLY: The fact-checked article body in HTML (<h2>, <h3>, <p>, <ul>, <li>). No head/body tags.` },
+                    { role: 'user', content: `FACT CHECK THIS DRAFT:\nTopic keywords: ${keywords}\n\nDRAFT:\n${draftContent}` }
                 ],
                 temperature: 0.2,
                 max_tokens: 2500
             })
         });
-        if (!res.ok) return content;
-        const data = await res.json();
-        if (data.usage) logUsage(model, data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
-        if (!data.choices || data.choices.length === 0) return content;
-        return data.choices[0].message.content.trim();
-    } catch (err) {
-        console.error("Final polish error:", err.message);
-        return content;
-    }
-}
-
-async function enhancePostSEO(draftContent, title, keywords) {
-    try {
-        // Stage 2: SEO Optimizer (llama-4-scout-17b)
-        const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
-        console.log(`[Stage 2] SEO Optimization: "${title}" (Model: ${model})...`);
-
-        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model,
-                messages: [
-                    {
-                        role: 'system', content: `You are an SEO specialist for a crypto blog. Your job is to optimize a draft article for Google search rankings.
-
-SEO OPTIMIZATION TASKS:
-1. META KEYWORDS: Identify 2-3 long-tail keywords from the topic (low-medium competition). Weave them naturally into headings and first sentences of paragraphs.
-2. TITLE: Rewrite the title if needed — it must be specific, keyword-rich, and under 60 characters. NO generic phrases like "Everything You Need to Know" or "Complete Guide".
-3. INTRO: The first paragraph must answer "what is this article about and why should I care?" in 2-3 sentences. It's the meta description.
-4. H2 HEADERS: Every H2 must contain a keyword naturally. Headers like "Introduction" or "Overview" are banned.
-5. INTERNAL STRUCTURE: Add a bullet-list "Key Takeaways" section at the very end with 3-4 punchy insights.
-6. WORD COUNT: Keep at 750-900 words. Do NOT pad.
-7. DO NOT fabricate any technical facts. Just restructure and optimize the existing content.
-
-OUTPUT ONLY: The SEO-optimized article body in HTML (<h2>, <h3>, <p>, <ul>, <li>). No head/body tags.` },
-                    { role: 'user', content: `SEO OPTIMIZE THIS DRAFT:\nTopic keywords: ${keywords}\n\nDRAFT:\n${draftContent}` }
-                ],
-                temperature: 0.5,
-                max_tokens: 2500
-            })
-        });
-        if (!res.ok) { console.error("SEO optimization error:", res.status); return draftContent; }
+        if (!res.ok) { console.error("Fact check error:", res.status); return draftContent; }
         const data = await res.json();
         if (data.usage) logUsage(model, data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
         if (!data.choices || data.choices.length === 0) return draftContent;
         return data.choices[0].message.content.trim();
     } catch (err) {
-        console.error("SEO enhance error:", err.message);
+        console.error("Fact check exception:", err.message);
         return draftContent;
     }
 }
@@ -321,8 +277,8 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
             body: JSON.stringify({
                 model,
                 messages: [
-                    { role: 'system', content: `${UNIFIED_VOICE_PROMPT}\n\nCRITICAL OUTPUT RULES:\n- Do NOT write your thinking process or preamble\n- Start IMMEDIATELY with the article content\n- Use HTML formatting: <h2> for sections, <p> for paragraphs, <ul><li> for lists\n- Do NOT use placeholder headings like "Introduction" or "Conclusion" — make them specific\n- The article title should be the FIRST line as plain text (not wrapped in a tag)` },
-                    { role: 'user', content: `Write an 800-word article for "Chain Signals" blog about: ${title}\n\nTOPIC CONTEXT: ${keywords}\n\nSTRUCTURE BLUEPRINT:\n- Para 1 (Hook): State the core insight or tension in 2-3 sentences. Make it immediately interesting.\n- H2 Section 1: What the protocol/trend actually does and why it matters technically\n- H2 Section 2: The specific angle that makes this worth writing about right now\n- H2 Section 3: Real risks, trade-offs, or open questions — be honest, not promotional\n- H2 Section 4: What to watch or do next (practical takeaway)\n- DO NOT add a generic conclusion paragraph. End on something memorable.\n\nKEY RULES:\n- 750-850 words total\n- Every claim must be supportable — no invented numbers or events\n- Conversational but technically solid` }
+                    { role: 'system', content: `${UNIFIED_VOICE_PROMPT}\n\nCRITICAL OUTPUT RULES:\n- Do NOT write your thinking process or preamble\n- Start IMMEDIATELY with the article content\n- Use HTML formatting: <h2> for sections, <p> for paragraphs, <ul><li> for lists\n- Output a HIGHLY HUMAN-LIKE blog post demonstrating E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) that will rank well in Google.\n- The article title should be the FIRST line as plain text (not wrapped in a tag)` },
+                    { role: 'user', content: `Write a highly human-like, 800-word article for a crypto blog about: ${title}\n\nTOPIC CONTEXT: ${keywords}\n\nREQUIREMENTS:\n1. E-E-A-T FOCUS: Write with deep expertise. Show authoritativeness and trustworthiness.\n2. GOOGLE RANKING: Optimize naturally for search intent. Include an engaging hook and a summary "Key Takeaways".\n3. HUMAN VOICE: Use active voice, conversational tone, short paragraphs, and varied sentence length. Avoid robotic phrasing.\n4. LENGTH: Approximately 800 words.\n5. STRUCTURE:\n   - Hook (Intro paragraph)\n   - H2 Sections for technical deep dives and core issues\n   - Key Takeaways (Bullet points)\n\nDO NOT fabricate events.` }
                 ],
                 temperature: 0.75,
                 max_tokens: 2000
@@ -339,14 +295,11 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
         if (data.usage) logUsage(model, data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
         let bodyContent = data.choices[0].message.content;
 
-        // Stage 2: Enhance and SEO Optimize
-        bodyContent = await enhancePostSEO(bodyContent, title, keywords);
+        // Stage 2: Fact Check
+        bodyContent = await stage2FactCheck(bodyContent, title, keywords);
 
-        // Stage 3: Secondary Fact-Check & Fix
-        bodyContent = await factCheckPost(bodyContent, title, keywords);
-
-        // Stage 4: Final Forensic Fact-Audit
-        bodyContent = await forensicFactAudit(bodyContent, title, keywords);
+        // Stage 3: Recheck
+        bodyContent = await stage3Recheck(bodyContent, title, keywords);
 
         // Final Scrubber for residual slop
         bodyContent = bodyContent
