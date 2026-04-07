@@ -158,9 +158,40 @@ OUTPUT ONLY: The final, polished HTML article body. Nothing else.`;
     ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.3);
 }
 
+/**
+ * STEP 5: Data Sanitizer (llama-4-scout-17b)
+ * Role: Laser-focused on correcting inaccurate dates, TPS figures, TVL numbers, and protocol versions.
+ */
+async function dataSanitizer(draftContent, sourceText) {
+    console.log(`[Step 5] Data Sanitizer (llama-4-scout-17b)...`);
+
+    const systemPrompt = `You are a Data Accuracy Auditor for a high-authority financial publication.
+Today's Date: ${config.CURRENT_DATE}.
+
+YOUR ONLY JOB is to fix factual data errors. Do NOT rewrite the article, change the style, or restructure sections.
+
+AUDIT CHECKLIST — check each item against the SOURCE DOCUMENTS:
+1. DATES: All dates must be consistent with the current date (${config.CURRENT_DATE}). Flag any future dates claimed as past events, or past dates used incorrectly.
+2. TPS / THROUGHPUT: Cross-reference all TPS, transactions-per-second, and throughput figures against sources. If a figure has no source backing, delete the specific number and replace with a general qualifier (e.g., "thousands of TPS" or "sub-cent fees").
+3. TVL / MARKET FIGURES: Cross-reference TVL, market cap, and funding figures against sources. Remove any fabricated round numbers not found in sources.
+4. PROTOCOL VERSIONS: Ensure version numbers, upgrade names, and launch dates match the sources.
+5. HTML INTEGRITY: Do not break any HTML tags. Preserve all visual components (takeaways-card, comparison-table, insight-card).
+
+OUTPUT ONLY: The corrected HTML article body with all data errors fixed. Nothing else.
+
+SOURCE DOCUMENTS:
+${sourceText}`;
+
+    return await callGroq([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `DATA AUDIT ON:\n${draftContent}` }
+    ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.2);
+}
+
 module.exports = {
     discoverKeywords,
     draftProfessionalBlog,
     firstFactCheck,
-    finalFactCheck
+    finalFactCheck,
+    dataSanitizer
 };

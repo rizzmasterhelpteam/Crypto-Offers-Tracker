@@ -51,6 +51,10 @@ async function run() {
         console.log("[Flow] Step 4 Starting...");
         content = await generator.finalFactCheck(content, sourceText);
 
+        // STEP 5: Data Sanitizer — corrects inaccurate dates, figures, TPS numbers (llama-4-scout-17b)
+        console.log("[Flow] Step 5 Starting...");
+        content = await generator.dataSanitizer(content, sourceText);
+
         // Final assembly
         const today = config.CURRENT_DATE;
         const slug = selectedKeyword.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
