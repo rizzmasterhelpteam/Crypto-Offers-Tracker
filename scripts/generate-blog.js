@@ -13,15 +13,29 @@ async function run() {
     console.log(`\n🚀 HIGH-AUTHORITY PIPELINE: 4-Step Generation v3 starting... (${config.CURRENT_DATE})`);
 
     try {
-        // Load history to prevent repetition
-        const history = fs.existsSync(config.HISTORY_PATH)
-            ? fs.readFileSync(config.HISTORY_PATH, 'utf8').split('\n').filter(Boolean)
-            : [];
+        // Load & Sync History with Filesystem
+        let historyObj = {};
+        if (fs.existsSync(config.HISTORY_PATH)) {
+            try {
+                historyObj = JSON.parse(fs.readFileSync(config.HISTORY_PATH, 'utf8'));
+                // SYNC: Remove keywords if the corresponding file was deleted
+                for (const fileName in historyObj) {
+                    if (!fs.existsSync(path.join(config.BLOG_DIR, fileName))) {
+                        console.log(`[Sync] File ${fileName} deleted; removing keyword "${historyObj[fileName]}" from history.`);
+                        delete historyObj[fileName];
+                    }
+                }
+            } catch (e) {
+                console.warn("[Sync] History file corrupted or not JSON, starting fresh.");
+                historyObj = {};
+            }
+        }
+        const activeKeywords = Object.values(historyObj);
 
         // STEP 1: Keyword Discovery (llama-4-scout-17b)
         console.log("[Flow] Step 1 Starting...");
         const newsHeadlineContext = await sources.fetchLatestNews();
-        const selectedKeyword = await generator.discoverKeywords(newsHeadlineContext, history.slice(-20)); // Last 20 keywords
+        const selectedKeyword = await generator.discoverKeywords(newsHeadlineContext, activeKeywords.slice(-20)); // Last 20 keywords
         console.log(`[Flow] Selected Keyword: "${selectedKeyword}"`);
 
         // STEP 2: Source Analysis & E-E-A-T Drafting (gpt-oss-120b)
@@ -64,8 +78,9 @@ async function run() {
 
         fs.writeFileSync(path.join(config.BLOG_DIR, fileName), finalHtml);
 
-        // Record history
-        fs.appendFileSync(config.HISTORY_PATH, `${selectedKeyword}\n`);
+        // Record and Save History
+        historyObj[fileName] = selectedKeyword;
+        fs.writeFileSync(config.HISTORY_PATH, JSON.stringify(historyObj, null, 4));
 
         console.log(`✅ Step 4 Complete: blog/${fileName} is PUBLISHED.`);
 
