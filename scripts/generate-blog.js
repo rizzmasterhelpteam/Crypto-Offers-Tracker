@@ -32,12 +32,12 @@ const PROJECT_KNOWLEDGE = {
     'CELESTIA': { role: 'Modular Data Availability Layer', mechanism: 'Data Availability Sampling (DAS) and Namespace Merkle Trees' },
     'EIGEN': { role: 'Ethereum Restaking Primitive (EigenLayer)', mechanism: 'Shared security via Actively Validated Services (AVS)' },
     'EIGENLAYER': { role: 'Ethereum Restaking Primitive', mechanism: 'Shared security via Actively Validated Services (AVS)' },
-    'MON': { role: 'Parallelized EVM Layer 1 (Monad)', mechanism: 'Parallel execution and MonadDb for high-performance consensus' },
-    'MONAD': { role: 'Parallelized EVM Layer 1', mechanism: 'Parallel execution and MonadDb for high-performance consensus' },
+    'MON': { role: 'Parallelized EVM Layer 1 (Monad)', mechanism: 'Parallel execution and MonadDb for high-performance consensus. As of April 2026 the mainnet has not launched — claims about a shipped zk-rollup engine are NOT verified.' },
+    'MONAD': { role: 'Parallelized EVM Layer 1', mechanism: 'Parallel execution and MonadDb for high-performance consensus. As of April 2026 the mainnet has not launched — claims about a shipped zk-rollup engine are NOT verified.' },
     'BERA': { role: 'DeFi-Focused Layer 1 (Berachain)', mechanism: 'Proof of Liquidity (PoL) and tri-token system ($BERA, $BGT, $HONEY)' },
     'BERACHAIN': { role: 'DeFi-Focused Layer 1', mechanism: 'Proof of Liquidity (PoL) and tri-token system' },
     'JTO': { role: 'Solana MEV-Powered Liquid Staking (Jito)', mechanism: 'Maximum Extractable Value (MEV) redistribution to stakers' },
-    'DRIFT': { role: 'Decentralized Perceptual DEX on Solana', mechanism: 'Dynamic Virtual AMM (dAMM) and cross-margined trading' },
+    'DRIFT': { role: 'Decentralized Perpetual DEX on Solana', mechanism: 'Dynamic Virtual AMM (dAMM) and cross-margined trading' },
     'JUP': { role: 'Solana Liquidity & Swap Aggregator (Jupiter)', mechanism: 'Metis routing and decentralized limit order engine' },
     'REDSTONE': { role: 'Modular Oracle Provider', mechanism: 'Push/Pull data delivery for low-latency L1s/L2s' },
     'SIREN': { role: 'Decentralized Options & Derivatives Protocol', mechanism: 'On-chain option writing and AMM-based trading' },
@@ -46,8 +46,16 @@ const PROJECT_KNOWLEDGE = {
     'LDO': { role: 'Liquid Staking Protocol (Lido)', mechanism: 'Tokenized staked ETH and decentralized validator sets' },
     'TAIKO': { role: 'Based Rollup (Taiko)', mechanism: 'Decentralized sequencing via Ethereum L1' },
     'STARKNET': { role: 'ZK-Rollup (Starknet)', mechanism: 'STARK-based scaling with Cairo language' },
-    'ZKSYNC': { role: 'ZK-Rollup (zkSync Era)', mechanism: 'ZK-SNARK scalability with native account abstraction' }
+    'ZKSYNC': { role: 'ZK-Rollup (zkSync Era)', mechanism: 'ZK-SNARK scalability with native account abstraction' },
+    'BRISE': { role: 'EVM-Compatible Layer 1 (Bitgert chain)', mechanism: 'Bitgert is a low-fee EVM-compatible chain. It is NOT a Layer-0 bridge, NOT a ZK rollup, and has no verified institutional DeFi integrations. Treat all unverified Bitgert architecture claims as hallucinations.' },
+    'BITGERT': { role: 'EVM-Compatible Layer 1', mechanism: 'Bitgert is a low-fee EVM-compatible chain, NOT a Layer-0 bridge or ZK rollup.' },
+    'TAO': { role: 'Decentralized AI Network (Bittensor)', mechanism: 'Incentivized machine learning marketplace where validators rank subnets and miners earn TAO for producing useful AI outputs' },
+    'BITTENSOR': { role: 'Decentralized AI Network', mechanism: 'Incentivized machine learning marketplace with subnet structure' },
+    'PENGU': { role: 'NFT Collection & Community Token (Pudgy Penguins)', mechanism: 'Pudgy Penguins is an Ethereum NFT collection. PENGU is their governance/community token. Any staking mechanics or governance claims should be qualified as unverified unless independently confirmed.' },
+    'PUDGY_PENGUINS': { role: 'Ethereum NFT Collection with community token PENGU', mechanism: 'Consumer-focused NFT brand with physical toy licensing. Staking claims are unverified — do not state as fact.' }
 };
+
+const CURRENT_DATE = new Date().toISOString().split('T')[0]; // e.g. 2026-04-07
 
 // Research seeds for high-authority content
 const RESEARCH_SEEDS = ['Celestia', 'EigenLayer', 'Monad', 'Berachain', 'Jito', 'Drift Protocol', 'Starknet', 'zkSync'];
@@ -70,30 +78,30 @@ const CATEGORIES = [
 ];
 
 // Master voice prompt: the "Chain Signals" brand identity
-const UNIFIED_VOICE_PROMPT = `You are a senior crypto analyst and writer for "Chain Signals" — a trusted independent blog for serious DeFi and blockchain readers.
+const UNIFIED_VOICE_PROMPT = `You are a senior crypto analyst and writer for "Chain Signals" — a trusted independent blog for serious DeFi and blockchain readers. Today's date is ${CURRENT_DATE}.
 
-YOUR AUDIENCE: Intermediate-to-advanced crypto readers: people who already hold, trade, and build. Skip basic explanations.
+YOUR AUDIENCE: Intermediate-to-advanced crypto readers who already hold, trade, and build. Skip basic definitions.
 
-WRITING STYLE:
-- Write in first-person confident voice — direct, clear, opinionated
-- Use short punchy paragraphs (2-3 sentences). Never write walls of text.
-- One-liners are powerful. Use them for emphasis.
-- Rhetorical questions and light skepticism are welcome
-- Sound like a smart insider sharing a genuine take, not a content farm
+WRITING STYLE — HUMAN VARIATION IS MANDATORY:
+- Vary your sentence length aggressively. Mix short punchy sentences with longer analytical ones.
+- Vary your paragraph length. Some paragraphs can be 1 sentence. Others 4. Never two identical-length paragraphs in a row.
+- Vary your register: switch between analytical observation, direct opinion, and honest uncertainty.
+- Sound like one person writing, not a template being filled in.
+- Use rhetorical questions and light skepticism naturally — not as a formula.
 
-SEO STRUCTURE RULES (Google ranking):
-- Start with a hook sentence that directly states the article's value proposition
-- Use H2 headers every 150-200 words
-- H2 headers must contain the target keyword or a natural variant
-- Include a "Key Takeaways" or summary section at the end
-- Target 750-850 words total
-- Write for featured snippets: lead each section with a direct, declarative answer
+SEO STRUCTURE RULES:
+- Start with a hook that states a tension, surprise, or genuine insight
+- Use H2 headers every 150-200 words, each containing a natural keyword
+- Include "Key Takeaways" bullets at the end
+- Target 750-850 words
 
-FACT DISCIPLINE:
-- NEVER invent TVL numbers, APY percentages, dates, or specific events
-- If uncertain about a figure, write "reportedly" or "per on-chain data" as a qualifier
-- Do NOT fabricate protocol integrations or exploit narratives as bridges
-- Stick to what's verifiable from the context provided`;
+FACT DISCIPLINE — NON-NEGOTIABLE:
+- NEVER state on-chain data (TVL, volume, APY, price) as fact without a source qualifier: "per DefiLlama", "according to Dune", "reportedly", "per on-chain trackers"
+- NEVER make architectural claims about a protocol that are not in the provided knowledge base
+- NEVER reference a roadmap date that is in the past without stating whether it shipped
+- If the current date is ${CURRENT_DATE}, any date before this is in the past — do NOT frame past dates as upcoming milestones
+- If you are unsure whether something shipped, write "reportedly" or "worth verifying independently"
+- Do NOT fabricate integrations, exploits, or partnerships as narrative bridges`;
 
 function logUsage(model, promptTokens, completionTokens, totalTokens) {
     const timestamp = new Date().toISOString();
@@ -242,19 +250,21 @@ async function stage2FactCheck(draftContent, title, keywords) {
                 model,
                 messages: [
                     {
-                        role: 'system', content: `You are a rigorous senior fact-checker at a specialist crypto publication. You have ZERO tolerance for inaccuracies.
+                        role: 'system', content: `You are a rigorous senior fact-checker at a specialist crypto publication. You have ZERO tolerance for inaccuracies. Today's date is ${CURRENT_DATE}.
 
 STRICT FACT CHECK RULES — APPLY EVERY ONE:
 1. TICKER ACCURACY: Every coin/token ticker mentioned MUST match exactly: ${JSON.stringify(PROJECT_KNOWLEDGE)}. Wrong ticker? Delete the sentence.
-2. PROTOCOL ROLE ACCURACY: If a protocol's described role does not match its actual function in the knowledge base, REWRITE the sentence using the correct description.
-3. HALLUCINATION REMOVAL: Any fabricated on-chain event, exploit, partnership, integration, or launch date NOT present in the knowledge base MUST BE DELETED — do NOT replace it with something else.
-4. DATA QUALIFICATION: Any TVL, APY, price, or percentage figure without a source qualifier (e.g. "reportedly", "per DefiLlama") MUST be qualified or removed.
-5. NARRATIVE INTEGRITY: Do NOT let AI narrative glue survive. If a paragraph only exists to connect two sections but contains no factual substance, DELETE it.
-6. TITLE CLEANUP: The article title MUST NOT contain generic phrases like "Alpha Report", "Technical Deep Dive", "Deep Tech", or "Protocol Alpha". If present, rewrite it.
-7. PRESERVE STRUCTURE: Keep all valid HTML (<h2>, <h3>, <p>, <ul>, <li>, <strong>). Do not add or remove tags.
-8. WORD COUNT: Keep the article approximately 800 words. Do not expand beyond 900 words.
+2. PROTOCOL ROLE ACCURACY: If a protocol's described role does not match its actual function in the knowledge base, REWRITE the sentence using the correct description. If a protocol is NOT in the knowledge base, use only conservative language like "reportedly" — never invent its architecture.
+3. HALLUCINATION REMOVAL: Any fabricated on-chain event, exploit, partnership, integration, or launch NOT present in the knowledge base MUST BE DELETED — do NOT replace with something else.
+4. DATA QUALIFICATION: Any TVL, APY, volume, price, or percentage figure without a source qualifier MUST be qualified ("per DefiLlama", "reportedly", "per on-chain data") or removed.
+5. TEMPORAL CONTRADICTION: Any date mentioned that is BEFORE ${CURRENT_DATE} is in the PAST. If the article mentions a future milestone for a date that has already passed, either state "this shipped" (if verifiable) or rewrite as "was scheduled for [date] — verify current status" — never leave a past date framed as upcoming.
+6. NARRATIVE GLUE REMOVAL: If a paragraph exists only to bridge two sections with no factual content — DELETE IT.
+7. UNIFORM STRUCTURE DETECTION: If multiple sections have identical sentence counts and identical rhythm, flag this as AI artifact and vary the structure.
+8. TITLE CLEANUP: No generic prefixes (Alpha Report, Technical Deep Dive, Deep Tech, Protocol Alpha).
+9. PRESERVE VALID HTML: Keep all <h2>, <h3>, <p>, <ul>, <li>, <strong> intact.
+10. WORD COUNT: Keep ~800 words. Do not exceed 900.
 
-OUTPUT ONLY: The fact-checked article in HTML. No preamble. No explanations.` },
+OUTPUT ONLY: The fact-checked article in HTML. No preamble.` },
                     { role: 'user', content: `STRICTLY FACT CHECK THIS DRAFT:\nTitle: ${title}\nTopic keywords: ${keywords}\n\nDRAFT:\n${draftContent}` }
                 ],
                 temperature: 0.15,
@@ -285,8 +295,8 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
             body: JSON.stringify({
                 model,
                 messages: [
-                    { role: 'system', content: `${UNIFIED_VOICE_PROMPT}\n\nCRITICAL OUTPUT RULES:\n- Do NOT write your thinking process or preamble\n- Start IMMEDIATELY with the article content\n- Use HTML formatting: <h2> for sections, <p> for paragraphs, <ul><li> for lists\n- Output a HIGHLY HUMAN-LIKE blog post demonstrating E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) that will rank well in Google.\n- The article title should be the FIRST line as plain text (not wrapped in a tag)` },
-                    { role: 'user', content: `Write a highly human-like, 800-word article for a crypto blog about: ${title}\n\nTOPIC CONTEXT: ${keywords}\n\nREQUIREMENTS:\n1. E-E-A-T FOCUS: Write with deep expertise. Show authoritativeness and trustworthiness.\n2. GOOGLE RANKING: Optimize naturally for search intent. Include an engaging hook and a summary "Key Takeaways".\n3. HUMAN VOICE: Use active voice, conversational tone, short paragraphs, and varied sentence length. Avoid robotic phrasing.\n4. LENGTH: Approximately 800 words.\n5. STRUCTURE:\n   - Hook (Intro paragraph)\n   - H2 Sections for technical deep dives and core issues\n   - Key Takeaways (Bullet points)\n\nDO NOT fabricate events.` }
+                    { role: 'system', content: `${UNIFIED_VOICE_PROMPT}\n\nCRITICAL OUTPUT RULES:\n- Do NOT write your thinking process or preamble\n- Start IMMEDIATELY with the article content\n- Use HTML formatting: <h2> for sections, <p> for paragraphs, <ul><li> for lists\n- HUMAN VARIATION: Sections must have DIFFERENT paragraph counts (1 to 4 paragraphs each). Different sentence lengths. No two sections can feel structurally identical.\n- SOURCE ALL DATA: Every on-chain claim needs a qualifier. "per DefiLlama", "according to Dune", "reportedly" — pick one. Unsourced data assertions will be removed in fact-checking.\n- TEMPORAL ACCURACY: Today is ${CURRENT_DATE}. Any date before today is PAST. Do not frame past dates as upcoming milestones. If a milestone was scheduled for a past date, state whether it shipped or not — do not pretend the date is still future.\n- ARCHITECTURE CLAIMS: Only describe a protocol's architecture using what is confirmed in the knowledge base. Anything outside the knowledge base must be qualified with "reportedly" or omitted.` },
+                    { role: 'user', content: `Write a highly human-like, 800-word article for a crypto blog about: ${title}\n\nTOPIC CONTEXT: ${keywords}\n\nREQUIREMENTS:\n1. E-E-A-T FOCUS: Write with deep expertise. Show authoritativeness and trustworthiness.\n2. GOOGLE RANKING: Optimize naturally for search intent. Include an engaging hook and a summary "Key Takeaways".\n3. HUMAN VOICE: Vary sentence length and structure deliberately. Make each section feel different.\n4. LENGTH: Approximately 800 words.\n5. STRUCTURE:\n   - Strong hook (1-2 paragraph intro — NOT starting with "The" or "In")\n   - H2 sections of VARYING length (some 1 paragraph, some 3-4)\n   - Key Takeaways (3-4 bullet points)\n\nDO NOT fabricate events. DO NOT use roadmap dates without confirming they shipped.` }
                 ],
                 temperature: 0.75,
                 max_tokens: 2000
