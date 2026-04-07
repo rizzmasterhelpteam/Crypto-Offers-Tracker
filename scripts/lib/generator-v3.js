@@ -1,6 +1,6 @@
 /**
  * generator-v3.js - 4-Step High-Authority Pipeline
- * Models: Step 1 & 2 (gpt-oss-120b), Step 3 & 4 (llama-4-scout-17b)
+ * Models: Step 1 (llama-4-scout-17b), Step 2 (gpt-oss-120b), Step 3 & 4 (llama-4-scout-17b)
  */
 const config = require('./config');
 
@@ -35,11 +35,10 @@ async function callGroq(messages, model, temperature = 0.5) {
 }
 
 /**
- * STEP 1: Keyword Discovery (gpt-oss-120b)
- * Searches for mid-volume and low competition keywords.
+ * STEP 1: Keyword Discovery (llama-4-scout-17b)
  */
 async function discoverKeywords(trendingContext) {
-    console.log(`[Step 1] Discovering Keywords (gpt-oss-120b)...`);
+    console.log(`[Step 1] Discovering Keywords (llama-4-scout-17b)...`);
     const systemPrompt = `You are a senior SEO and crypto market analyst. Today is ${config.CURRENT_DATE}.
 TASK: Analyze the provided trending context and identify ONE high-potential "mid-volume, low-competition" keyword for a technical blog post.
 CRITERIA:
@@ -57,7 +56,6 @@ OUTPUT ONLY: The selected keyword.`;
 
 /**
  * STEP 2: Source Analysis & E-E-A-T Drafting (gpt-oss-120b)
- * Searches for trustable sources, analyzes them, and writes a professional blog with backlinks.
  */
 async function draftProfessionalBlog(keyword, sourceText) {
     console.log(`[Step 2] Source Analysis & Drafting (gpt-oss-120b)...`);
@@ -65,21 +63,22 @@ async function draftProfessionalBlog(keyword, sourceText) {
 Today's Date: ${config.CURRENT_DATE}.
 GOAL: Write a 600-800 word professional blog post about the keyword "${keyword}".
 
-E-E-A-T & FORMATTING REQUIREMENTS:
-- SEO: Use the keyword "${keyword}" as the H1 title. Naturalize the opening paragraph (no keyword stuffing).
-- TAKEAWAYS: Insert a 3-bullet "Key Takeaways" section immediately below the introduction.
-- STRUCTURE: Strict hierarchy using H2s for main sections and H3s for nested details. 
-- DATA: Convert performance benchmarks (fees, finality, speeds) into a simple HTML comparison table.
-- P.O.V.: Use third-person objective voice. Avoid "Our platform" or "We"; use project names (e.g., "The Starknet platform").
-- NO FILLER: Do NOT include "Conclusion" headers or cliché sign-offs. End with a "Future Outlook" section.
-- BACKLINKS: Include at least 2-3 direct <a> links to source URLs.
+E-E-A-T & PREMIUM FORMATTING REQUIREMENTS:
+1. SEO: Use "${keyword}" as the H1 title. Naturalize the opening paragraph.
+2. TAKEAWAYS: Mandatory '<div class="takeaways-card"><h4>Key Takeaways</h4><ul>...</ul></div>' immediately below the intro.
+3. INSIGHTS: Include at least one '<div class="insight-card">...</div>' for analyst perspective.
+4. STRUCTURE: Use H2s for main sections and H3s for nested details. 
+5. DATA: Every benchmark (fees, TPS, finality) MUST be in a '<div class="comparison-table-wrapper"><table class="comparison-table">...</table></div>'.
+6. P.O.V.: Use third-person objective voice. NEVER use "Our", "We", or "My". Always name the projects (e.g., "The Provenance platform").
+7. NO FILLER: Absolutely NO "Conclusion" headers or cliché AI sign-offs. End cleanly after "Future Outlook".
+8. BACKLINKS: Include 2-3 direct <a> links to source URLs.
 
 SOURCE DOCUMENTS:
 ${sourceText}`;
 
     return await callGroq([
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Write the high-ranking, 800-word SEO-optimized blog post for: ${keyword}` }
+        { role: 'user', content: `Write the premium, 800-word SEO-optimized blog post for: ${keyword}` }
     ], 'openai/gpt-oss-120b', 0.6);
 }
 
@@ -89,14 +88,13 @@ ${sourceText}`;
 async function firstFactCheck(draftContent, sourceText) {
     console.log(`[Step 3] First Fact-Check & Fix (llama-4-scout-17b)...`);
     const systemPrompt = `You are a Hostile Technical Fact-Checker. 
-TASK: Compare the draft against the sources. 
-Identify and FIX every technical error, hallucination, or synthetic hype.
-STRICT RULES:
-1. P.O.V. FIX: Change first-person "Our/We" to project names (e.g., "The Provenance platform").
-2. SCRUB FILLER: Delete "Conclusion" headers, cliché sign-offs (e.g., "For developers... alike"), and administrative footers. End after "Future Outlook".
-3. FACTUAL FIX: Identify and FIX every technical error or hallucination. Fix inaccuracies instead of deleting salvageable sections.
-4. DELETION: Only delete if a statement is FULLY IMAGINARY.
-OUTPUT ONLY: The corrected HTML article.`;
+TASK: Compare the draft against the sources. Identify and FIX errors.
+STRICT AUDIT RULES:
+1. P.O.V. AUDIT: Change first-person "Our/We/My" to the specific project name from the source.
+2. VISUAL AUDIT: Ensure '<div class="takeaways-card">', '<div class="insight-card">', and '<table class="comparison-table">' are used correctly.
+3. SCRUB FILLER: Delete "Conclusion" headers and generic sign-offs.
+4. FACTUAL FIX: Fix inaccuracies based on the sources.
+OUTPUT ONLY: The corrected HTML article body.`;
 
     return await callGroq([
         { role: 'system', content: systemPrompt },
@@ -109,14 +107,12 @@ OUTPUT ONLY: The corrected HTML article.`;
  */
 async function finalFactCheck(draftContent, sourceText) {
     console.log(`[Step 4] Final Fact-Check & Publish (llama-4-scout-17b)...`);
-    const systemPrompt = `You are the Final Auditor.
-TASK: Perform a second, independent fact-check pass. 
+    const systemPrompt = `You are the Final Auditor. Ensure the draft is perfect.
 STRICT RULES:
-1. SCRUB AI ARTIFACTS: Ensure no "Conclusion" sections or cliché AI-style summarizing remains.
+1. SCRUB AI ARTIFACTS: Ensure NO "Conclusion" sections remain.
 2. P.O.V. ENFORCEMENT: Ensure 100% objective third-person project-based naming.
-3. FOCUS ON FIXING: Adjust language and data to match the sources perfectly.
-4. MINIMAL DELETION: Only remove content that is demonstrably and entirely fabricated.
-5. Ensure technical consistency, professional tone, and valid formatting.
+3. VISUAL POLISH: Verify all tables and cards use premium CSS classes (takeaways-card, comparison-table, insight-card).
+4. FACTUAL CONSISTENCY: Match the sources perfectly.
 OUTPUT ONLY: The final, polished HTML article for publication.`;
 
     return await callGroq([
