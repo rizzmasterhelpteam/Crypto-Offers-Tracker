@@ -10,3 +10,6 @@
 2026-04-07T09:46:37.092Z | Model: openai/gpt-oss-120b | Prompt: 1785 | Completion: 2000 | Total: 3785
 2026-04-07T09:46:39.118Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 2464 | Completion: 363 | Total: 2827
 2026-04-07T09:46:40.735Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 1248 | Completion: 486 | Total: 1734
+2026-04-07T10:02:35.021Z | Model: openai/gpt-oss-120b | Prompt: 1779 | Completion: 2000 | Total: 3779
+2026-04-07T10:02:36.837Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 3410 | Completion: 675 | Total: 4085
+2026-04-07T10:02:39.164Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 1721 | Completion: 644 | Total: 2365
