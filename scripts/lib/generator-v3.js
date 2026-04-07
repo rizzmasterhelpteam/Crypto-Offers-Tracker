@@ -65,14 +65,15 @@ OUTPUT ONLY: The selected keyword.`;
  */
 async function draftProfessionalBlog(keyword, sourceText) {
     console.log(`[Step 2] Expert Drafting (gpt-oss-120b)...`);
+    const knowledgeBase = JSON.stringify(config.PROJECT_KNOWLEDGE, null, 2);
 
     const systemPrompt = `You are a world-class technical crypto journalist — the kind that writes for CoinDesk Pro and Bankless Research.
 Today's Date: ${config.CURRENT_DATE}.
 ASSIGNMENT: Write a confident, vivid, 900-word technical deep-dive article targeting the keyword: "${keyword}".
 
 YOUR WRITING STANDARDS:
-- Write with authority and precision. Use specific protocol names, TPS numbers, and dates from the sources below.
-- Prioritize facts from the SOURCE DOCUMENTS. If sources lack a specific detail, use publicly known, verifiable information — do NOT invent fictional companies or statistics.
+- Write with authority and precision. Use specific protocol names, TPS numbers, and dates from the PROJECT KNOWLEDGE and sources below.
+- Prioritize facts from PROJECT KNOWLEDGE and SOURCE DOCUMENTS. If a specific detail isn't covered, use publicly known, verifiable information — do NOT invent fictional companies or statistics.
 - The article should read like it was written by a former quant/engineer who explains things for smart crypto traders.
 - Open with a punchy hook that immediately establishes why this topic matters RIGHT NOW in 2026.
 
@@ -92,6 +93,9 @@ FORBIDDEN ELEMENTS (will be caught in audit):
 - Fictional companies, made-up TPS figures, or fabricated protocol names
 
 OUTPUT: Pure HTML only. No markdown. No preamble — just the article HTML body.
+
+PROJECT KNOWLEDGE (2026 ground truth — use this as your primary reference):
+${knowledgeBase}
 
 SOURCE DOCUMENTS:
 ${sourceText}`;
