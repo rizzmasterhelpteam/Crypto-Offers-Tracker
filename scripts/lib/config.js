@@ -18,6 +18,7 @@ module.exports = {
     USAGE_LOG_PATH: path.join(ADMIN_DIR, 'usage.log'),
     STATE_PATH: path.join(ADMIN_DIR, 'state.json'),
     CONTEXT_CACHE_PATH: path.join(ADMIN_DIR, 'ground-truth-context.json'),
+    HISTORY_PATH: path.join(ADMIN_DIR, 'history.log'),
 
     // 2026 PROJECT KNOWLEDGE: SOURCE OF TRUTH
     PROJECT_KNOWLEDGE: {

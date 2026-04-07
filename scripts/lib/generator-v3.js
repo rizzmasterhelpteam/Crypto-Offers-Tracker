@@ -37,14 +37,18 @@ async function callGroq(messages, model, temperature = 0.5) {
 /**
  * STEP 1: Keyword Discovery (llama-4-scout-17b)
  */
-async function discoverKeywords(trendingContext) {
+async function discoverKeywords(trendingContext, history = []) {
     console.log(`[Step 1] Discovering Keywords (llama-4-scout-17b)...`);
+    const historyBlock = history.length > 0
+        ? `\nDO NOT USE any of these recently covered keywords: ${history.join(', ')}`
+        : "";
+
     const systemPrompt = `You are a senior SEO and crypto market analyst. Today is ${config.CURRENT_DATE}.
 TASK: Analyze the provided trending context and identify ONE high-potential "mid-volume, low-competition" keyword for a technical blog post.
 CRITERIA:
 - Mid-volume: 500-2000 monthly searches (simulated).
 - Low-competition: Not dominated by mainstream media; technical or niche.
-- Topic: Must be related to the 2026 technical roadmap (L2/L3 scaling, AI agents, RWA, or Institutional DeFi).
+- Topic: Must be related to the 2026 technical roadmap (L2/L3 scaling, AI agents, RWA, or Institutional DeFi).${historyBlock}
 
 OUTPUT ONLY: The selected keyword.`;
 

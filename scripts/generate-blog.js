@@ -13,10 +13,15 @@ async function run() {
     console.log(`\n🚀 HIGH-AUTHORITY PIPELINE: 4-Step Generation v3 starting... (${config.CURRENT_DATE})`);
 
     try {
-        // STEP 1: Keyword Discovery (gpt-oss-120b)
+        // Load history to prevent repetition
+        const history = fs.existsSync(config.HISTORY_PATH)
+            ? fs.readFileSync(config.HISTORY_PATH, 'utf8').split('\n').filter(Boolean)
+            : [];
+
+        // STEP 1: Keyword Discovery (llama-4-scout-17b)
         console.log("[Flow] Step 1 Starting...");
         const newsHeadlineContext = await sources.fetchLatestNews();
-        const selectedKeyword = await generator.discoverKeywords(newsHeadlineContext);
+        const selectedKeyword = await generator.discoverKeywords(newsHeadlineContext, history.slice(-20)); // Last 20 keywords
         console.log(`[Flow] Selected Keyword: "${selectedKeyword}"`);
 
         // STEP 2: Source Analysis & E-E-A-T Drafting (gpt-oss-120b)
@@ -35,14 +40,21 @@ async function run() {
         // Final assembly
         const today = config.CURRENT_DATE;
         const slug = selectedKeyword.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-        const fileName = `${today}-${slug}.html`;
+        let fileName = `${today}-${slug}.html`;
+
+        // Ensure Uniqueness (don't overwrite)
+        let counter = 1;
+        while (fs.existsSync(path.join(config.BLOG_DIR, fileName))) {
+            fileName = `${today}-${slug}-v${counter}.html`;
+            counter++;
+        }
 
         let template = fs.readFileSync(config.TEMPLATE_PATH, 'utf8');
         const finalHtml = template
             .replaceAll('{{TITLE}}', selectedKeyword)
             .replaceAll('{{DATE}}', today)
             .replaceAll('{{TOPICS}}', selectedKeyword)
-            .replaceAll('{{CATEGORY}}', config.CATEGORIES[0].name) // Default to first
+            .replaceAll('{{CATEGORY}}', config.CATEGORIES[0].name)
             .replaceAll('{{CATEGORY_BADGE}}', config.CATEGORIES[0].badge)
             .replaceAll('{{CONTENT}}', content)
             .replaceAll('{{AUTHOR_NAME}}', config.AUTHOR.name)
@@ -51,6 +63,10 @@ async function run() {
             .replaceAll('{{AUTHOR_BIO}}', config.AUTHOR.bio);
 
         fs.writeFileSync(path.join(config.BLOG_DIR, fileName), finalHtml);
+
+        // Record history
+        fs.appendFileSync(config.HISTORY_PATH, `${selectedKeyword}\n`);
+
         console.log(`✅ Step 4 Complete: blog/${fileName} is PUBLISHED.`);
 
         utils.syncBlogIndex();
