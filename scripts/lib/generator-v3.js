@@ -52,10 +52,20 @@ CRITERIA:
 
 OUTPUT ONLY: The selected keyword.`;
 
-    return await callGroq([
+    const raw = await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `TRENDING CONTEXT:\n${trendingContext}` }
     ], 'qwen/qwen3-32b', 0.8);
+
+    // Qwen3 leaks <think>...</think> chain-of-thought blocks — strip them
+    const cleaned = raw
+        .replace(/<think>[\s\S]*?<\/think>/gi, '')  // remove CoT block
+        .replace(/^["'\s]+|["'\s]+$/g, '')           // strip quotes and whitespace
+        .split('\n')[0]                               // take only the first line
+        .trim();
+
+    console.log(`[Step 1] Cleaned keyword: "${cleaned}"`);
+    return cleaned;
 }
 
 /**
