@@ -132,7 +132,7 @@ ${sourceText}`;
     return await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `DRAFT TO AUDIT:\n${draftContent}` }
-    ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.1);
+    ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.3);
 }
 
 /**
