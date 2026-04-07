@@ -1,6 +1,6 @@
 /**
  * generator-v3.js - 4-Step High-Authority Pipeline
- * Models: Step 1 (llama-4-scout-17b), Step 2 (gpt-oss-120b), Step 3 & 4 (llama-4-scout-17b)
+ * Version: Hostile Grounded (Anti-Hallucination)
  */
 const config = require('./config');
 
@@ -62,61 +62,76 @@ OUTPUT ONLY: The selected keyword.`;
  * STEP 2: Source Analysis & E-E-A-T Drafting (gpt-oss-120b)
  */
 async function draftProfessionalBlog(keyword, sourceText) {
-    console.log(`[Step 2] Source Analysis & Drafting (gpt-oss-120b)...`);
-    const systemPrompt = `You are an elite technical crypto researcher and writer. 
-Today's Date: ${config.CURRENT_DATE}.
-GOAL: Write a 600-800 word professional blog post about the keyword "${keyword}".
+    console.log(`[Step 2] Grounded Drafting (gpt-oss-120b)...`);
+    const knowledgeBase = JSON.stringify(config.PROJECT_KNOWLEDGE, null, 2);
 
-STRICT HTML OUTPUT RULES - NO MARKDOWN:
-1. NO Markdown symbols (#, ##, *, **, etc.).
-2. USE ONLY HTML TAGS: <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>.
-3. STRUCTURE: Mandatory '<div class="takeaways-card"><h4>Key Takeaways</h4><ul>...</ul></div>' immediately below the intro.
-4. INSIGHTS: Include at least one '<div class="insight-card">...</div>'.
-5. DATA: Benchmarks MUST be in '<div class="comparison-table-wrapper"><table class="comparison-table">...</table></div>'.
-6. P.O.V.: Use third-person objective. No "Our", "We", or "My".
-7. NO FILLER: Absolutely NO "Conclusion" headers or generic AI sign-offs. End cleanly after "Future Outlook".
+    const systemPrompt = `You are a Hostilely Grounded technical crypto researcher. 
+Today's Date: ${config.CURRENT_DATE}.
+GOAL: Write a 800-word professional blog post for the keyword "${keyword}".
+
+ANTI-HALLUCINATION RULES:
+1. SOURCE ONLY: If a protocol/project is NOT in the "SOURCE DOCUMENTS" or the "PROJECT KNOWLEDGE" base below, it DOES NOT EXIST. Never invent projects.
+2. INTENT ALIGNMENT: Strictly follow the technical layer (L1, L2, or L3) and category (RWA, AI, etc.) requested in the keyword. If it asks for L2, do NOT write about L1 or L3.
+3. GROUND TRUTH: Use the PROJECT KNOWLEDGE base as the final arbiter of truth for specific protocol mechanics.
+
+HTML FORMATTING RULES:
+1. NO MARKDOWN: Absolutely zero '#', '*', or '---' symbols. Use pure HTML only.
+2. STRUCTURE: Use 'takeaways-card', 'insight-card', and 'comparison-table' as defined in global CSS.
+3. P.O.V.: Objective third-person only. 
 
 SOURCE DOCUMENTS:
+${sourceText}
+
+PROJECT KNOWLEDGE (Ground Truth):
+${knowledgeBase}`;
+
+    return await callGroq([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `Write the HOSTILELY GROUNDED premium HTML blog post for: ${keyword}` }
+    ], 'openai/gpt-oss-120b', 0.5);
+}
+
+/**
+ * STEP 3: Source Verification & Correction (llama-4-scout-17b)
+ */
+async function firstFactCheck(draftContent, sourceText) {
+    console.log(`[Step 3] Factual Audit (llama-4-scout-17b)...`);
+    const knowledgeBase = JSON.stringify(config.PROJECT_KNOWLEDGE, null, 2);
+
+    const systemPrompt = `You are a Hostile Factual Auditor. 
+TASK: Cross-reference the DRAFT against the SOURCE DOCUMENTS and PROJECT KNOWLEDGE.
+STRICT AUDIT TASKS:
+1. DETECT FABRICATION: Identify any protocol/project mentioned in the draft that IS NOT present in the sources or Knowledge Base. DELETE them immediately.
+2. FIX INTENT: Ensure the article strictly addresses the requested technical architecture (e.g., if keyword is about L2, ensure L1 content is minimized).
+3. PURE HTML: Ensure zero markdown symbols remain.
+
+OUTPUT ONLY: The ground-truthed, corrected HTML body.
+
+PROJECT KNOWLEDGE:
+${knowledgeBase}
+
+SOURCES:
 ${sourceText}`;
 
     return await callGroq([
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Write the premium, 800-word SEO-optimized blog post in PURE HTML for: ${keyword}` }
-    ], 'openai/gpt-oss-120b', 0.6);
-}
-
-/**
- * STEP 3: First Fact-Check & Fix (llama-4-scout-17b)
- */
-async function firstFactCheck(draftContent, sourceText) {
-    console.log(`[Step 3] First Fact-Check & Fix (llama-4-scout-17b)...`);
-    const systemPrompt = `You are a Hostile Technical Fact-Checker. 
-TASK: Compare the draft against the sources. Identify and FIX errors.
-STRICT HTML ENFORCEMENT:
-1. PURE HTML ONLY: Delete all markdown symbols (#, ##, *, **). Replace them with <h2>, <h3>, <strong>, <p>.
-2. P.O.V. AUDIT: Change first-person "Our/We/My" to project names.
-3. VISUAL AUDIT: Ensure '<div class="takeaways-card">', '<div class="insight-card">', and '<table class="comparison-table">' are used correctly.
-4. SCRUB FILLER: Delete "Conclusion" headers and generic sign-offs.
-OUTPUT ONLY: The corrected PURE HTML article body.`;
-
-    return await callGroq([
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: `SOURCES:\n${sourceText}\n\nDRAFT:\n${draftContent}` }
+        { role: 'user', content: `DRAFT:\n${draftContent}` }
     ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.1);
 }
 
 /**
- * STEP 4: Final Fact-Check & Publish (llama-4-scout-17b)
+ * STEP 4: Final Intent & Technical Audit (llama-4-scout-17b)
  */
 async function finalFactCheck(draftContent, sourceText) {
-    console.log(`[Step 4] Final Fact-Check & Publish (llama-4-scout-17b)...`);
-    const systemPrompt = `You are the Final Auditor. 
-STRICT RULES:
-1. NO MARKDOWN: Ensure zero '#' or '*' characters remain. The result must be raw HTML.
-2. SCRUB AI ARTIFACTS: Ensure NO "Conclusion" sections.
-3. P.O.V. ENFORCEMENT: Ensure 100% objective third-person naming.
-4. VISUAL POLISH: Verify all tables and cards use premium CSS classes.
-OUTPUT ONLY: The final, polished PURE HTML article for publication.`;
+    console.log(`[Step 4] Final Intent Audit (llama-4-scout-17b)...`);
+    const systemPrompt = `You are the Lead Technical Editor.
+TASK: Final audit for "Intent Alignment" and "Zero-Hallucination".
+RULES:
+1. INTENT MISMATCH: If the user asked for "RWA on L2" and you wrote about "Solana L1", this is a FAIL. Rewrite sections to align with the specific layer/intent requested.
+2. PROTOCOL VERIFICATION: Ensure every cited project is real and present in the sources.
+3. VISUALS: Ensure all cards and tables are rendered with pure HTML tags.
+
+OUTPUT ONLY: The final, high-authority, 100% grounded HTML article.`;
 
     return await callGroq([
         { role: 'system', content: systemPrompt },
