@@ -155,7 +155,7 @@ OUTPUT ONLY: The final, polished HTML article body. Nothing else.`;
     return await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `FINAL POLISH:\n${draftContent}` }
-    ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.1);
+    ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.3);
 }
 
 module.exports = {
