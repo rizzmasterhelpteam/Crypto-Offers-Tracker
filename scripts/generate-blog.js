@@ -24,6 +24,7 @@ const TEMPLATE_PATH = path.join(BLOG_DIR, 'template.html');
 const INDEX_PATH = path.join(BLOG_DIR, 'index.html');
 const QUEUE_PATH = path.join(ADMIN_DIR, 'queue.csv');
 const SITEMAP_PATH = path.join(PROJECT_ROOT, 'sitemap.xml');
+const USAGE_LOG_PATH = path.join(ADMIN_DIR, 'usage.log');
 
 // SOURCE OF TRUTH: Hard-coded knowledge to prevent AI hallucinations on project types
 const PROJECT_KNOWLEDGE = {
@@ -103,6 +104,12 @@ Fact handling:
   shipping — not speculative roadmaps dressed up as current features.
 - If you cannot find a real fact to bridge a section, do NOT invent a story. Stop, and move to the next technical observation.`;
 
+function logUsage(model, promptTokens, completionTokens, totalTokens) {
+    const timestamp = new Date().toISOString();
+    const entry = `${timestamp} | Model: ${model} | Prompt: ${promptTokens} | Completion: ${completionTokens} | Total: ${totalTokens}\n`;
+    try { fs.appendFileSync(USAGE_LOG_PATH, entry); } catch (e) { /* non-fatal */ }
+}
+
 function getNextCategory() {
     let state = { lastCategoryIndex: -1 };
     if (fs.existsSync(STATE_PATH)) {
@@ -133,32 +140,23 @@ async function fetchLatestNews() {
 async function fetchCurrentOffers(keywords, news) {
     try {
         console.log("Identifying current crypto offers...");
-        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${GROQ_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: 'meta-llama/llama-4-scout-17b-16e-instruct',
                 messages: [
-                    {
-                        role: 'system',
-                        content: `You are a Senior Crypto Research Lead. Identify 3-5 high-authority, research-grade crypto opportunities.
-Focus on: modularity, ZK-tech, restaking, and institutional DeFi.
-For each project, you MUST provide:
-1. NAME (Ticker).
-2. VERIFIED ROLE (Use this mapping for accuracy: ${JSON.stringify(PROJECT_KNOWLEDGE)}).
-3. TECHNICAL MOAT (VC backing like Paradigm/a16z, Whitepaper mechanism, or specific engineering breakthroughs).
-4. QUALITATIVE REWARD (Points, Airdrop, Yield).
-CRITICAL: If a project is not in the mapping, prioritize projects with significant GitHub activity or Institutional backing found in: ${news}.`
-                    }
+                    { role: 'system', content: `You are a Senior Crypto Research Lead. Identify 3-5 high-authority, research-grade crypto opportunities. Focus on: modularity, ZK-tech, restaking, and institutional DeFi. Use this knowledge base for accuracy: ${JSON.stringify(PROJECT_KNOWLEDGE)}. Research seeds: ${news}.` },
+                    { role: 'user', content: `Return a tight research brief on the top 3-5 relevant opportunities for these keywords: ${keywords}. Format: NAME (TICKER) - Role - Technical moat - Key catalyst.` }
                 ],
-                temperature: 0.1,
-                max_tokens: 600
+                temperature: 0.2,
+                max_tokens: 800
             })
         });
-        const data = await groqResponse.json();
+        if (!res.ok) { console.error("fetchCurrentOffers API error:", res.status); return "Check our tracker for the latest active rewards."; }
+        const data = await res.json();
+        if (data.usage) logUsage('meta-llama/llama-4-scout-17b-16e-instruct', data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
+        if (!data.choices || data.choices.length === 0) return "Check our tracker for the latest active rewards.";
         return data.choices[0].message.content;
     } catch (err) {
         console.error("Error fetching offers:", err);
@@ -198,48 +196,23 @@ async function factCheckPost(draftContent, title, keywords) {
         console.log(`Fact-checking: "${title}"...`);
         const latestNews = await fetchLatestNews();
 
-        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${GROQ_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: 'meta-llama/llama-4-scout-17b-16e-instruct',
                 messages: [
-                    {
-                        role: 'system',
-                        content: `You are a Senior Editor and Fact-Checker for the "Chain Signals" blog. 
-Your goal is to audit a draft crypto article for factual accuracy and "Chain of Thought" leaks.
-
-STRICT AUDIT RULES:
-1. FACT CHECK: Verify all TVL, APY, and technical claims against this Source of Truth: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
-2. NARRATIVE HALLUCINATION KILLER: Identify "Narrative Glue"—specifically look for invented flash loan attacks, fake partnerships/integrations, or fictional technical "fixes" that bridge two ideas. If a story looks detailed but isn't in ${latestNews}, DELETE IT.
-3. CONTEXT ONLY: If a named incident, protocol integration, or specific technical event is NOT found in the provided research data, it is a hallucination. REMOVE IT.
-4. NO META-TALK: Strip any remaining reasoning fragments.
-5. VOICE PROTECTION: Keep the "Chain Signals" conversational, expert tone. Do not make it sound like a robot.
-6. CONCISENESS: Keep the final length within 800-1200 words.
-
-OUTPUT ONLY: The audited, corrected article body in HTML format (using <h2>, <h3>, <p>, <ul>, <li>).`
-                    },
-                    {
-                        role: 'user',
-                        content: `AUDIT THIS DRAFT ARTICLE:
-                        
-Title: ${title}
-Draft: ${draftContent}
-Reference Context: ${keywords}
-Latest News for verification: ${latestNews}`
-                    }
+                    { role: 'system', content: `You are a Senior Editor and Fact-Checker for the "Chain Signals" blog. Audit a draft crypto article for factual accuracy and "Chain of Thought" leaks.\n\nSTRICT AUDIT RULES:\n1. FACT CHECK: Verify all TVL, APY, and technical claims against this Source of Truth: ${JSON.stringify(PROJECT_KNOWLEDGE)}.\n2. NO GENERIC BRANDING: Replace any generic phrases like "Alpha Report" or "Technical Deep Dive" with specific technical descriptions.\n3. NARRATIVE HALLUCINATION KILLER: Invented events not found in ${latestNews}? DELETE THEM.\n4. NO META-TALK: Strip any remaining reasoning fragments.\n5. VOICE PROTECTION: Keep the "Chain Signals" conversational, expert tone.\n6. LENGTH: Keep the final article within 800-1200 words.\n\nOUTPUT ONLY: The audited, corrected article body in HTML.` },
+                    { role: 'user', content: `AUDIT THIS DRAFT:\nTitle: ${title}\nDraft: ${draftContent}\nContext: ${keywords}\nLatest News: ${latestNews}` }
                 ],
                 temperature: 0.3,
                 max_tokens: 3200
             })
         });
-
-        if (!groqResponse.ok) return draftContent; // Fallback to draft if fact-check fails
-
-        const data = await groqResponse.json();
+        if (!res.ok) return draftContent;
+        const data = await res.json();
+        if (data.usage) logUsage('meta-llama/llama-4-scout-17b-16e-instruct', data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
+        if (!data.choices || data.choices.length === 0) return draftContent;
         return data.choices[0].message.content.trim();
     } catch (err) {
         console.error("Fact-check error:", err.message);
@@ -251,44 +224,23 @@ async function forensicFactAudit(content, title, keywords) {
     try {
         console.log(`Forensic Audit: Finalizing technical accuracy for "${title}"...`);
 
-        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${GROQ_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: 'qwen/qwen3-32b',
                 messages: [
-                    {
-                        role: 'system',
-                        content: `You are a Lead Blockchain Engineer and Technical Reviewer. 
-Your task is a FINAL AUDIT of a crypto article for technical accuracy before publication.
-
-STRICT FORENSIC RULES:
-1. TICKER & ROLE CHECK: Ensure all tickers and protocol roles ALIGN PERFECTLY with: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
-2. NO HALLUCINATIONS: If any mechanism (DAS, DAS-DAS, Zero-Knowledge proofs) is described inaccurately vs standard industry docs, correct it.
-3. ELIMINATE FLUFF: Remove any remaining AI conversational filler (e.g., "In conclusion," "As mentioned above," "Let's dive in").
-4. CLEAN HTML: Ensure the structure is valid HTML (<h2>, <h3>, <p>, <ul>, <li>).
-
-OUTPUT ONLY: The final, forensic-grade article body in HTML.`
-                    },
-                    {
-                        role: 'user',
-                        content: `PERFORM FINAL FORENSIC AUDIT:
-                        
-Title: ${title}
-Content to Audit: ${content}
-Key Context: ${keywords}`
-                    }
+                    { role: 'system', content: `You are a Lead Blockchain Engineer and Technical Reviewer. Perform a FINAL AUDIT of a crypto article for technical accuracy before publication.\n\nSTRICT FORENSIC RULES:\n1. TICKER & ROLE CHECK: Ensure all tickers and protocol roles ALIGN PERFECTLY with: ${JSON.stringify(PROJECT_KNOWLEDGE)}.\n2. NO HALLUCINATIONS: Correct any inaccurate mechanism descriptions.\n3. ELIMINATE FLUFF: Remove AI filler phrases ("In conclusion", "Let's dive in").\n4. CLEAN HTML: Ensure valid HTML structure (<h2>, <h3>, <p>, <ul>, <li>).\n\nOUTPUT ONLY: The forensic-grade article body in HTML.` },
+                    { role: 'user', content: `PERFORM FINAL FORENSIC AUDIT:\nTitle: ${title}\nContent: ${content}\nContext: ${keywords}` }
                 ],
                 temperature: 0.1,
                 max_tokens: 3200
             })
         });
-
-        if (!groqResponse.ok) return content;
-        const data = await groqResponse.json();
+        if (!res.ok) return content;
+        const data = await res.json();
+        if (data.usage) logUsage('qwen/qwen3-32b', data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
+        if (!data.choices || data.choices.length === 0) return content;
         return data.choices[0].message.content.trim();
     } catch (err) {
         console.error("Forensic audit error:", err.message);
@@ -301,42 +253,23 @@ async function enhancePostSEO(draftContent, title, keywords) {
         const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
         console.log(`Enhancing & SEO Optimizing: "${title}" (Model: ${model})...`);
 
-        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${GROQ_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: model,
                 messages: [
-                    {
-                        role: 'system',
-                        content: `You are an expert SEO Content Strategist and Copywriter for "Chain Signals".
-Your task is to take a technical draft and make it highly engaging, authoritative, and SEO-optimized.
-- Use compelling headings.
-- Ensure natural keyword density for: ${keywords}.
-- Maintain a professional, deep-tech tone.
-- EXPAND CONTENT: If the draft is thin or short, you MUST expand it by adding technical context, explaining protocol mechanisms, and detailing the ecosystem impact. Target a final length of 1000-1200 words.
-- DO NOT hallucinate new technical facts. Just improve the narrative flow, readability, and depth.
-- Output ONLY the HTML body content (using <h2>, <h3>, <p>, <ul>, <li>). Do not include any HTML head or body tags, just the content.`
-                    },
-                    {
-                        role: 'user',
-                        content: `ENHANCE THIS DRAFT:
-                        
-Title: ${title}
-Draft: ${draftContent}`
-                    }
+                    { role: 'system', content: `You are an expert SEO Content Strategist and Copywriter for "Chain Signals". Take a technical draft and make it highly engaging, authoritative, and SEO-optimized.\n- SEO STRATEGY: Target low-to-medium volume, long-tail keywords related to the topic.\n- NO GENERIC BRANDING: No "Alpha Report", "Technical Deep Dive", or placeholder titles. Use specific, descriptive headlines.\n- EXPAND CONTENT: Expand thin content to 1000-1200 words with technical context.\n- DO NOT hallucinate new technical facts.\n- Output ONLY the HTML body content (<h2>, <h3>, <p>, <ul>, <li>). No head/body tags.` },
+                    { role: 'user', content: `ENHANCE THIS DRAFT:\nTitle: ${title}\nDraft: ${draftContent}` }
                 ],
                 temperature: 0.6,
                 max_tokens: 3200
             })
         });
-
-        if (!groqResponse.ok) return draftContent;
-
-        const data = await groqResponse.json();
+        if (!res.ok) { console.error("enhancePostSEO error:", res.status); return draftContent; }
+        const data = await res.json();
+        if (data.usage) logUsage(model, data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
+        if (!data.choices || data.choices.length === 0) return draftContent;
         return data.choices[0].message.content.trim();
     } catch (err) {
         console.error("Enhance error:", err.message);
@@ -350,50 +283,28 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
         const model = 'openai/gpt-oss-120b';
         console.log(`Generating: [${category.name}] "${title}" (Model: ${model})...`);
 
-        const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${GROQ_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: model,
                 messages: [
-                    {
-                        role: 'system',
-                        content: `${UNIFIED_VOICE_PROMPT}
-
-- CRITICAL: NO META-TALK. Do NOT include your "thinking process" or conversational preamble. 
-- OUTPUT ONLY: Start the response immediately with the article title or the first sentence. Nothing else.`
-                    },
-                    {
-                        role: 'user',
-                        content: `Write a blog post about ${title.toUpperCase()}.
-
-Context: ${keywords} - focusing on technical moats, recent events, and protocol mechanics.
-Tone: conversational but informed — like a knowledgeable friend, not a research report.
-Length: ~1000-1200 words (Deep Technical Analysis).
-Structure: Use 5-6 natural sections with technical headers. Ensure each section has 3-4 meaty paragraphs.
-Avoid: Brevity. Do not summarize; explain the architecture and the mechanisms.
-End with: A genuine open question or honest take on where things are headed.`
-                    }
+                    { role: 'system', content: `${UNIFIED_VOICE_PROMPT}\n\n- SEO STRATEGY: Research and target low-to-medium volume, long-tail keywords for maximum SEO benefit.\n- NO GENERIC BRANDING: Do NOT use phrases like "Alpha Report", "Technical Deep Dive", or other generic template titles. Create a unique, specific, catchy headline that directly addresses the technical substance.\n- CRITICAL: NO META-TALK. Do NOT include your "thinking process" or preamble.\n- OUTPUT ONLY: Start the response immediately with the article title or first sentence.` },
+                    { role: 'user', content: `Write a blog post about ${title.toUpperCase()}.\n\nContext: ${keywords} - focusing on technical moats, recent events, and protocol mechanics.\nTone: conversational but informed — like a knowledgeable friend, not a research report.\nLength: ~1000-1200 words (Deep Technical Analysis).\nStructure: Use 5-6 natural sections with technical headers. Each section must have 3-4 meaty paragraphs.\nAvoid: Brevity. Do not summarize; explain the architecture and the mechanisms.\nEnd with: A genuine open question or honest take on where things are headed.` }
                 ],
                 temperature: 0.7,
                 max_tokens: 3200
             })
         });
-        if (!groqResponse.ok) {
-            const errorText = await groqResponse.text();
-            throw new Error(`Groq API Error (${groqResponse.status}): ${errorText}`);
+        if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(`API Error (${res.status}): ${errorText}`);
         }
-
-        const data = await groqResponse.json();
+        const data = await res.json();
         if (!data.choices || data.choices.length === 0) {
-            throw new Error("Invalid response from Groq: No choices returned.");
+            throw new Error("Invalid response: No choices returned.");
         }
-        if (data.usage) {
-            logUsage('openai/gpt-oss-120b', data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
-        }
+        if (data.usage) logUsage(model, data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
         let bodyContent = data.choices[0].message.content;
 
         // Stage 2: Enhance and SEO Optimize
