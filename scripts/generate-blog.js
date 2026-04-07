@@ -136,31 +136,61 @@ async function fetchLatestNews() {
     }
 }
 
-async function fetchCurrentOffers(keywords, news) {
-    try {
-        console.log("Identifying current crypto offers...");
-        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-                messages: [
-                    { role: 'system', content: `You are a Senior Crypto Research Lead. Identify 3-5 high-authority, research-grade crypto opportunities. Focus on: modularity, ZK-tech, restaking, and institutional DeFi. Use this knowledge base for accuracy: ${JSON.stringify(PROJECT_KNOWLEDGE)}. Research seeds: ${news}.` },
-                    { role: 'user', content: `Return a tight research brief on the top 3-5 relevant opportunities for these keywords: ${keywords}. Format: NAME (TICKER) - Role - Technical moat - Key catalyst.` }
-                ],
-                temperature: 0.2,
-                max_tokens: 800
-            })
-        });
-        if (!res.ok) { console.error("fetchCurrentOffers API error:", res.status); return "Check our tracker for the latest active rewards."; }
-        const data = await res.json();
-        if (data.usage) logUsage('meta-llama/llama-4-scout-17b-16e-instruct', data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
-        if (!data.choices || data.choices.length === 0) return "Check our tracker for the latest active rewards.";
-        return data.choices[0].message.content;
-    } catch (err) {
-        console.error("Error fetching offers:", err);
-        return "Check our tracker for the latest active rewards.";
+// Protocols with known thin/unreliable on-chain documentation — flag for extra caution
+const THIN_DATA_PROTOCOLS = ['bitgert', 'brise', 'safemoon', 'babydoge', 'shib'];
+
+async function fetchGroundedSources(topicTitle, keywords) {
+    console.log('Fetching live grounded sources from CoinGecko + news...');
+    const sources = [];
+    const warnings = [];
+
+    // Extract protocol names from keywords
+    const terms = [...new Set([
+        ...keywords.split(/[,\s]+/).filter(t => t.length > 2),
+        ...topicTitle.split(/[\s:,]+/).filter(t => t.length > 3)
+    ])].slice(0, 6);
+
+    for (const term of terms) {
+        try {
+            const searchRes = await fetch(`https://api.coingecko.com/api/v3/search?query=${encodeURIComponent(term)}`);
+            if (!searchRes.ok) continue;
+            const searchData = await searchRes.json();
+            const coin = searchData.coins && searchData.coins[0];
+            if (!coin) continue;
+
+            // Check if this is a thin-data protocol
+            if (THIN_DATA_PROTOCOLS.includes(coin.id.toLowerCase())) {
+                warnings.push(`⚠️ THIN DATA WARNING: "${coin.name}" has unreliable on-chain documentation. Extra caution required.`);
+            }
+
+            // Fetch coin detail page for description
+            const detailRes = await fetch(`https://api.coingecko.com/api/v3/coins/${coin.id}?localization=false&tickers=false&market_data=false&community_data=false&developer_data=false`);
+            if (!detailRes.ok) continue;
+            const detail = await detailRes.json();
+            const description = detail.description && detail.description.en
+                ? detail.description.en.replace(/<[^>]+>/g, '').slice(0, 600)
+                : null;
+
+            if (description) {
+                sources.push(`PROTOCOL: ${detail.name} (${detail.symbol ? detail.symbol.toUpperCase() : coin.symbol.toUpperCase()})\nSOURCE: CoinGecko official description\nCONTENT: ${description}`);
+            }
+        } catch (e) {
+            // non-fatal, just skip this term
+        }
     }
+
+    // Always append recent news headlines as context
+    const news = await fetchLatestNews();
+    sources.push(`RECENT CRYPTO NEWS HEADLINES (for context only — do not state as protocol facts):\n${news}`);
+
+    if (warnings.length > 0) warnings.forEach(w => console.warn(w));
+
+    const sourceText = sources.length > 0
+        ? sources.join('\n\n---\n\n')
+        : 'No live source data available. Use only verified knowledge base facts and qualify all claims.';
+
+    console.log(`Grounded sources fetched: ${sources.length - 1} protocols + news.`);
+    return { sourceText, warnings };
 }
 
 function parseCSV(content) {
@@ -192,9 +222,9 @@ function writeCSV(headers, rows) {
 
 async function stage3Recheck(draftContent, title, keywords) {
     try {
-        // Stage 3: Strict Recheck & Polish (llama-4-scout-17b)
+        // Stage 3: Claim Extraction + Individual Verification (llama-4-scout-17b)
         const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
-        console.log(`[Stage 3] Strict Recheck: "${title}" (Model: ${model})...`);
+        console.log(`[Stage 3] Claim Verification: "${title}" (Model: ${model})...`);
         const latestNews = await fetchLatestNews();
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -204,21 +234,25 @@ async function stage3Recheck(draftContent, title, keywords) {
                 model,
                 messages: [
                     {
-                        role: 'system', content: `You are a senior technical editor performing an uncompromising final recheck before publication.
+                        role: 'system', content: `You are a senior technical editor performing an uncompromising final verification. Today's date is ${CURRENT_DATE}.
 
-STRICT RECHECK RULES — NO EXCEPTIONS:
-1. SECOND FACT PASS: Re-verify every protocol name, ticker, and role claim against: ${JSON.stringify(PROJECT_KNOWLEDGE)}. If still wrong after Stage 2, fix it now.
-2. ZERO AI ARTIFACTS: These phrases are BANNED — delete on sight: "In summary", "In conclusion", "Let's explore", "It is crucial to", "It is important to note", "As we can see", "In the ever-evolving", "The world of crypto", "Navigate the landscape", "Delve into", "Tapestry", "Let's dive in", "Undoubtedly".
-3. ACTIVE VOICE ENFORCEMENT: Convert all passive voice to active. "The protocol was upgraded by the team" → "The team upgraded the protocol".
-4. PARAGRAPH QUALITY: Every paragraph must state a single clear point. If a paragraph is vague or filler, DELETE it — do not soften or paraphrase.
-5. HOOK STRENGTH: The very first sentence must grab the reader immediately. If it starts with "Crypto", "The", "In", or "As" — rewrite it.
-6. E-E-A-T CHECK: Ensure the article demonstrates real expertise. Remove any generic statements that a non-expert would write.
-7. TITLE FINAL CHECK: Confirm title has no generic prefixes. Must be specific, keyword-rich, under 65 characters.
-8. HTML VALIDITY: Only these tags allowed: <h2>, <h3>, <p>, <ul>, <li>, <strong>. Strip anything else.
-9. WORD COUNT: Final article MUST be 780-850 words. Count carefully and trim or expand the last section if needed.
+YOUR PROCESS — APPLY IN ORDER:
+STEP 1 — EXTRACT CLAIMS: Mentally list every factual assertion in the article (protocol roles, architecture claims, on-chain data, dates, integrations).
+STEP 2 — VERIFY EACH CLAIM against: ${JSON.stringify(PROJECT_KNOWLEDGE)}
+  - If a claim is supported by the knowledge base: keep it.
+  - If a claim is NOT in the knowledge base and is not qualified: add "reportedly" or delete it.
+  - If a claim references a date in the past (before ${CURRENT_DATE}) as an upcoming milestone: fix it.
+STEP 3 — STRIP AI ARTIFACTS:
+  BANNED phrases (delete on sight): "In summary", "In conclusion", "Let's explore", "It is crucial to",
+  "It is important to note", "As we can see", "In the ever-evolving", "The world of crypto",
+  "Navigate the landscape", "Delve into", "Undoubtedly", "It's worth noting".
+STEP 4 — HUMAN VOICE: If any two consecutive sections have the same sentence count or rhythm, vary one of them.
+STEP 5 — HOOK CHECK: The first sentence must not start with "The", "In", "As", or "Crypto". If it does, rewrite it.
+STEP 6 — HTML CLEANUP: Only <h2>, <h3>, <p>, <ul>, <li>, <strong> allowed. Strip <div>, <span>, inline styles, and chain-of-thought output.
+STEP 7 — WORD COUNT: Final must be 780-850 words.
 
-OUTPUT ONLY: The final article body in clean HTML. No preamble.` },
-                    { role: 'user', content: `STRICT RECHECK THIS ARTICLE:\nTitle: ${title}\nKeywords: ${keywords}\nRecent context: ${latestNews}\n\nDRAFT TO RECHECK:\n${draftContent}` }
+OUTPUT ONLY: The final article in clean HTML. No preamble. No list of changes.` },
+                    { role: 'user', content: `VERIFY AND FINALIZE:\nTitle: ${title}\nKeywords: ${keywords}\nRecent news context: ${latestNews}\n\nARTICLE:\n${draftContent}` }
                 ],
                 temperature: 0.25,
                 max_tokens: 3500
@@ -237,11 +271,11 @@ OUTPUT ONLY: The final article body in clean HTML. No preamble.` },
 
 
 
-async function stage2FactCheck(draftContent, title, keywords) {
+async function stage2FactCheck(draftContent, title, keywords, sourceText) {
     try {
-        // Stage 2: Strict Fact Check (llama-4-scout-17b)
+        // Stage 2: Hostile Fact Check against live-fetched sources (llama-4-scout-17b)
         const model = 'meta-llama/llama-4-scout-17b-16e-instruct';
-        console.log(`[Stage 2] Strict Fact Checking: "${title}" (Model: ${model})...`);
+        console.log(`[Stage 2] Hostile Fact Check: "${title}" (Model: ${model})...`);
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -250,22 +284,23 @@ async function stage2FactCheck(draftContent, title, keywords) {
                 model,
                 messages: [
                     {
-                        role: 'system', content: `You are a rigorous senior fact-checker at a specialist crypto publication. You have ZERO tolerance for inaccuracies. Today's date is ${CURRENT_DATE}.
+                        role: 'system', content: `You are a hostile technical editor with zero tolerance for unsourced claims. Today's date is ${CURRENT_DATE}.
 
-STRICT FACT CHECK RULES — APPLY EVERY ONE:
-1. TICKER ACCURACY: Every coin/token ticker mentioned MUST match exactly: ${JSON.stringify(PROJECT_KNOWLEDGE)}. Wrong ticker? Delete the sentence.
-2. PROTOCOL ROLE ACCURACY: If a protocol's described role does not match its actual function in the knowledge base, REWRITE the sentence using the correct description. If a protocol is NOT in the knowledge base, use only conservative language like "reportedly" — never invent its architecture.
-3. HALLUCINATION REMOVAL: Any fabricated on-chain event, exploit, partnership, integration, or launch NOT present in the knowledge base MUST BE DELETED — do NOT replace with something else.
-4. DATA QUALIFICATION: Any TVL, APY, volume, price, or percentage figure without a source qualifier MUST be qualified ("per DefiLlama", "reportedly", "per on-chain data") or removed.
-5. TEMPORAL CONTRADICTION: Any date mentioned that is BEFORE ${CURRENT_DATE} is in the PAST. If the article mentions a future milestone for a date that has already passed, either state "this shipped" (if verifiable) or rewrite as "was scheduled for [date] — verify current status" — never leave a past date framed as upcoming.
-6. NARRATIVE GLUE REMOVAL: If a paragraph exists only to bridge two sections with no factual content — DELETE IT.
-7. UNIFORM STRUCTURE DETECTION: If multiple sections have identical sentence counts and identical rhythm, flag this as AI artifact and vary the structure.
-8. TITLE CLEANUP: No generic prefixes (Alpha Report, Technical Deep Dive, Deep Tech, Protocol Alpha).
-9. PRESERVE VALID HTML: Keep all <h2>, <h3>, <p>, <ul>, <li>, <strong> intact.
-10. WORD COUNT: Keep ~800 words. Do not exceed 900.
+You have been given SOURCE DOCUMENTS containing live, verified information about the protocols in this article.
+Your job: find every claim in the draft that is NOT directly supported by the SOURCE DOCUMENTS and either fix or delete it.
 
-OUTPUT ONLY: The fact-checked article in HTML. No preamble.` },
-                    { role: 'user', content: `STRICTLY FACT CHECK THIS DRAFT:\nTitle: ${title}\nTopic keywords: ${keywords}\n\nDRAFT:\n${draftContent}` }
+HOSTILE FACT-CHECK RULES:
+1. SUPPORTED CLAIMS ONLY: If a protocol architecture claim (e.g. "Layer-0 bridge", "zk-rollup engine", "staking mechanism") is NOT present in the SOURCE DOCUMENTS, DELETE it immediately. Do not give it the benefit of the doubt.
+2. UNSOURCED DATA: Any TVL, APY, price, volume, or percentage not in the SOURCE DOCUMENTS must be preceded by "reportedly" or removed.
+3. TEMPORAL ACCURACY: Any date before ${CURRENT_DATE} is PAST. Reframe "upcoming" past dates as "was scheduled for [date] — verify if shipped".
+4. KNOWLEDGE BASE CROSS-CHECK: Also verify against this hard knowledge base: ${JSON.stringify(PROJECT_KNOWLEDGE)}.
+5. NO HALLUCINATED ARCHITECTURE: Specific claims like "Layer-0 bridge", "re-engineered consensus", "institutional-grade liquidity migration" require source support. If missing from SOURCE DOCUMENTS, delete them.
+6. NARRATIVE GLUE REMOVAL: Delete paragraphs that exist only to connect sections with no factual content.
+7. PRESERVE VALID HTML: Keep all <h2>, <h3>, <p>, <ul>, <li>, <strong>. Do not add tags.
+8. WORD COUNT: Keep ~800 words.
+
+OUTPUT ONLY: The fact-checked article in HTML. No explanation of what you changed.` },
+                    { role: 'user', content: `SOURCE DOCUMENTS (use these as ground truth):\n${sourceText}\n\n---\n\nFACT CHECK THIS DRAFT:\nTitle: ${title}\nKeywords: ${keywords}\n\nDRAFT:\n${draftContent}` }
                 ],
                 temperature: 0.15,
                 max_tokens: 3500
@@ -285,9 +320,16 @@ OUTPUT ONLY: The fact-checked article in HTML. No preamble.` },
 async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
     try {
         const today = new Date().toISOString().split('T')[0];
-        // Stage 1: Draft (gpt-oss-120b)
+
+        // Pre-fetch: Get live grounded sources before any generation
+        const { sourceText, warnings } = await fetchGroundedSources(title, keywords);
+        if (warnings.length > 0) {
+            console.warn(`[Pipeline] ${warnings.length} thin-data protocol warning(s) — extra caution applied.`);
+        }
+
+        // Stage 1: Grounded Draft (gpt-oss-120b)
         const model = 'openai/gpt-oss-120b';
-        console.log(`[Stage 1] Drafting: [${category.name}] "${title}" (Model: ${model})...`);
+        console.log(`[Stage 1] Grounded Draft: [${category.name}] "${title}" (Model: ${model})...`);
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -295,8 +337,8 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
             body: JSON.stringify({
                 model,
                 messages: [
-                    { role: 'system', content: `${UNIFIED_VOICE_PROMPT}\n\nCRITICAL OUTPUT RULES:\n- Do NOT write your thinking process or preamble\n- Start IMMEDIATELY with the article content\n- Use HTML formatting: <h2> for sections, <p> for paragraphs, <ul><li> for lists\n- HUMAN VARIATION: Sections must have DIFFERENT paragraph counts (1 to 4 paragraphs each). Different sentence lengths. No two sections can feel structurally identical.\n- SOURCE ALL DATA: Every on-chain claim needs a qualifier. "per DefiLlama", "according to Dune", "reportedly" — pick one. Unsourced data assertions will be removed in fact-checking.\n- TEMPORAL ACCURACY: Today is ${CURRENT_DATE}. Any date before today is PAST. Do not frame past dates as upcoming milestones. If a milestone was scheduled for a past date, state whether it shipped or not — do not pretend the date is still future.\n- ARCHITECTURE CLAIMS: Only describe a protocol's architecture using what is confirmed in the knowledge base. Anything outside the knowledge base must be qualified with "reportedly" or omitted.` },
-                    { role: 'user', content: `Write a highly human-like, 800-word article for a crypto blog about: ${title}\n\nTOPIC CONTEXT: ${keywords}\n\nREQUIREMENTS:\n1. E-E-A-T FOCUS: Write with deep expertise. Show authoritativeness and trustworthiness.\n2. GOOGLE RANKING: Optimize naturally for search intent. Include an engaging hook and a summary "Key Takeaways".\n3. HUMAN VOICE: Vary sentence length and structure deliberately. Make each section feel different.\n4. LENGTH: Approximately 800 words.\n5. STRUCTURE:\n   - Strong hook (1-2 paragraph intro — NOT starting with "The" or "In")\n   - H2 sections of VARYING length (some 1 paragraph, some 3-4)\n   - Key Takeaways (3-4 bullet points)\n\nDO NOT fabricate events. DO NOT use roadmap dates without confirming they shipped.` }
+                    { role: 'system', content: `${UNIFIED_VOICE_PROMPT}\n\nCRITICAL OUTPUT RULES:\n- Do NOT write your thinking process or preamble\n- Start IMMEDIATELY with the article content (first tag must be <p> or <h2>)\n- Use HTML: <h2> for sections, <p> for paragraphs, <ul><li> for lists\n- HUMAN VARIATION: Sections MUST have DIFFERENT paragraph counts (1 to 4). No two sections feel structurally identical.\n- SOURCE ALL DATA: Every on-chain claim needs a qualifier: "per DefiLlama", "according to Dune", "reportedly". Unsourced assertions WILL be deleted.\n- TEMPORAL ACCURACY: Today is ${CURRENT_DATE}. Any date before today is PAST. Never frame past dates as upcoming milestones.\n- ARCHITECTURE CLAIMS: Only describe a protocol using the provided SOURCE DOCUMENTS or knowledge base. Do not invent architecture.` },
+                    { role: 'user', content: `SOURCE DOCUMENTS (your ground truth — only write what these support):\n${sourceText}\n\n---\n\nWrite a highly human-like, 800-word article about: ${title}\nTOPIC KEYWORDS: ${keywords}\n\nSTRUCTURE:\n- Strong hook (1-2 paragraphs, do NOT start with "The", "In", "As", or "Crypto")\n- H2 sections of VARYING length (some 1 paragraph, some 3)\n- Key Takeaways (3-4 bullets)\n\nDO NOT fabricate events or architecture not in the SOURCE DOCUMENTS.` }
                 ],
                 temperature: 0.75,
                 max_tokens: 2000
@@ -313,16 +355,19 @@ async function generatePost(title, tone, keywords, category = CATEGORIES[0]) {
         if (data.usage) logUsage(model, data.usage.prompt_tokens, data.usage.completion_tokens, data.usage.total_tokens);
         let bodyContent = data.choices[0].message.content;
 
-        // Stage 2: Fact Check
-        bodyContent = await stage2FactCheck(bodyContent, title, keywords);
+        // Stage 2: Hostile Fact Check against live-fetched sources
+        bodyContent = await stage2FactCheck(bodyContent, title, keywords, sourceText);
 
-        // Stage 3: Recheck
+        // Stage 3: Claim-by-Claim Verification
         bodyContent = await stage3Recheck(bodyContent, title, keywords);
 
-        // Final Scrubber for residual slop
+        // Post-processing: Strip meta-prompt leakage / chain-of-thought
+        // Strip everything before the first HTML tag
+        const firstTagIndex = bodyContent.search(/<(h[1-6]|p|ul|li|strong)/);
+        if (firstTagIndex > 0) bodyContent = bodyContent.slice(firstTagIndex);
         bodyContent = bodyContent
-            .replace(/^.*?(Let me|Okay,|I will|Starting with).*?\n/gi, '')
-            .replace(/^(Thinking Process|Scratchpad|Reasoning):[\s\S]*?\n\n/gi, '')
+            .replace(/^(Thinking|Step \d|Let me|Okay,|I will|Here is|Here's|Starting with)[^\n]*\n/gim, '')
+            .replace(/^(Thinking Process|Scratchpad|Reasoning|Chain of Thought):[\s\S]*?\n\n/gi, '')
             .trim();
 
         bodyContent = bodyContent.replace(/### (.*)/g, '<h3>$1</h3>')
