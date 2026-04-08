@@ -30,8 +30,18 @@ function toDisplayTitle(str) {
  */
 function autoFixStructure(html) {
     // Fix: LLM wrapping intro paragraphs in <h2> instead of <p>
-    // Real section headers are short (< 70 chars). Anything longer is a paragraph.
     html = html.replace(/<h2[^>]*>([^<]{70,})<\/h2>/g, (_, inner) => `<p>${inner}</p>`);
+
+    // Fix: duplicate first paragraph (common AI artifact)
+    const paragraphs = html.match(/<p>[\s\S]*?<\/p>/g) || [];
+    if (paragraphs.length >= 2) {
+        const p1 = paragraphs[0].replace(/<[^>]+>/g, '').trim().slice(0, 100);
+        const p2 = paragraphs[1].replace(/<[^>]+>/g, '').trim().slice(0, 100);
+        if (p1 === p2) {
+            console.log("[Fix] Duplicate intro detected — removing first.");
+            html = html.replace(paragraphs[0], '');
+        }
+    }
 
     // Fix: <h2>Key Takeaways</h2> followed by <ul> → wrap in takeaways-card
     html = html.replace(
@@ -51,19 +61,13 @@ function autoFixStructure(html) {
         '<div class="insight-card"><strong>Analyst Note:</strong> $1</div>'
     );
 
-    // Fix: <h2>Analyst Note:</h2> immediately followed by plain text (no <p> wrapper)
-    html = html.replace(
-        /<h2[^>]*>Analyst Note:?<\/h2>\s*((?!<)[^\n]{20,})/gi,
-        '<div class="insight-card"><strong>Analyst Note:</strong> $1</div>'
-    );
-
-    // Fix: stray <del> tags from data sanitizer (revert to plain text)
+    // Fix: stray <del> tags from data sanitizer
     html = html.replace(/<del>([\s\S]*?)<\/del>/gi, '$1');
 
-    // Fix: orphaned <hr> tags (not in the spec)
+    // Fix: orphaned <hr> tags
     html = html.replace(/<hr\s*\/?>/gi, '');
 
-    return html;
+    return html.trim();
 }
 
 /**
@@ -72,10 +76,14 @@ function autoFixStructure(html) {
 function extractMetaDescription(title, content) {
     const match = content.match(/<p>([\s\S]*?)<\/p>/);
     if (match) {
-        const text = match[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-        return text.slice(0, 155).trim();
+        let text = match[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+        // If meta starts with the title, strip it
+        if (text.toLowerCase().startsWith(title.toLowerCase())) {
+            text = text.slice(title.length).replace(/^[:\s\-—]+/, '').trim();
+        }
+        return text.slice(0, 155).trim() + (text.length > 155 ? '...' : '');
     }
-    return `Technical analysis of ${title} — insights on protocols, yields, and on-chain signals.`;
+    return `Technical analysis of ${title} — absolute alpha on protocols, yields, and on-chain signals.`;
 }
 
 /**
@@ -83,12 +91,18 @@ function extractMetaDescription(title, content) {
  */
 function extractSEOKeywords(content) {
     const keywords = [];
-    const h2s = [...content.matchAll(/<h2[^>]*>(.*?)<\/h2>/gi)].map(m => m[1].replace(/<[^>]+>/g, '').trim());
-    const bullets = [...content.matchAll(/<li>(.*?)<\/li>/gi)].slice(0, 4).map(m =>
-        m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 60)
-    );
-    keywords.push(...h2s.slice(0, 2), ...bullets.slice(0, 3));
-    return keywords.filter(Boolean).join(', ');
+    const h2s = [...content.matchAll(/<h2[^>]*>(.*?)<\/h2>/gi)]
+        .map(m => m[1].replace(/<[^>]+>/g, '').trim())
+        .filter(t => t.length > 3 && t.length < 40);
+
+    const bullets = [...content.matchAll(/<li>(.*?)<\/li>/gi)]
+        .map(m => m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim())
+        .filter(t => t.length > 10 && t.length < 60)
+        .map(t => t.split(/[.,;]/)[0]) // take first clause
+        .slice(0, 4);
+
+    keywords.push(...h2s.slice(0, 3), ...bullets.slice(0, 3));
+    return [...new Set(keywords)].filter(Boolean).join(', ');
 }
 
 /**

@@ -57,8 +57,8 @@ module.exports = {
     ],
 
     AUTHOR: {
-        name: 'Chain Signals',
-        initials: 'CS',
+        name: 'Mark',
+        initials: 'M',
         title: 'Lead Crypto Strategist',
         bio: 'Technical signals for an audience of intermediate-to-advanced crypto readers — those building and trading in the 2026 modular landscape. The writing must be strictly devoid of forced metaphors or dramatized financial comparisons.'
     },
