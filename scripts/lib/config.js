@@ -63,6 +63,11 @@ module.exports = {
         bio: 'Technical signals for an audience of intermediate-to-advanced crypto readers — those building and trading in the 2026 modular landscape. The writing must be strictly devoid of forced metaphors or dramatized financial comparisons.'
     },
 
+    TRUSTED_DOMAINS: [
+        'ethereum.org', 'docs.eigenlayer.xyz', 'monad.xyz', 'celestia.org', 'starknet.io',
+        'availproject.org', 'docs.solana.com', 'berachain.com', 'zksync.io', 'optimism.io',
+        'arbitrum.io', 'docs.drift.trade', 'jito.network', 'eips.ethereum.org'
+    ],
     RESEARCH_SEEDS: ['Celestia', 'EigenLayer', 'Monad', 'Berachain', 'Jito', 'Drift Protocol', 'Starknet', 'zkSync'],
     CURRENT_DATE: new Date().toISOString().split('T')[0] // 2026-04-07
 };

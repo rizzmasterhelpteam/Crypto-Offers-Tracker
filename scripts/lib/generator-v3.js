@@ -140,23 +140,13 @@ OUTPUT RULES (CRITICAL):
  */
 async function generateTitle(keyword, sourceContext = '') {
     console.log(`[Step 1.5] Generating Alpha-focused title...`);
-    const systemPrompt = `You are a headline writer for a high-authority institutional crypto publication.
-Generate ONE alpha-focused, technical, and compelling article title from the keyword and source context.
-
+    const systemPrompt = `You are an institutional headline writer.
+TASK: Generate ONE compelling crypto title for: "${keyword}".
 RULES:
-- 7-13 words maximum
-- Include the main protocol name
-- Must signal technical alpha or market shifting developments
-- No clickbait, no colons, no question marks
-- Start with a strong noun or technical action
-
-GOOD examples:
-  EigenLayer AVS Fee Premiums Outpace Generic Restaking Yields
-  Starknet's Stwo Prover Cuts L1 Finality to Under One Hour
-  Monad's Parallel EVM Unlocks High-Frequency RWA Tokenization
-  Celestia DAS Layer Reduces Rollup Data Costs by Order of Magnitude
-
-OUTPUT ONLY: The title text. No quotes, no labels, no explanation.`;
+- 7-13 words maximum.
+- NO introductory text (e.g. "Here is a title:", "Alternatively...").
+- NO questions, NO colons, NO chat.
+- OUTPUT ONLY the title string.`;
 
     const raw = await callGroq([
         { role: 'system', content: systemPrompt },
