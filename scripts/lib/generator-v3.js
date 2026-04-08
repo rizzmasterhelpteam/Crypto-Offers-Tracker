@@ -202,9 +202,10 @@ const AUDIENCE_PROFILES = {
  */
 async function draftProfessionalBlog(keyword, sourceText, manualPersona = null) {
     const personaKeys = Object.keys(AUDIENCE_PROFILES);
-    const persona = manualPersona && AUDIENCE_PROFILES[manualPersona]
-        ? AUDIENCE_PROFILES[manualPersona]
-        : AUDIENCE_PROFILES[personaKeys[Math.floor(Math.random() * personaKeys.length)]];
+    const personaKey = (manualPersona && AUDIENCE_PROFILES[manualPersona])
+        ? manualPersona
+        : personaKeys[Math.floor(Math.random() * personaKeys.length)];
+    const persona = AUDIENCE_PROFILES[personaKey];
 
     console.log(`[Step: Draft] Drafting for Persona: ${persona.name} (Target: 800 words)...`);
 
