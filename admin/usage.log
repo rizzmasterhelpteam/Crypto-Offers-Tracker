@@ -126,3 +126,9 @@
 2026-04-08T13:20:06.488Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 1833 | Completion: 969 | Total: 2802
 2026-04-08T13:20:09.343Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 1305 | Completion: 969 | Total: 2274
 2026-04-08T13:20:11.901Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 1444 | Completion: 907 | Total: 2351
+2026-04-08T13:43:57.133Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 384 | Completion: 8 | Total: 392
+2026-04-08T13:43:57.379Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 257 | Completion: 11 | Total: 268
+2026-04-08T13:44:01.097Z | Model: openai/gpt-oss-120b | Prompt: 1152 | Completion: 1466 | Total: 2618
+2026-04-08T13:44:05.246Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 1980 | Completion: 1085 | Total: 3065
+2026-04-08T13:44:08.329Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 1471 | Completion: 1077 | Total: 2548
+2026-04-08T13:44:11.263Z | Model: meta-llama/llama-4-scout-17b-16e-instruct | Prompt: 1666 | Completion: 1052 | Total: 2718
