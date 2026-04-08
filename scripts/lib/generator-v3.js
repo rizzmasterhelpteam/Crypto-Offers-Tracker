@@ -114,18 +114,21 @@ CRITICAL — ABSOLUTE PROHIBITIONS (auditors will delete violations):
 ═══════════════════════════════════════════
 FABRICATION RULES:
 - NEVER invent protocol upgrade names (e.g., do not write "MONAD_NINE", "STRK20", or any named upgrade not in PROJECT KNOWLEDGE or SOURCES).
+- NEVER append fake version numbers (e.g., "v2", "v4") to protocols (e.g., "StarkNet v2", "Celestia v2") unless explicitly stated in PROJECT KNOWLEDGE.
 - NEVER invent company names, researcher names, analyst firms, or quotes from human beings.
 - NEVER attribute a quote to any named person ("According to [Name], CTO of...") unless that exact quote appears in SOURCE DOCUMENTS.
-- NEVER fabricate specific regulatory actions: no invented SEC rulings, Fed pilots, EU directives, or Treasury announcements. Reference only broad, established frameworks (e.g., MiCA, existing EIP numbers).
+- NEVER fabricate specific regulatory actions: no invented SEC rulings, Fed pilots, EU directives, Treasury announcements, or Monetary Authority of Singapore (MAS) sandboxes. Reference only broad, established frameworks (e.g., MiCA, existing EIP numbers).
 - NEVER claim a mainnet launch date that is not in PROJECT KNOWLEDGE or SOURCES.
 - NEVER start multiple sentences in a row with the same subject (e.g., "The Starknet team ... The Starknet team ...").
 - NEVER personify a development team as the technology itself (e.g., do NOT write "The Starknet team operates as a rollup" or "The Monad team processes transactions"). Instead, use the technology name (e.g., "Starknet's protocol operates as..." or "Monad's execution engine processes...").
+- DOWN-TO-EARTH METAPHORS: Explicitly avoid dramatic metaphors involving animals, weather, or natural disasters.
 - NEVER use redundant "Mad-Libs" phrasing (e.g., "A recent privacy protocol adds privacy..."). Ensure every sentence adds new, distinct technical value.
 - NEVER use vague placeholders (e.g., "A joint pilot between a major asset manager..."). Ground forward-looking signals with real industry entities (e.g., "BlackRock's BUIDL fund integration...").
 - DATA PRECISION: In tables and text, always use specific numeric data (e.g. "4,000+ TPS", "$0.003 fees") rather than vague fillers like "Thousands of transactions per second" or "near-zero fees".
 - TERMINOLOGY STRICTNESS: AVS stands for "Actively Validated Services" ONLY. Never "Application-Specific Verifiers".
 
 FORMATTING RULES:
+- NO DUMMY LINKS: Never create <a href="#"> anchor tags. Do not hallucinate links.
 - No markdown characters: #, ##, *, **, ***, --, ---, ===
 - No "Conclusion" headers or sign-off clichés
 - No first-person "Our", "We", "My"
@@ -162,7 +165,7 @@ AUDIT CHECKLIST (apply all in one pass):
 
 2. FABRICATED QUOTES: Any sentence attributing words to a named human being (e.g., 'According to Jane Doe...', 'CTO of X said...') → DELETE the entire quote and attribution. Replace with a factual observation from the sources if possible, otherwise remove the sentence.
 
-3. FABRICATED REGULATORY NEWS: Any claim about a specific SEC ruling, Federal Reserve pilot, Treasury announcement, or EU directive that is not explicitly in SOURCES → DELETE and replace with reference to an established framework only (e.g., "Under the EU's MiCA framework...").
+3. FABRICATED REGULATORY NEWS: Any claim about a specific SEC ruling, Federal Reserve pilot, Monetary Authority of Singapore (MAS) sandbox, Treasury announcement, or EU directive that is not explicitly in SOURCES → DELETE and replace with reference to an established framework only (e.g., "Under the EU's MiCA framework...").
 
 4. ARCHITECTURE DRIFT: If the article's keyword is about Ethereum L2s but the article discusses Solana, or if it's about L3s but covers L1 restaking → Flag and remove the off-topic section. Replace with a sentence acknowledging the correct layer.
 
@@ -172,7 +175,7 @@ AUDIT CHECKLIST (apply all in one pass):
 
 7. MARKDOWN SCRUB: Delete all '#', '*', '**', '---' symbols. Replace with proper HTML tags (h2, strong, hr).
 
-8. ARTIFACT SCRUB: Delete any text that looks like a meta-tag (e.g., "Selected Keyword:", "**Keyword:**"), template footer ("Back to all Digests", "CS Chain Signals"), or scraping artifact (e.g., "🗓️ 2026-04-07", "🔥Trending:").
+8. ARTIFACT SCRUB: Delete any text that looks like a meta-tag (e.g., "Selected Keyword:", "**Keyword:**"), template footer ("Back to all Digests", "CS Chain Signals"), or scraping artifact (e.g., "🗓️ 2026-04-07", "🔥Trending:"). Remove all dummy links (e.g., <a href="#">...</a>) by replacing them with plain text or completely removing the <a> tags without deleting the inner text.
 
 DO NOT REWRITE style or substance beyond the above. Preserve vivid, specific writing.
 OUTPUT ONLY: The corrected, pure HTML article body. Nothing else.

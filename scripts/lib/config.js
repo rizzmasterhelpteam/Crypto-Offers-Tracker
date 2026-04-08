@@ -42,7 +42,9 @@ module.exports = {
         "narrative convergence", "convergence of signals", "synergy between project X and Y",
         "poised for growth", "inflection point", "structural shift", "market narrative investors monitor",
         "subtle but measurable signal", "paving the way", "the future of finance", "game changer",
-        "unlocking the potential", "seamless integration", "vibrant ecosystem"
+        "unlocking the potential", "seamless integration", "vibrant ecosystem",
+        "like a hawk eyes a migrating herd", "pressure is on", "The answer is emerging now",
+        "trust-less compliance paradigm", "A joint pilot", "converges"
     ],
 
     CATEGORIES: [
@@ -55,7 +57,7 @@ module.exports = {
         name: 'Chain Signals',
         initials: 'CS',
         title: 'Lead Crypto Strategist',
-        bio: 'Technical signals for an audience of intermediate-to-advanced crypto readers — those building and trading in the 2026 modular landscape.'
+        bio: 'Technical signals for an audience of intermediate-to-advanced crypto readers — those building and trading in the 2026 modular landscape. The writing must be strictly devoid of forced metaphors or dramatized financial comparisons.'
     },
 
     RESEARCH_SEEDS: ['Celestia', 'EigenLayer', 'Monad', 'Berachain', 'Jito', 'Drift Protocol', 'Starknet', 'zkSync'],
