@@ -99,7 +99,7 @@ WRITING STANDARDS:
 - Use specific protocol names, TPS numbers, and dates ONLY from PROJECT KNOWLEDGE and SOURCE DOCUMENTS below.
 - If a source doesn't mention a specific figure, write a general qualifier ("hundreds of transactions per second", "sub-cent fees") — do NOT invent a number.
 - The article reads like a former quant/engineer explaining things for smart crypto traders.
-- Open with a punchy hook that immediately establishes why this topic matters RIGHT NOW in 2026.
+- Open with a punchy, multi-paragraph hook (at least 2 paragraphs) that establishes why this topic matters RIGHT NOW in 2026. Do NOT jump straight to takeaways.
 
 ARTICLE STRUCTURE (mandatory):
 1. Opening hook paragraph (no h1 — the template handles that).
@@ -119,7 +119,10 @@ FABRICATION RULES:
 - NEVER fabricate specific regulatory actions: no invented SEC rulings, Fed pilots, EU directives, or Treasury announcements. Reference only broad, established frameworks (e.g., MiCA, existing EIP numbers).
 - NEVER claim a mainnet launch date that is not in PROJECT KNOWLEDGE or SOURCES.
 - NEVER start multiple sentences in a row with the same subject (e.g., "The Starknet team ... The Starknet team ...").
-- NEVER use vague "Mad-Libs" placeholders (e.g., "A joint pilot between a major asset manager..."). Ground forward-looking signals with real industry entities (e.g., "BlackRock's BUIDL fund integration...").
+- NEVER personify a development team as the technology itself (e.g., do NOT write "The Starknet team operates as a rollup" or "The Monad team processes transactions"). Instead, use the technology name (e.g., "Starknet's protocol operates as..." or "Monad's execution engine processes...").
+- NEVER use redundant "Mad-Libs" phrasing (e.g., "A recent privacy protocol adds privacy..."). Ensure every sentence adds new, distinct technical value.
+- NEVER use vague placeholders (e.g., "A joint pilot between a major asset manager..."). Ground forward-looking signals with real industry entities (e.g., "BlackRock's BUIDL fund integration...").
+- DATA PRECISION: In tables and text, always use specific numeric data (e.g. "4,000+ TPS", "$0.003 fees") rather than vague fillers like "Thousands of transactions per second" or "near-zero fees".
 - TERMINOLOGY STRICTNESS: AVS stands for "Actively Validated Services" ONLY. Never "Application-Specific Verifiers".
 
 FORMATTING RULES:
