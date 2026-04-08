@@ -29,6 +29,10 @@ function toDisplayTitle(str) {
  * Catches cases where the LLM still emits bare <h2>Key Takeaways</h2> or <h2>Analyst Note</h2>.
  */
 function autoFixStructure(html) {
+    // Fix: LLM wrapping intro paragraphs in <h2> instead of <p>
+    // Real section headers are short (< 70 chars). Anything longer is a paragraph.
+    html = html.replace(/<h2[^>]*>([^<]{70,})<\/h2>/g, (_, inner) => `<p>${inner}</p>`);
+
     // Fix: <h2>Key Takeaways</h2> followed by <ul> → wrap in takeaways-card
     html = html.replace(
         /<h2[^>]*>Key Takeaways<\/h2>\s*(<ul[\s\S]*?<\/ul>)/gi,
@@ -43,9 +47,18 @@ function autoFixStructure(html) {
 
     // Fix: <h2>Analyst Note</h2><p>text</p> → insight-card
     html = html.replace(
-        /<h2[^>]*>Analyst Note<\/h2>\s*<p>([\s\S]*?)<\/p>/gi,
+        /<h2[^>]*>Analyst Note:?<\/h2>\s*<p>([\s\S]*?)<\/p>/gi,
         '<div class="insight-card"><strong>Analyst Note:</strong> $1</div>'
     );
+
+    // Fix: <h2>Analyst Note:</h2> immediately followed by plain text (no <p> wrapper)
+    html = html.replace(
+        /<h2[^>]*>Analyst Note:?<\/h2>\s*((?!<)[^\n]{20,})/gi,
+        '<div class="insight-card"><strong>Analyst Note:</strong> $1</div>'
+    );
+
+    // Fix: stray <del> tags from data sanitizer (revert to plain text)
+    html = html.replace(/<del>([\s\S]*?)<\/del>/gi, '$1');
 
     // Fix: orphaned <hr> tags (not in the spec)
     html = html.replace(/<hr\s*\/?>/gi, '');

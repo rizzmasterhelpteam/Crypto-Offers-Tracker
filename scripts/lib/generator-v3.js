@@ -180,36 +180,48 @@ async function draftProfessionalBlog(keyword, sourceText) {
         ? JSON.stringify(relevantKnowledge, null, 2)
         : knowledgeBase; // fallback to full if no match
 
+    const bannedPhrases = config.BANNED_AI_PATTERNS.join('", "');
+
     const systemPrompt = `You are a technical crypto journalist. Today: ${config.CURRENT_DATE}.
-Write a 700-word HTML article for keyword: "${keyword}".
+Write a 1400-word HTML article for keyword: "${keyword}".
 
-RULES:
-- Use data ONLY from KNOWLEDGE and SOURCES below. If no source for a figure, use a qualifier ("hundreds of TPS") — never invent numbers.
-- Write like a quant explaining for smart traders. Punchy opening hook (2 paragraphs), no h1 tag.
-- AVS = "Actively Validated Services" only. No fake quotes, regulatory news, protocol names, or version numbers.
+WRITING RULES:
+- Use data ONLY from KNOWLEDGE and SOURCES below. If no source for a figure, use a qualifier ("hundreds of millions in TVL", "thousands of TPS") — never invent exact numbers.
+- Write like a quant explaining for smart traders — direct, specific, zero fluff.
+- AVS = "Actively Validated Services" only. No fake quotes, no fake regulatory news, no invented protocol names or version numbers.
 - No markdown (#, *, **). No dummy links (<a href="#">). No "Conclusion" headers. No first-person (Our/We/My).
-- Tables: TVL in dollars, cost in fees, TPS in numbers. Correct units always.
+- Tables: if exact data is unavailable from SOURCES, write "N/A" — NEVER use dashes (—) or empty cells.
+- MINIMUM LENGTH: The article must be at least 1400 words. Expand each section with real technical depth — mechanisms, trade-offs, implications.
 
-REQUIRED HTML SKELETON (copy this structure exactly, fill in content):
-<p>[opening hook paragraph 1]</p>
-<p>[opening hook paragraph 2]</p>
-<div class="takeaways-card"><h4>Key Takeaways</h4><ul><li>[bullet 1]</li><li>[bullet 2]</li><li>[bullet 3]</li></ul></div>
-<h2>[Section 1 title]</h2>
-<p>[technical content]</p>
+BANNED PHRASES — NEVER use any of these (they are AI clichés that harm SEO):
+"${bannedPhrases}"
+
+REQUIRED HTML SKELETON (copy this structure exactly, fill content into each section — each <p> must be 3-5 sentences of substantive content):
+<p>[opening hook paragraph 1 — 3-5 sentences, specific technical angle]</p>
+<p>[opening hook paragraph 2 — 3-5 sentences, why traders/builders care now]</p>
+<div class="takeaways-card"><h4>Key Takeaways</h4><ul><li>[specific bullet 1]</li><li>[specific bullet 2]</li><li>[specific bullet 3]</li><li>[specific bullet 4]</li></ul></div>
+<h2>[Section 1 title — 3-6 words, specific]</h2>
+<p>[technical paragraph 1 — 4-6 sentences]</p>
+<p>[technical paragraph 2 — 4-6 sentences]</p>
 <h2>[Section 2 title]</h2>
-<p>[technical content]</p>
-<div class="comparison-table-wrapper"><table class="comparison-table"><thead><tr><th>Protocol</th><th>TVL (USD)</th><th>Cost (Fees)</th><th>Throughput (TPS)</th></tr></thead><tbody><tr><td>[real name]</td><td>$[X]</td><td>$[Y]</td><td>[N]</td></tr></tbody></table></div>
-<div class="insight-card"><strong>Analyst Note:</strong> [2-3 sentences of original analysis]</div>
+<p>[technical paragraph 3 — 4-6 sentences]</p>
+<p>[technical paragraph 4 — 4-6 sentences]</p>
+<h2>[Section 3 title]</h2>
+<p>[technical paragraph 5 — 4-6 sentences]</p>
+<div class="comparison-table-wrapper"><table class="comparison-table"><thead><tr><th>Protocol</th><th>TVL (USD)</th><th>Avg Fee</th><th>TPS</th></tr></thead><tbody><tr><td>[protocol name]</td><td>[amount or N/A]</td><td>[fee or N/A]</td><td>[tps or N/A]</td></tr></tbody></table></div>
+<div class="insight-card"><strong>Analyst Note:</strong> [3-4 sentences of original analysis — no clichés, no hype]</div>
 <h2>Forward-Looking Signals</h2>
-<ul><li>[signal 1 with specific protocol/date]</li><li>[signal 2]</li><li>[signal 3]</li></ul>
+<p>[paragraph on upcoming catalysts — 3-5 sentences with specific protocol milestones]</p>
+<ul><li>[signal 1 with specific protocol/date from SOURCES]</li><li>[signal 2]</li><li>[signal 3]</li></ul>
 
-CRITICAL RULES:
-- takeaways-card div MUST wrap both the h4 AND the ul — never use h2 for Key Takeaways
-- table MUST have class="comparison-table" — never output <table> without it
-- insight-card MUST be a div, not an h2 — never use <h2>Analyst Note</h2>
-- No h1 tags. No <hr> tags. No markdown. No dummy <a href="#"> links.
+CRITICAL HTML RULES:
+- Opening paragraphs MUST be <p> tags — NEVER wrap intro text in <h2>
+- takeaways-card div MUST wrap both the h4 AND the ul — NEVER use <h2> for Key Takeaways
+- table MUST have class="comparison-table" — NEVER output <table> without it
+- insight-card MUST be a div, NOT an h2 — NEVER use <h2>Analyst Note</h2>
+- No h1 tags. No <hr> tags. No <del> tags. No markdown. No dummy <a href="#"> links.
 
-OUTPUT: Pure HTML only. Start with first <p> tag.
+OUTPUT: Pure HTML only. Start with first <p> tag. Do not output anything before the first <p>.
 
 KNOWLEDGE:
 ${knowledgeSnippet}
@@ -219,8 +231,8 @@ ${sourceText}`;
 
     return await callGroq([
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Write the premium 900-word technical deep-dive for: "${keyword}"` }
-    ], 'openai/gpt-oss-120b', 0.65);
+        { role: 'user', content: `Write the full 1400-word technical deep-dive for: "${keyword}". Ensure each section has multiple paragraphs of substantive content.` }
+    ], 'openai/gpt-oss-120b', 0.65, 5000);
 }
 
 /**
@@ -323,8 +335,9 @@ AUDIT CHECKLIST:
 4. TVL / MARKET FIGURES: Cross-reference against SOURCES. Remove fabricated round numbers not in sources. Keep sourced figures (e.g., "$18B+ TVL" for EigenLayer).
 5. PROTOCOL VERSIONS: Keep upgrade names that appear in SOURCES (Stwo, MONAD_NINE, STRK20, etc.).
 6. QUOTE REMNANTS: Delete any attributed human quotes.
-7. HTML INTEGRITY: Preserve all HTML tags and visual components.
+7. HTML INTEGRITY: Preserve all HTML tags and visual components. Do NOT add <del>, <s>, or strikethrough tags.
 8. PROTOCOL NAME INTEGRITY: Do NOT replace real protocol names with generic descriptions.
+9. DATE FIXING: If a date is wrong, rewrite the surrounding sentence with the correct date or remove the specific date claim. NEVER wrap dates in <del> or strikethrough tags.
 
 OUTPUT ONLY: The corrected HTML article body. Nothing else.
 
