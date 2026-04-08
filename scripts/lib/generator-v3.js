@@ -6,6 +6,22 @@ const config = require('./config');
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
+// Build a whitelist of verified protocol names from PROJECT_KNOWLEDGE
+// so fact-checking steps don't strip real names.
+function getKnownProtocolNames() {
+    const names = new Set();
+    for (const [key, val] of Object.entries(config.PROJECT_KNOWLEDGE)) {
+        names.add(key);
+        // Extract protocol names from the role field (e.g. "Validity Rollup (Starknet)" → "Starknet")
+        const roleMatch = val.role.match(/\(([^)]+)\)/);
+        if (roleMatch) names.add(roleMatch[1]);
+        // Extract from mechanism field — capitalized multi-word names
+        const mechNames = val.mechanism.match(/\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*\b/g) || [];
+        mechNames.forEach(n => { if (n.length > 3) names.add(n); });
+    }
+    return [...names];
+}
+
 function logUsage(model, promptTokens, completionTokens, totalTokens) {
     const fs = require('fs');
     const timestamp = new Date().toISOString();
@@ -128,15 +144,18 @@ RULES:
 - No markdown (#, *, **). No dummy links (<a href="#">). No "Conclusion" headers. No first-person (Our/We/My).
 - Tables: TVL in dollars, cost in fees, TPS in numbers. Correct units always.
 
-STRUCTURE:
-1. Opening hook (no h1)
-2. <div class="takeaways-card"><h4>Key Takeaways</h4><ul>3-5 bullets</ul></div>
-3. Two <h2> sections with technical depth
-4. One <div class="comparison-table-wrapper"><table class="comparison-table">...</table></div>
-5. One <div class="insight-card"><strong>Analyst Note:</strong>...</div>
-6. <h2>Forward-Looking Signals</h2> — what to watch next 30-90 days
+STRUCTURE (follow EXACTLY — missing components = rejected):
+1. Opening hook paragraphs (no h1 tag, no h2 before takeaways)
+2. <div class="takeaways-card"><h4>Key Takeaways</h4><ul><li>3-5 bullets</li></ul></div>
+   IMPORTANT: The h4 must be INSIDE the takeaways-card div. Do NOT put an h2 "Key Takeaways" outside.
+3. Two <h2> sections with technical depth — name real protocols
+4. <div class="comparison-table-wrapper"><table class="comparison-table"><thead>...</thead><tbody>...</tbody></table></div>
+   IMPORTANT: The table tag MUST have class="comparison-table". Use real protocol names in table rows, not generic placeholders.
+5. <div class="insight-card"><strong>Analyst Note:</strong> 2-3 sentences of original analysis</div>
+   REQUIRED — do not skip this component.
+6. <h2>Forward-Looking Signals</h2> — name specific protocols, upgrades, dates from KNOWLEDGE
 
-OUTPUT: Pure HTML only. Start with first <p> tag.
+OUTPUT: Pure HTML only. Start with first <p> tag. No <hr> tags.
 
 KNOWLEDGE:
 ${knowledgeSnippet}
@@ -157,28 +176,33 @@ ${sourceText}`;
 async function firstFactCheck(draftContent, sourceText) {
     console.log(`[Step 3] Hallucination Audit (llama-4-scout-17b)...`);
 
+    const knownProtocols = getKnownProtocolNames();
+
     const systemPrompt = `You are a Hostile Factual Auditor for a high-authority institutional crypto publication.
 Your job is to SILENTLY FIX errors — do NOT summarize, explain, or rewrite style.
 
+VERIFIED PROTOCOL NAMES (these are confirmed real — NEVER remove or replace these):
+${knownProtocols.join(', ')}
+
 AUDIT CHECKLIST (apply all in one pass):
 
-1. FABRICATED PROTOCOLS: Any named protocol upgrade, version, or product (e.g., "MONAD_NINE", "STRK20") that does NOT appear word-for-word in SOURCES → DELETE the specific name, replace with a general description ("a recent performance upgrade" / "Starknet's proof system improvements").
+1. FABRICATED PROTOCOLS: Any named protocol, upgrade, or product that is NOT in the VERIFIED list above AND NOT in SOURCES → DELETE the specific name, replace with a general description. IMPORTANT: Protocol names that ARE in the VERIFIED list (e.g., Starknet, Monad, EigenLayer, Celestia, Berachain, Jito, Drift) MUST be kept as-is. Upgrade codenames (e.g., "MONAD_NINE", "STRK20", "Stwo") that appear in SOURCES should also be kept.
 
 2. FABRICATED QUOTES: Any sentence attributing words to a named human being (e.g., 'According to Jane Doe...', 'CTO of X said...') → DELETE the entire quote and attribution. Replace with a factual observation from the sources if possible, otherwise remove the sentence.
 
-3. FABRICATED REGULATORY NEWS: Any claim about a specific SEC ruling, Federal Reserve pilot, Monetary Authority of Singapore (MAS) sandbox, Treasury announcement, or EU directive that is not explicitly in SOURCES → DELETE and replace with reference to an established framework only (e.g., "Under the EU's MiCA framework...").
+3. FABRICATED REGULATORY NEWS: Any claim about a specific SEC ruling, Federal Reserve pilot, MAS sandbox, Treasury announcement, or EU directive that is not explicitly in SOURCES → DELETE and replace with reference to an established framework only (e.g., "Under the EU's MiCA framework...").
 
-4. ARCHITECTURE DRIFT: If the article's keyword is about Ethereum L2s but the article discusses Solana, or if it's about L3s but covers L1 restaking → Flag and remove the off-topic section. Replace with a sentence acknowledging the correct layer.
+4. ARCHITECTURE DRIFT: If the article's keyword is about Ethereum L2s but the article discusses Solana, or if it's about L3s but covers L1 restaking → Flag and remove the off-topic section.
 
-5. SENTENCE REPETITION: If any subject phrase (e.g., "The Starknet team", "Monad's architecture") appears at the start of 2+ consecutive sentences → Rewrite the second sentence to start differently.
+5. SENTENCE REPETITION: If any subject phrase appears at the start of 2+ consecutive sentences → Rewrite the second sentence to start differently.
 
-6. AVS TERMINOLOGY: If AVS is defined as "Application-Specific Verifiers", you MUST change it to "Actively Validated Services".
+6. AVS TERMINOLOGY: If AVS is defined as anything other than "Actively Validated Services", fix it.
 
 7. MARKDOWN SCRUB: Delete all '#', '*', '**', '---' symbols. Replace with proper HTML tags (h2, strong, hr).
 
-8. ARTIFACT SCRUB: Delete any text that looks like a meta-tag (e.g., "Selected Keyword:", "**Keyword:**"), template footer ("Back to all Digests", "CS Chain Signals"), or scraping artifact (e.g., "🗓️ 2026-04-07", "🔥Trending:"). Remove all dummy links (e.g., <a href="#">...</a>) by replacing them with plain text or completely removing the <a> tags without deleting the inner text.
+8. ARTIFACT SCRUB: Delete meta-tags ("Selected Keyword:", "**Keyword:**"), template footers, scraping artifacts ("🗓️", "🔥Trending:"). Remove dummy links (<a href="#">) by keeping inner text only.
 
-DO NOT REWRITE style or substance beyond the above. Preserve vivid, specific writing.
+DO NOT REWRITE style or substance beyond the above. Preserve vivid, specific writing. Keep all real protocol names.
 OUTPUT ONLY: The corrected, pure HTML article body. Nothing else.
 
 SOURCES:
@@ -197,14 +221,18 @@ ${sourceText}`;
 async function finalFactCheck(draftContent, sourceText) {
     console.log(`[Step 4] Final Polish (llama-4-scout-17b)...`);
 
-    const systemPrompt = `You are the Lead Editor doing a final quality pass on a crypto article.
-DO NOT change the substance or rewrite the style. Only fix the following specific issues:
+    const knownProtocols = getKnownProtocolNames();
 
-1. POV FIX: Replace any "Our", "We", "My" with the specific project name (e.g., "The Starknet team", "EigenLayer's validators").
+    const systemPrompt = `You are the Lead Editor doing a final quality pass on a crypto article.
+DO NOT change the substance or rewrite the style. DO NOT remove or replace real protocol names (${knownProtocols.slice(0, 15).join(', ')}, etc.).
+
+Only fix these specific issues:
+1. POV FIX: Replace any "Our", "We", "My" with the specific project name.
 2. HTML CLEANLINESS: Ensure all visual components (takeaways-card, insight-card, comparison-table-wrapper, comparison-table) are correctly opened AND closed with matching tags.
-3. ZERO MARKDOWN: If any '#', '*', '**', or '---' characters remain, convert them to proper HTML now.
-4. CLEAN ENDING: The article must end on a forward-looking insight or signal. Remove any "Conclusion" headers, "Back to all posts" links, sign-off lines, "Back to all Digests", "CS Chain Signals", or template boilerplate.
-5. TOP ARTIFACT CHECK: Ensure the article does NOT start with any label text like "**Selected Keyword:**", "Keyword:", "Title:", "🗓️", "🔥Trending:", or any meta-prefix. The first output character must be an HTML tag or a content word.
+3. ZERO MARKDOWN: Convert any remaining '#', '*', '**', '---' to proper HTML tags.
+4. CLEAN ENDING: Remove any "Conclusion" headers, "Back to all posts" links, sign-off lines, template boilerplate. End on a forward-looking insight.
+5. TOP ARTIFACT CHECK: Remove any label prefix like "Selected Keyword:", "Title:", "🗓️", "🔥Trending:". First output must be an HTML tag or content word.
+6. PROTOCOL NAME INTEGRITY: If any real protocol name (Starknet, Monad, EigenLayer, Celestia, etc.) has been replaced with a generic phrase like "A validity rollup" or "A parallel EVM L1", restore the actual protocol name.
 
 OUTPUT ONLY: The final, polished HTML article body. Nothing else.`;
 
@@ -221,21 +249,26 @@ OUTPUT ONLY: The final, polished HTML article body. Nothing else.`;
 async function dataSanitizer(draftContent, sourceText) {
     console.log(`[Step 5] Data Sanitizer (llama-4-scout-17b)...`);
 
+    const knownProtocols = getKnownProtocolNames();
+
     const systemPrompt = `You are a Data Accuracy Auditor for a high-authority financial publication.
 Today's Date: ${config.CURRENT_DATE}.
 
-YOUR ONLY JOB is to fix factual data errors in the article below. Do NOT rewrite style, restructure sections, or change tone.
+YOUR ONLY JOB is to fix factual data errors. Do NOT rewrite style, restructure, change tone, or remove real protocol names.
+
+VERIFIED PROTOCOL NAMES (keep these as-is): ${knownProtocols.slice(0, 15).join(', ')}
 
 AUDIT CHECKLIST:
-1. DATES: All dates must be consistent with ${config.CURRENT_DATE}. Delete any future date claimed as a past event, or any past date used incorrectly for a "coming soon" claim.
-2. TPS / THROUGHPUT: Cross-reference all TPS and throughput numbers against SOURCES. Any figure with no source backing → delete the exact number and replace with a general qualifier ("thousands of transactions per second").
-3. TABLES AND METRICS: Ensure table column units make sense. TVL and "value secured" MUST be dollar amounts. Cost MUST be a fee amount (e.g., gas cost). Fix any instance where TPS is used in a cost or value column.
-4. TVL / MARKET FIGURES: Cross-reference all TVL, market cap, and funding figures against SOURCES. Remove any round fabricated numbers not found in sources.
-5. PROTOCOL VERSIONS: Ensure all version numbers, upgrade names, and launch dates match SOURCES exactly.
-6. QUOTE REMNANTS: If any attributed human quote survived earlier audits, delete it now.
-7. HTML INTEGRITY: Do not break any HTML tags. Preserve all visual components (takeaways-card, comparison-table, insight-card).
+1. DATES: All dates must be consistent with ${config.CURRENT_DATE}. Delete any future date claimed as past, or past date used for "coming soon".
+2. TPS / THROUGHPUT: Cross-reference TPS numbers against SOURCES. Unsourced exact figures → replace with qualifiers ("thousands of TPS"). But keep sourced figures like "10k TPS" for Monad.
+3. TABLES AND METRICS: TVL must be dollar amounts, cost must be fees, TPS must be throughput. Fix any misplaced units.
+4. TVL / MARKET FIGURES: Cross-reference against SOURCES. Remove fabricated round numbers not in sources. Keep sourced figures (e.g., "$18B+ TVL" for EigenLayer).
+5. PROTOCOL VERSIONS: Keep upgrade names that appear in SOURCES (Stwo, MONAD_NINE, STRK20, etc.).
+6. QUOTE REMNANTS: Delete any attributed human quotes.
+7. HTML INTEGRITY: Preserve all HTML tags and visual components.
+8. PROTOCOL NAME INTEGRITY: Do NOT replace real protocol names with generic descriptions.
 
-OUTPUT ONLY: The corrected HTML article body with all data errors fixed. Nothing else.
+OUTPUT ONLY: The corrected HTML article body. Nothing else.
 
 SOURCE DOCUMENTS:
 ${sourceText}`;

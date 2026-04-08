@@ -69,6 +69,18 @@ async function run() {
 
         // Final assembly
         const today = config.CURRENT_DATE;
+
+        // Title-case the keyword for display (preserve known acronyms)
+        const acronyms = new Set(['RWA', 'DeFi', 'AVS', 'MEV', 'TPS', 'TVL', 'ZK', 'AI', 'L1', 'L2', 'L3', 'DA', 'EVM', 'DAO', 'NFT', 'KYC', 'AML']);
+        const displayTitle = selectedKeyword.replace(/\b\w+/g, word => {
+            const upper = word.toUpperCase();
+            if (acronyms.has(upper)) return upper;
+            // Preserve known protocol casing from PROJECT_KNOWLEDGE keys
+            const knownKey = Object.keys(config.PROJECT_KNOWLEDGE).find(k => k.toLowerCase() === word.toLowerCase());
+            if (knownKey) return knownKey.charAt(0).toUpperCase() + knownKey.slice(1);
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        });
+
         const slug = selectedKeyword.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
         let fileName = `${today}-${slug}.html`;
 
@@ -90,7 +102,7 @@ async function run() {
 
         let template = fs.readFileSync(config.TEMPLATE_PATH, 'utf8');
         const finalHtml = template
-            .replaceAll('{{TITLE}}', selectedKeyword)
+            .replaceAll('{{TITLE}}', displayTitle)
             .replaceAll('{{DATE}}', today)
             .replaceAll('{{TOPICS}}', selectedKeyword)
             .replaceAll('{{CATEGORY}}', category.name)
