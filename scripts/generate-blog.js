@@ -160,7 +160,9 @@ async function run() {
 
         // STEP 2: Expert Drafting
         console.log("[Flow] Step 2: Drafting...");
-        let content = await generator.draftProfessionalBlog(selectedKeyword, sourceText);
+        const draftResult = await generator.draftProfessionalBlog(selectedKeyword, sourceText);
+        let content = draftResult.draft;
+        const personaKey = draftResult.personaKey;
 
         // STEP 3: Hallucination Audit
         console.log("[Flow] Step 3: Hallucination Audit...");
@@ -191,33 +193,7 @@ async function run() {
         content = autoFixStructure(content);
 
         // Final assembly
-        const today = config.CURRENT_DATE;
-        const displayTitle = generatedTitle || toDisplayTitle(selectedKeyword);
-        const metaDescription = extractMetaDescription(displayTitle, content);
-        const seoKeywords = extractSEOKeywords(content);
-        const category = pickCategory(selectedKeyword);
-        const slug = selectedKeyword.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-
-        let fileName = `${today}-${slug}.html`;
-        let counter = 1;
-        while (fs.existsSync(path.join(config.BLOG_DIR, fileName))) {
-            fileName = `${today}-${slug}-v${counter++}.html`;
-        }
-
-        let template = fs.readFileSync(config.TEMPLATE_PATH, 'utf8');
-        const finalHtml = template
-            .replaceAll('{{TITLE}}', displayTitle)
-            .replaceAll('{{DATE}}', today)
-            .replaceAll('{{TOPICS}}', selectedKeyword)
-            .replaceAll('{{META_DESCRIPTION}}', metaDescription)
-            .replaceAll('{{SEO_KEYWORDS}}', seoKeywords)
-            .replaceAll('{{CATEGORY}}', category.name)
-            .replaceAll('{{CATEGORY_BADGE}}', category.badge)
-            .replaceAll('{{CONTENT}}', content)
-            .replaceAll('{{AUTHOR_NAME}}', config.AUTHOR.name)
-            .replaceAll('{{AUTHOR_INITIALS}}', config.AUTHOR.initials)
-            .replaceAll('{{AUTHOR_TITLE}}', config.AUTHOR.title)
-            .replaceAll('{{AUTHOR_BIO}}', config.AUTHOR.bio);
+        const finalHtml = generator.assembleFullHtml(displayTitle, content, personaKey);
 
         fs.writeFileSync(path.join(config.BLOG_DIR, fileName), finalHtml);
 

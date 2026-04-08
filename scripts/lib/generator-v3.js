@@ -263,10 +263,9 @@ ${sourceText}`;
         throw new Error(`[Step 2] FAILED: Draft was too short or empty (${draft?.length || 0} chars). Model may have refused or returned CoT only.`);
     }
 
-    // Attach persona metadata for Step 5
     return {
         draft,
-        personaKey: manualPersona || (manualPersona ? manualPersona : Object.keys(AUDIENCE_PROFILES).find(k => AUDIENCE_PROFILES[k].name === persona.name))
+        personaKey
     };
 }
 
