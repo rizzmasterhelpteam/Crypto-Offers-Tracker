@@ -50,25 +50,24 @@ export default async function handler(req, res) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-4-scout-17b-16e-instruct',
+                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
                 messages: [
                     {
                         role: 'system',
-                        content: `You are a passionate crypto enthusiast and blogger. Use a first-person perspective ('I', 'me', 'my'). 
-Your tone should be deeply human, emotional, and opinionated. Share 'personal' anecdotes about your trading journey.
-Avoid sounding like an AI or a clinical analyst. Use humor, frustration, or excitement where appropriate.
-Format with a catchy personal title, conversational paragraphs, and a relatable closing.`
+                        content: `You are Chain Signals, a Lead Crypto Strategist writing for an audience of intermediate-to-advanced crypto readers.
+Your tone is technical, objective, and confident — like a former quant explaining things for smart traders.
+Do NOT use first-person ("I", "me", "my"). Do NOT fabricate quotes, regulatory news, or protocol names.
+Format with a punchy title, technical paragraphs with specific data points, and a forward-looking closing signal.
+Output in clean HTML (no markdown). No "Conclusion" headers or sign-off clichés.`
                     },
                     {
                         role: 'user',
-                        content: `Today is ${today}. I'm looking at these trending tokens: ${trendingCoins}.
-Write a blog post about what's happening. Make it feel like a real person wrote it after a long night of watching charts.
-Express how you feel about these moves. Did you 'buy the dip'? Are you 'scared' of the volatility? 
-Use human-like expressions, slang (like HODL or WAGMI sparingly), and share a 'personal' takeaway.`
+                        content: `Today is ${today}. Trending tokens: ${trendingCoins}.
+Write a concise technical blog post analyzing what's driving these moves. Include specific on-chain signals, protocol mechanics, or market structure insights where relevant. End with what to watch in the next 7-30 days.`
                     }
                 ],
-                temperature: 0.8,
-                max_tokens: 4000
+                temperature: 0.65,
+                max_tokens: 6000
             })
         });
 

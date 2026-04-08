@@ -58,16 +58,41 @@ async function fetchProtocolDetails(term) {
 async function getGroundedSources(title, keywords) {
     console.log('[Sources] Building source pack...');
     const sources = [];
+
+    // Extract real protocol names by matching against PROJECT_KNOWLEDGE keys
+    const knownProtocols = Object.keys(config.PROJECT_KNOWLEDGE);
+    const combinedText = `${title} ${keywords}`.toLowerCase();
+    const matchedProtocols = knownProtocols.filter(p => combinedText.includes(p.toLowerCase()));
+
+    // Also extract capitalized multi-word terms that look like protocol names (3+ chars)
+    const properNouns = `${title} ${keywords}`.match(/\b[A-Z][a-z]{2,}\b/g) || [];
     const searchTerms = [...new Set([
-        ...keywords.split(/[,\s]+/).filter(t => t.length > 2),
-        ...title.split(/[\s:,]+/).filter(t => t.length > 3)
+        ...matchedProtocols,
+        ...properNouns
     ])].slice(0, 5);
+
+    console.log(`[Sources] Search terms: ${searchTerms.join(', ')}`);
 
     for (const term of searchTerms) {
         const detail = await fetchProtocolDetails(term);
         if (detail) {
             sources.push(`PROTOCOL: ${detail.name} (${detail.symbol})\nSOURCE: CoinGecko\nCONTENT: ${detail.description}`);
         }
+    }
+
+    // Load ground truth context if available
+    const fs = require('fs');
+    if (fs.existsSync(config.CONTEXT_CACHE_PATH)) {
+        try {
+            const groundTruth = JSON.parse(fs.readFileSync(config.CONTEXT_CACHE_PATH, 'utf8'));
+            const protocols = groundTruth.protocols || {};
+            for (const term of matchedProtocols) {
+                const key = term.toLowerCase();
+                if (protocols[key]) {
+                    sources.push(`GROUND TRUTH — ${term.toUpperCase()}:\n${JSON.stringify(protocols[key], null, 2)}`);
+                }
+            }
+        } catch (e) { console.warn('[Sources] Could not load ground-truth-context.json:', e.message); }
     }
 
     const news = await fetchLatestNews();

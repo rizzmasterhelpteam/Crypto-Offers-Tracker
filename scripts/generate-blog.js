@@ -79,13 +79,22 @@ async function run() {
             counter++;
         }
 
+        // Pick category based on keyword content
+        const kwLower = selectedKeyword.toLowerCase();
+        let category = config.CATEGORIES[0]; // default: Market Intelligence
+        if (/alpha|yield|staking|restaking|airdrop|farming|mev/i.test(kwLower)) {
+            category = config.CATEGORIES.find(c => c.id === 'alpha') || category;
+        } else if (/zk|proof|prover|rollup|scaling|parallel|execution|da\b|data avail/i.test(kwLower)) {
+            category = config.CATEGORIES.find(c => c.id === 'spotlight') || category;
+        }
+
         let template = fs.readFileSync(config.TEMPLATE_PATH, 'utf8');
         const finalHtml = template
             .replaceAll('{{TITLE}}', selectedKeyword)
             .replaceAll('{{DATE}}', today)
             .replaceAll('{{TOPICS}}', selectedKeyword)
-            .replaceAll('{{CATEGORY}}', config.CATEGORIES[0].name)
-            .replaceAll('{{CATEGORY_BADGE}}', config.CATEGORIES[0].badge)
+            .replaceAll('{{CATEGORY}}', category.name)
+            .replaceAll('{{CATEGORY_BADGE}}', category.badge)
             .replaceAll('{{CONTENT}}', content)
             .replaceAll('{{AUTHOR_NAME}}', config.AUTHOR.name)
             .replaceAll('{{AUTHOR_INITIALS}}', config.AUTHOR.initials)

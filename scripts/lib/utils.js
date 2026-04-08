@@ -41,15 +41,31 @@ function syncBlogIndex() {
     blogFiles.forEach(file => {
         const content = fs.readFileSync(path.join(config.BLOG_DIR, file), 'utf8');
         const titleMatch = content.match(/<title>(.*?)<\/title>/);
-        const dateMatch = content.match(/🗓️ (.*?)<\/span>/);
+        const dateMatch = content.match(/\u2022\s*(\d{4}-\d{2}-\d{2})/) || content.match(/Published on (\d{4}-\d{2}-\d{2})/);
         const categoryMatch = content.match(/<div class="category-badge (.*?)">(.*?)<\/div>/);
         const descriptionMatch = content.match(/<meta name="description" content="(.*?)"/);
 
-        const title = titleMatch ? titleMatch[1].replace(' | crypto offers Tracker', '').trim() : file;
+        const title = titleMatch
+            ? titleMatch[1].replace(/ \| crypto offers.*$/i, '').replace(/^["']+|["']+$/g, '').trim()
+            : file;
         const date = dateMatch ? dateMatch[1] : 'Recent';
         const categoryName = categoryMatch ? categoryMatch[2] : 'Insight';
         const categoryBadge = categoryMatch ? categoryMatch[1] : 'blue';
-        const excerpt = descriptionMatch ? descriptionMatch[1].replace(/^Expert analysis on /i, '').split(' by Chain Signals')[0] : '';
+        // Build excerpt: strip boilerplate prefixes and author suffixes, fall back to first <p> content
+        let excerpt = '';
+        if (descriptionMatch) {
+            excerpt = descriptionMatch[1]
+                .replace(/^Expert (?:crypto )?analysis on\s*/i, '')
+                .split(/\s*by Chain Signals/i)[0]
+                .replace(/\s*\. Published on.*$/i, '')
+                .trim();
+        }
+        if (!excerpt) {
+            const firstPMatch = content.match(/<div class="content-body">\s*<p>([\s\S]*?)<\/p>/);
+            if (firstPMatch) {
+                excerpt = firstPMatch[1].replace(/<[^>]+>/g, '').slice(0, 180).trim();
+            }
+        }
 
         postEntries += `
         <a href="${file}" class="post-card">

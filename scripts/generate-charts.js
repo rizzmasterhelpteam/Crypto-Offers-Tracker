@@ -82,24 +82,35 @@ async function fetchUpcomingProjects() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'llama-3.1-8b-instant',
+                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
                 messages: [
                     {
                         role: 'system',
-                        content: `REPR: Liam Foster, Quantitative Analyst. 
-VOICE: Direct, technical, and data-driven. 
-FORBIDDEN: "tapestry", "landscape", "unveiling", "vibrant", "revolutionary".
-CRITICAL: Identify 5 high-potential projects in early stages. 
-TONE: Internal market briefing.`
+                        content: `You are a quantitative crypto analyst. Voice: direct, technical, data-driven.
+FORBIDDEN words: "tapestry", "landscape", "unveiling", "vibrant", "revolutionary".
+Output ONLY a JSON object with a "projects" array.
+
+KNOWN FACTS (do not contradict):
+- Berachain: Mainnet launched Feb 2025. Proof of Liquidity L1.
+- Monad: Mainnet launched Nov 2025. 10k TPS parallel EVM.
+- EigenLayer: $18B+ TVL restaking platform. Live since 2024.
+- Starknet: Operational L2. Stwo prover deployed Q4 2025.
+Do NOT list these as "upcoming" — they are already live. Focus on genuinely pre-mainnet or early-stage projects.`
+                    },
+                    {
+                        role: 'user',
+                        content: `Recent crypto news:\n${news}\n\nIdentify 5 high-potential projects that are genuinely in early stages (testnet, devnet, or pre-launch). Return JSON: {"projects": [{"name": "...", "symbol": "...", "insight": "one-line description", "status": "Testnet|Devnet|Pre-launch"}]}`
                     }
                 ],
-                temperature: 0.5,
-                response_format: { type: "json_object" }
+                temperature: 0.5
             })
         });
 
         const data = await groqResponse.json();
-        const content = JSON.parse(data.choices[0].message.content);
+        let raw = data.choices[0].message.content;
+        // Strip markdown code blocks if present
+        raw = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+        const content = JSON.parse(raw);
         return content.projects || Object.values(content)[0] || [];
     } catch (err) {
         console.error("Error fetching upcoming projects with AI:", err);

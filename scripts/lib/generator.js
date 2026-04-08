@@ -12,7 +12,7 @@ async function callGroq(messages, model = 'meta-llama/llama-4-scout-17b-16e-inst
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model, messages, temperature, max_tokens: 4000 })
+        body: JSON.stringify({ model, messages, temperature, max_tokens: model.includes('gpt-oss') ? 4000 : 6000 })
     });
 
     if (!response.ok) {

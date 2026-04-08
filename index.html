@@ -19,8 +19,8 @@
     <meta property="og:url" content="https://crypto-offers.vercel.app/">
     <meta property="og:title" content="crypto offers 2026 – Airdrops, Staking & Bonuses">
     <meta property="og:description"
-        content="AI-powered tracker for live crypto airdrops, staking rewards, and trading bonuses across 20+ exchanges. Updated 3x daily.">
-    <meta property="og:image" content="https://crypto-offers-tracker.vercel.app/og-image.png">
+        content="AI-powered tracker for live crypto airdrops, staking rewards, and trading bonuses across 20+ exchanges. Updated twice daily.">
+    <meta property="og:image" content="https://crypto-offers.vercel.app/assets/logo.png">
     <meta property="og:site_name" content="crypto offers">
     <meta property="og:locale" content="en_US">
 
@@ -30,8 +30,8 @@
     <meta name="twitter:url" content="https://crypto-offers.vercel.app/">
     <meta name="twitter:title" content="crypto offers 2026 – Airdrops, Staking & Bonuses">
     <meta name="twitter:description"
-        content="AI-powered tracker for live crypto airdrops, staking rewards, and trading bonuses across 20+ exchanges. Updated 3x daily.">
-    <meta name="twitter:image" content="https://crypto-offers-tracker.vercel.app/og-image.png">
+        content="AI-powered tracker for live crypto airdrops, staking rewards, and trading bonuses across 20+ exchanges. Updated twice daily.">
+    <meta name="twitter:image" content="https://crypto-offers.vercel.app/assets/logo.png">
 
     <!-- ===== JSON-LD STRUCTURED DATA ===== -->
     <script type="application/ld+json">
@@ -39,13 +39,13 @@
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Crypto Offers Tracker",
-      "url": "https://crypto-offers-tracker.vercel.app/",
+      "url": "https://crypto-offers.vercel.app/",
       "description": "AI-powered tracker for live crypto airdrops, staking rewards, and trading bonuses across 20+ exchanges.",
       "potentialAction": {
         "@type": "SearchAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": "https://crypto-offers-tracker.vercel.app/?q={search_term_string}"
+          "urlTemplate": "https://crypto-offers.vercel.app/?q={search_term_string}"
         },
         "query-input": "required name=search_term_string"
       }
@@ -710,7 +710,7 @@
                     style="width: 120px; height: auto; border-radius: 20px;">
             </div>
             <h1 class="title">crypto offers 2026</h1>
-            <p class="subtitle">Real-time AI search across Binance, Coinbase, OKX &amp; 20+ Platforms. Updated 3x
+            <p class="subtitle">Real-time AI search across Binance, Coinbase, OKX &amp; 20+ Platforms. Updated Twice
                 Daily.</p>
 
         </div>
@@ -1103,39 +1103,56 @@
             }
         }
 
+        function esc(str) {
+            const d = document.createElement('div');
+            d.textContent = str || '';
+            return d.innerHTML;
+        }
+
         function createCard(result) {
             const card = document.createElement('div');
             card.className = 'card';
-            const badgeClass = `badge-${result.badge || 'live'}`;
+            const badgeClass = `badge-${(result.badge || 'live').replace(/[^a-z]/g, '')}`;
             const badgeText = { live: '🟢 LIVE', new: '✨ NEW', ending: '⏰ ENDING' }[result.badge] || '🟢 LIVE';
 
             // Use the real URL from search results — fall back to platform page or Google
-            const offerUrl = result.link ||
+            const rawUrl = result.link ||
                 PLATFORM_URLS[result.platform] ||
                 `https://www.google.com/search?q=${encodeURIComponent((result.platform || '') + ' crypto ' + (result.type || 'offer'))}`;
 
-            // Show the real domain in the card
+            // Validate URL to prevent javascript: protocol injection
+            let offerUrl = '#';
+            try { const u = new URL(rawUrl); if (u.protocol === 'https:' || u.protocol === 'http:') offerUrl = u.href; } catch (e) { }
+
             let displayDomain = '';
             try { displayDomain = new URL(offerUrl).hostname.replace('www.', ''); } catch (e) { }
 
             card.innerHTML = `
                 <span class="badge ${badgeClass}">${badgeText}</span>
-                <h3 class="card-title">${result.title}</h3>
-                <p class="card-description">${result.description}</p>
-                ${result.requirements ? `<div class="requirements">📋 ${result.requirements}</div>` : ''}
+                <h3 class="card-title">${esc(result.title)}</h3>
+                <p class="card-description">${esc(result.description)}</p>
+                ${result.requirements ? `<div class="requirements">📋 ${esc(result.requirements)}</div>` : ''}
                 <div class="card-meta">
-                    <div class="meta-item"><span>🏢</span> ${result.platform}</div>
-                    <div class="meta-item"><span>💰</span> ${result.value || 'Varies'}</div>
-                    <div class="meta-item"><span>📅</span> ${result.date || 'Recent'}</div>
-                    ${displayDomain ? `<div class="meta-item"><span>🔗</span> <span style="color:#60a5fa;font-size:0.8rem;">${displayDomain}</span></div>` : ''}
+                    <div class="meta-item"><span>🏢</span> ${esc(result.platform)}</div>
+                    <div class="meta-item"><span>💰</span> ${esc(result.value || 'Varies')}</div>
+                    <div class="meta-item"><span>📅</span> ${esc(result.date || 'Recent')}</div>
+                    ${displayDomain ? `<div class="meta-item"><span>🔗</span> <span style="color:#60a5fa;font-size:0.8rem;">${esc(displayDomain)}</span></div>` : ''}
                 </div>
                 <div class="card-actions">
-                    <button class="btn-card" onclick="window.open('${offerUrl}', '_blank')">
+                    <button class="btn-card" data-url="${esc(offerUrl)}">
                         🔗 View Real Offer
                     </button>
-                    <button class="btn-card" style="flex: 0 0 50px;" onclick="navigator.share ? navigator.share({title:'${result.title.replace(/'/g, '')}',url:'${offerUrl}'}) : navigator.clipboard.writeText('${offerUrl}')">📤</button>
+                    <button class="btn-card" style="flex: 0 0 50px;" data-share-title="${esc(result.title)}" data-share-url="${esc(offerUrl)}">📤</button>
                 </div>
             `;
+
+            // Bind click handlers safely instead of inline onclick
+            card.querySelector('[data-url]').addEventListener('click', () => window.open(offerUrl, '_blank'));
+            card.querySelector('[data-share-url]').addEventListener('click', () => {
+                if (navigator.share) navigator.share({ title: result.title, url: offerUrl });
+                else navigator.clipboard.writeText(offerUrl);
+            });
+
             return card;
         }
 
@@ -1143,7 +1160,7 @@
         let countdownInterval = null;
         function showCacheStatus(nextRefresh) {
             const cacheStatus = document.getElementById('cacheStatus');
-            document.getElementById('cacheText').innerHTML = '<span style="color: #10b981; font-weight: 600;">🔄 Refreshes globally 3x daily</span>';
+            document.getElementById('cacheText').innerHTML = '<span style="color: #10b981; font-weight: 600;">🔄 Refreshes globally twice daily</span>';
             cacheStatus.classList.remove('hidden');
 
             if (countdownInterval) clearInterval(countdownInterval);

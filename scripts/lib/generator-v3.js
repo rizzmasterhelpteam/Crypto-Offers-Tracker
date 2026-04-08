@@ -13,13 +13,24 @@ function logUsage(model, promptTokens, completionTokens, totalTokens) {
     try { fs.appendFileSync(config.USAGE_LOG_PATH, entry); } catch (e) { /* non-fatal */ }
 }
 
-async function callGroq(messages, model, temperature = 0.5) {
+// Token-per-minute limits per model (leave headroom for prompt tokens)
+const MODEL_MAX_TOKENS = {
+    'openai/gpt-oss-120b': 4000,       // 8K TPM limit — ~4K prompt + 4K completion
+    'openai/gpt-oss-20b': 4000,        // 8K TPM limit
+    'meta-llama/llama-4-scout-17b-16e-instruct': 6000,  // 30K TPM limit — plenty of room
+    'qwen/qwen3-32b': 3000,            // 6K TPM limit
+    'llama-3.3-70b-versatile': 4000,   // 12K TPM limit
+};
+
+async function callGroq(messages, model, temperature = 0.5, maxTokensOverride = null) {
     if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not set.");
+
+    const max_tokens = maxTokensOverride || MODEL_MAX_TOKENS[model] || 4000;
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model, messages, temperature, max_tokens: 4000 })
+        body: JSON.stringify({ model, messages, temperature, max_tokens })
     });
 
     if (!response.ok) {
@@ -48,7 +59,18 @@ TASK: Analyze the provided trending context and identify ONE high-potential "mid
 CRITERIA:
 - Mid-volume: 500-2000 monthly searches (simulated).
 - Low-competition: Not dominated by mainstream media; technical or niche.
-- Topic: Must be related to the 2026 technical roadmap (L2/L3 scaling, AI agents, RWA, or Institutional DeFi).${historyBlock}
+- Topic: Must be related to one of these 2026 crypto verticals (ROTATE between them — do NOT repeat the same vertical twice in a row):
+  * L2/L3 scaling and rollup technology (Starknet, zkSync, Optimism, Arbitrum)
+  * Restaking and shared security (EigenLayer, AVS, liquid restaking)
+  * Parallel execution chains (Monad, Sei, Sui)
+  * DeFi-native L1s and Proof of Liquidity (Berachain)
+  * Modular data availability (Celestia, EigenDA, Avail)
+  * RWA tokenization and institutional DeFi
+  * AI agents and on-chain automation
+  * MEV, Solana DeFi, and perps protocols (Jito, Drift)
+  * ZK proofs, privacy protocols, and identity
+  * Cross-chain interoperability and bridge security
+- IMPORTANT: Focus the keyword on a SPECIFIC protocol or mechanism, not a broad category. Good: "EigenLayer AVS restaking yield strategies". Bad: "L3 blockchain scalability solutions".${historyBlock}
 
 OUTPUT RULES (CRITICAL):
 - Output ONLY the keyword itself — nothing else.
@@ -66,7 +88,9 @@ OUTPUT RULES (CRITICAL):
         .replace(/<think>[\s\S]*?<\/think>/gi, '')  // safety: strip CoT blocks
         .trim()
         .replace(/^(?:\**)?(?:Selected )?Keyword:?(?:\**)?\s*/gi, '')
-        .replace(/^["'\s]+|["'\s]+$/g, '')
+        .replace(/\\"/g, '')                         // strip escaped quotes
+        .replace(/^["'`\s]+|["'`\s]+$/g, '')         // strip surrounding quotes/whitespace
+        .replace(/[."'`]+$/g, '')                     // strip trailing punctuation
         .split('\n')[0]
         .trim();
 
@@ -82,65 +106,42 @@ async function draftProfessionalBlog(keyword, sourceText) {
     console.log(`[Step 2] Expert Drafting (gpt-oss-120b)...`);
     const knowledgeBase = JSON.stringify(config.PROJECT_KNOWLEDGE, null, 2);
 
-    const systemPrompt = `You are a world-class technical crypto journalist — the kind that writes for CoinDesk Pro and Bankless Research.
-Today's Date: ${config.CURRENT_DATE}.
-ASSIGNMENT: Write a confident, vivid, 900-word technical deep-dive article targeting the keyword: "${keyword}".
+    // Build a focused knowledge snippet instead of dumping all protocols
+    const kwLower = keyword.toLowerCase();
+    const relevantKnowledge = {};
+    for (const [key, val] of Object.entries(config.PROJECT_KNOWLEDGE)) {
+        if (kwLower.includes(key.toLowerCase()) || val.role.toLowerCase().split(/[\s,()]+/).some(w => w.length > 3 && kwLower.includes(w.toLowerCase()))) {
+            relevantKnowledge[key] = val;
+        }
+    }
+    const knowledgeSnippet = Object.keys(relevantKnowledge).length > 0
+        ? JSON.stringify(relevantKnowledge, null, 2)
+        : knowledgeBase; // fallback to full if no match
 
-═══════════════════════════════════════════
-STEP 0 — ARCHITECTURE DECLARATION (MANDATORY)
-Before writing a single sentence, state internally:
-  - What layer is this technology? (L1, L2, L3, DA layer, etc.)
-  - What is its consensus or execution mechanism?
-  - What real protocols are relevant to this keyword?
-Then write ONLY about those defined technologies. Do NOT drift into adjacent chains.
-═══════════════════════════════════════════
+    const systemPrompt = `You are a technical crypto journalist. Today: ${config.CURRENT_DATE}.
+Write a 700-word HTML article for keyword: "${keyword}".
 
-WRITING STANDARDS:
-- Use specific protocol names, TPS numbers, and dates ONLY from PROJECT KNOWLEDGE and SOURCE DOCUMENTS below.
-- If a source doesn't mention a specific figure, write a general qualifier ("hundreds of transactions per second", "sub-cent fees") — do NOT invent a number.
-- The article reads like a former quant/engineer explaining things for smart crypto traders.
-- Open with a punchy, multi-paragraph hook (at least 2 paragraphs) that establishes why this topic matters RIGHT NOW in 2026. Do NOT jump straight to takeaways.
+RULES:
+- Use data ONLY from KNOWLEDGE and SOURCES below. If no source for a figure, use a qualifier ("hundreds of TPS") — never invent numbers.
+- Write like a quant explaining for smart traders. Punchy opening hook (2 paragraphs), no h1 tag.
+- AVS = "Actively Validated Services" only. No fake quotes, regulatory news, protocol names, or version numbers.
+- No markdown (#, *, **). No dummy links (<a href="#">). No "Conclusion" headers. No first-person (Our/We/My).
+- Tables: TVL in dollars, cost in fees, TPS in numbers. Correct units always.
 
-ARTICLE STRUCTURE (mandatory):
-1. Opening hook paragraph (no h1 — the template handles that).
-2. <div class="takeaways-card"><h4>Key Takeaways</h4><ul>...</ul></div> with 3-5 specific, actionable bullets.
-3. At least two <h2> sections with technical depth — includes specific mechanics, not vague generalities.
-4. One <div class="comparison-table-wrapper"><table class="comparison-table">...</table></div> with benchmark data.
-5. One <div class="insight-card"><strong>Analyst Note:</strong> ...</div> with a sharp expert perspective.
-6. Final <h2>Forward-Looking Signals</h2> section — what to watch in the next 30-90 days.
+STRUCTURE:
+1. Opening hook (no h1)
+2. <div class="takeaways-card"><h4>Key Takeaways</h4><ul>3-5 bullets</ul></div>
+3. Two <h2> sections with technical depth
+4. One <div class="comparison-table-wrapper"><table class="comparison-table">...</table></div>
+5. One <div class="insight-card"><strong>Analyst Note:</strong>...</div>
+6. <h2>Forward-Looking Signals</h2> — what to watch next 30-90 days
 
-═══════════════════════════════════════════
-CRITICAL — ABSOLUTE PROHIBITIONS (auditors will delete violations):
-═══════════════════════════════════════════
-FABRICATION RULES:
-- NEVER invent protocol upgrade names (e.g., do not write "MONAD_NINE", "STRK20", or any named upgrade not in PROJECT KNOWLEDGE or SOURCES).
-- NEVER append fake version numbers (e.g., "v2", "v4") to protocols (e.g., "StarkNet v2", "Celestia v2") unless explicitly stated in PROJECT KNOWLEDGE.
-- NEVER invent company names, researcher names, analyst firms, or quotes from human beings.
-- NEVER attribute a quote to any named person ("According to [Name], CTO of...") unless that exact quote appears in SOURCE DOCUMENTS.
-- NEVER fabricate specific regulatory actions: no invented SEC rulings, Fed pilots, EU directives, Treasury announcements, or Monetary Authority of Singapore (MAS) sandboxes. Reference only broad, established frameworks (e.g., MiCA, existing EIP numbers).
-- NEVER claim a mainnet launch date that is not in PROJECT KNOWLEDGE or SOURCES.
-- NEVER start multiple sentences in a row with the same subject (e.g., "The Starknet team ... The Starknet team ...").
-- NEVER personify a development team as the technology itself (e.g., do NOT write "The Starknet team operates as a rollup" or "The Monad team processes transactions"). Instead, use the technology name (e.g., "Starknet's protocol operates as..." or "Monad's execution engine processes...").
-- DOWN-TO-EARTH METAPHORS: Explicitly avoid dramatic metaphors involving animals, weather, or natural disasters.
-- NEVER use redundant "Mad-Libs" phrasing (e.g., "A recent privacy protocol adds privacy..."). Ensure every sentence adds new, distinct technical value.
-- NEVER use vague placeholders (e.g., "A joint pilot between a major asset manager..."). Ground forward-looking signals with real industry entities (e.g., "BlackRock's BUIDL fund integration...").
-- DATA PRECISION: In tables and text, always use specific numeric data (e.g. "4,000+ TPS", "$0.003 fees") rather than vague fillers like "Thousands of transactions per second" or "near-zero fees".
-- TERMINOLOGY STRICTNESS: AVS stands for "Actively Validated Services" ONLY. Never "Application-Specific Verifiers".
+OUTPUT: Pure HTML only. Start with first <p> tag.
 
-FORMATTING RULES:
-- NO DUMMY LINKS: Never create <a href="#"> anchor tags. Do not hallucinate links.
-- No markdown characters: #, ##, *, **, ***, --, ---, ===
-- No "Conclusion" headers or sign-off clichés
-- No first-person "Our", "We", "My"
-- No meta-tags, keyword labels, or template footer text in the output
-- TABLES MUST HAVE CORRECT UNITS: "Total value secured" must have a dollar amount (e.g. "$18 Billion"). "Cost" must have a fee (e.g. "$0.003"). Never put "TPS" in a cost or TVL column.
+KNOWLEDGE:
+${knowledgeSnippet}
 
-OUTPUT: Pure HTML only. No markdown. No preamble. Start directly with the first paragraph.
-
-PROJECT KNOWLEDGE (2026 ground truth — primary reference):
-${knowledgeBase}
-
-SOURCE DOCUMENTS:
+SOURCES:
 ${sourceText}`;
 
     return await callGroq([
