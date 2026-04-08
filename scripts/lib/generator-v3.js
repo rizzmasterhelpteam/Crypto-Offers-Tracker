@@ -115,6 +115,52 @@ OUTPUT RULES (CRITICAL):
 }
 
 /**
+ * STEP 1.5: Compelling Title Generation (llama-4-scout-17b)
+ * Role: Generate a specific, engaging article title from keyword + source context.
+ */
+async function generateTitle(keyword, sourceContext = '') {
+    console.log(`[Step 1.5] Generating compelling title...`);
+    const systemPrompt = `You are a headline writer for a high-authority institutional crypto publication.
+Generate ONE compelling, specific article title from the keyword and source context.
+
+RULES:
+- 6-12 words maximum
+- Include the main protocol or mechanism name (Starknet, Monad, EigenLayer, Celestia, etc.)
+- Specific and insight-driven — NOT generic category titles
+- No clickbait, no hype, no colons, no question marks
+- Start with a strong noun or verb phrase
+
+GOOD examples:
+  EigenLayer AVS Fee Premiums Outpace Generic Restaking Yields
+  Starknet's Stwo Prover Cuts L1 Finality to Under One Hour
+  Monad's Parallel EVM Unlocks High-Frequency RWA Tokenization
+  Celestia DAS Layer Reduces Rollup Data Costs by Order of Magnitude
+
+BAD examples:
+  The Future of Blockchain Technology in 2026
+  EigenLayer: A Deep Dive into Restaking
+  Top Crypto Trends to Watch
+
+OUTPUT ONLY: The title text. No quotes, no labels, no explanation.`;
+
+    const raw = await callGroq([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: `KEYWORD: ${keyword}\n\nSOURCE CONTEXT:\n${sourceContext.slice(0, 800)}` }
+    ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.7, 80);
+
+    const title = raw
+        .replace(/<think>[\s\S]*?<\/think>/gi, '')
+        .trim()
+        .replace(/^["'`*]+|["'`*]+$/g, '')
+        .replace(/^Title:\s*/i, '')
+        .split('\n')[0]
+        .trim();
+
+    console.log(`[Step 1.5] Generated title: "${title}"`);
+    return title;
+}
+
+/**
  * STEP 2: Expert Drafting (gpt-oss-120b)
  * Role: Confident expert writer. Grounding/hallucination checks happen in Steps 3-5.
  */
@@ -144,18 +190,26 @@ RULES:
 - No markdown (#, *, **). No dummy links (<a href="#">). No "Conclusion" headers. No first-person (Our/We/My).
 - Tables: TVL in dollars, cost in fees, TPS in numbers. Correct units always.
 
-STRUCTURE (follow EXACTLY — missing components = rejected):
-1. Opening hook paragraphs (no h1 tag, no h2 before takeaways)
-2. <div class="takeaways-card"><h4>Key Takeaways</h4><ul><li>3-5 bullets</li></ul></div>
-   IMPORTANT: The h4 must be INSIDE the takeaways-card div. Do NOT put an h2 "Key Takeaways" outside.
-3. Two <h2> sections with technical depth — name real protocols
-4. <div class="comparison-table-wrapper"><table class="comparison-table"><thead>...</thead><tbody>...</tbody></table></div>
-   IMPORTANT: The table tag MUST have class="comparison-table". Use real protocol names in table rows, not generic placeholders.
-5. <div class="insight-card"><strong>Analyst Note:</strong> 2-3 sentences of original analysis</div>
-   REQUIRED — do not skip this component.
-6. <h2>Forward-Looking Signals</h2> — name specific protocols, upgrades, dates from KNOWLEDGE
+REQUIRED HTML SKELETON (copy this structure exactly, fill in content):
+<p>[opening hook paragraph 1]</p>
+<p>[opening hook paragraph 2]</p>
+<div class="takeaways-card"><h4>Key Takeaways</h4><ul><li>[bullet 1]</li><li>[bullet 2]</li><li>[bullet 3]</li></ul></div>
+<h2>[Section 1 title]</h2>
+<p>[technical content]</p>
+<h2>[Section 2 title]</h2>
+<p>[technical content]</p>
+<div class="comparison-table-wrapper"><table class="comparison-table"><thead><tr><th>Protocol</th><th>TVL (USD)</th><th>Cost (Fees)</th><th>Throughput (TPS)</th></tr></thead><tbody><tr><td>[real name]</td><td>$[X]</td><td>$[Y]</td><td>[N]</td></tr></tbody></table></div>
+<div class="insight-card"><strong>Analyst Note:</strong> [2-3 sentences of original analysis]</div>
+<h2>Forward-Looking Signals</h2>
+<ul><li>[signal 1 with specific protocol/date]</li><li>[signal 2]</li><li>[signal 3]</li></ul>
 
-OUTPUT: Pure HTML only. Start with first <p> tag. No <hr> tags.
+CRITICAL RULES:
+- takeaways-card div MUST wrap both the h4 AND the ul — never use h2 for Key Takeaways
+- table MUST have class="comparison-table" — never output <table> without it
+- insight-card MUST be a div, not an h2 — never use <h2>Analyst Note</h2>
+- No h1 tags. No <hr> tags. No markdown. No dummy <a href="#"> links.
+
+OUTPUT: Pure HTML only. Start with first <p> tag.
 
 KNOWLEDGE:
 ${knowledgeSnippet}
@@ -228,11 +282,15 @@ DO NOT change the substance or rewrite the style. DO NOT remove or replace real 
 
 Only fix these specific issues:
 1. POV FIX: Replace any "Our", "We", "My" with the specific project name.
-2. HTML CLEANLINESS: Ensure all visual components (takeaways-card, insight-card, comparison-table-wrapper, comparison-table) are correctly opened AND closed with matching tags.
-3. ZERO MARKDOWN: Convert any remaining '#', '*', '**', '---' to proper HTML tags.
-4. CLEAN ENDING: Remove any "Conclusion" headers, "Back to all posts" links, sign-off lines, template boilerplate. End on a forward-looking insight.
-5. TOP ARTIFACT CHECK: Remove any label prefix like "Selected Keyword:", "Title:", "🗓️", "🔥Trending:". First output must be an HTML tag or content word.
-6. PROTOCOL NAME INTEGRITY: If any real protocol name (Starknet, Monad, EigenLayer, Celestia, etc.) has been replaced with a generic phrase like "A validity rollup" or "A parallel EVM L1", restore the actual protocol name.
+2. STRUCTURE FIX (CRITICAL):
+   - If "Key Takeaways" is an <h2> outside a div, wrap it: <div class="takeaways-card"><h4>Key Takeaways</h4>[ul]</div>
+   - If <table> is missing class="comparison-table", add it: <table class="comparison-table">
+   - If "Analyst Note" is an <h2>, convert to: <div class="insight-card"><strong>Analyst Note:</strong> [text]</div>
+3. HTML CLEANLINESS: Ensure all visual components are correctly opened AND closed.
+4. ZERO MARKDOWN: Convert any remaining '#', '*', '**', '---' to proper HTML tags.
+5. CLEAN ENDING: Remove any "Conclusion" headers, "Back to all posts" links, sign-off lines, template boilerplate.
+6. TOP ARTIFACT CHECK: Remove any label prefix like "Selected Keyword:", "Title:", "🗓️". First output must be an HTML tag.
+7. PROTOCOL NAME INTEGRITY: If any real protocol name has been replaced with a generic phrase like "A validity rollup", restore the actual name.
 
 OUTPUT ONLY: The final, polished HTML article body. Nothing else.`;
 
@@ -281,6 +339,7 @@ ${sourceText}`;
 
 module.exports = {
     discoverKeywords,
+    generateTitle,
     draftProfessionalBlog,
     firstFactCheck,
     finalFactCheck,

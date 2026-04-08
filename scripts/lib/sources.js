@@ -1,18 +1,36 @@
 /**
  * sources.js - External Data Sourcing
  * Fetches trending coins and recent news for grounding.
+ * All external API calls are TTL-cached to reduce rate limit pressure.
  */
+const fs = require('fs');
 const config = require('./config');
 
-async function fetchLatestNews() {
+function readCache(cachePath) {
     try {
-        console.log("Fetching latest crypto news...");
+        if (!fs.existsSync(cachePath)) return null;
+        const { timestamp, data } = JSON.parse(fs.readFileSync(cachePath, 'utf8'));
+        if (Date.now() - timestamp < config.CACHE_TTL_MS) return data;
+        return null; // expired
+    } catch (e) { return null; }
+}
+
+function writeCache(cachePath, data) {
+    try { fs.writeFileSync(cachePath, JSON.stringify({ timestamp: Date.now(), data })); } catch (e) { /* non-fatal */ }
+}
+
+async function fetchLatestNews() {
+    const cached = readCache(config.NEWS_CACHE_PATH);
+    if (cached) { console.log("[Sources] Using cached news."); return cached; }
+
+    try {
+        console.log("[Sources] Fetching latest crypto news...");
         const response = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
         const data = await response.json();
-        if (!data || !data.Data || !Array.isArray(data.Data)) {
-            return "No recent news available.";
-        }
-        return data.Data.slice(0, 8).map(n => `- ${n.title} (${n.source})`).join('\n');
+        if (!data || !data.Data || !Array.isArray(data.Data)) return "No recent news available.";
+        const result = data.Data.slice(0, 8).map(n => `- ${n.title} (${n.source})`).join('\n');
+        writeCache(config.NEWS_CACHE_PATH, result);
+        return result;
     } catch (err) {
         console.error("Error fetching news:", err.message);
         return "No recent news available.";
@@ -20,14 +38,17 @@ async function fetchLatestNews() {
 }
 
 async function fetchTrendingCoins() {
+    const cached = readCache(config.TRENDING_CACHE_PATH);
+    if (cached) { console.log("[Sources] Using cached trending coins."); return cached; }
+
     try {
-        console.log("Fetching trending crypto data from CoinGecko...");
+        console.log("[Sources] Fetching trending crypto data from CoinGecko...");
         const response = await fetch('https://api.coingecko.com/api/v3/search/trending');
         const data = await response.json();
-        if (!data || !data.coins || data.coins.length === 0) {
-            return config.RESEARCH_SEEDS;
-        }
-        return data.coins.slice(0, 5).map(c => c.item.name);
+        if (!data || !data.coins || data.coins.length === 0) return config.RESEARCH_SEEDS;
+        const result = data.coins.slice(0, 5).map(c => c.item.name);
+        writeCache(config.TRENDING_CACHE_PATH, result);
+        return result;
     } catch (err) {
         console.error("Error fetching trending data:", err.message);
         return config.RESEARCH_SEEDS;
@@ -81,7 +102,6 @@ async function getGroundedSources(title, keywords) {
     }
 
     // Load ground truth context if available
-    const fs = require('fs');
     if (fs.existsSync(config.CONTEXT_CACHE_PATH)) {
         try {
             const groundTruth = JSON.parse(fs.readFileSync(config.CONTEXT_CACHE_PATH, 'utf8'));

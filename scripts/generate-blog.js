@@ -1,6 +1,6 @@
 /**
- * generate-blog.js - 4-Step Orchestration Script
- * Version 3: Modular, SEO-Focused, and Dual Fact-Checked.
+ * generate-blog.js - Pipeline Orchestration
+ * Version 4: LLM title, TTL-cached sources, structure validation, SEO meta.
  */
 const fs = require('fs');
 const path = require('path');
@@ -9,95 +9,172 @@ const sources = require('./lib/sources');
 const generator = require('./lib/generator-v3');
 const utils = require('./lib/utils');
 
-async function run() {
-    console.log(`\n🚀 HIGH-AUTHORITY PIPELINE: 4-Step Generation v3 starting... (${config.CURRENT_DATE})`);
+// Known acronyms to preserve casing during title-casing
+const ACRONYMS = new Set(['RWA', 'DeFi', 'AVS', 'MEV', 'TPS', 'TVL', 'ZK', 'AI', 'L1', 'L2', 'L3', 'DA', 'EVM', 'DAO', 'NFT', 'KYC', 'AML', 'LST', 'AMM', 'DEX', 'CEX']);
 
+/**
+ * Title-case a string, preserving known acronyms and protocol names.
+ */
+function toDisplayTitle(str) {
+    return str.replace(/\b\w+/g, word => {
+        if (ACRONYMS.has(word.toUpperCase())) return word.toUpperCase();
+        const knownKey = Object.keys(config.PROJECT_KNOWLEDGE).find(k => k.toLowerCase() === word.toLowerCase());
+        if (knownKey) return knownKey.charAt(0).toUpperCase() + knownKey.slice(1);
+        return word.charAt(0).toUpperCase() + word.slice(1);
+    });
+}
+
+/**
+ * Post-processing: DOM-free structural fix using regex.
+ * Catches cases where the LLM still emits bare <h2>Key Takeaways</h2> or <h2>Analyst Note</h2>.
+ */
+function autoFixStructure(html) {
+    // Fix: <h2>Key Takeaways</h2> followed by <ul> → wrap in takeaways-card
+    html = html.replace(
+        /<h2[^>]*>Key Takeaways<\/h2>\s*(<ul[\s\S]*?<\/ul>)/gi,
+        '<div class="takeaways-card"><h4>Key Takeaways</h4>$1</div>'
+    );
+
+    // Fix: <table> missing class="comparison-table"
+    html = html.replace(/<table(?![^>]*class=)>/gi, '<table class="comparison-table">');
+    html = html.replace(/<table(?=[^>]*class="[^"]*")(?![^>]*comparison-table)/gi, (m) =>
+        m.replace('class="', 'class="comparison-table ')
+    );
+
+    // Fix: <h2>Analyst Note</h2><p>text</p> → insight-card
+    html = html.replace(
+        /<h2[^>]*>Analyst Note<\/h2>\s*<p>([\s\S]*?)<\/p>/gi,
+        '<div class="insight-card"><strong>Analyst Note:</strong> $1</div>'
+    );
+
+    // Fix: orphaned <hr> tags (not in the spec)
+    html = html.replace(/<hr\s*\/?>/gi, '');
+
+    return html;
+}
+
+/**
+ * Extract a clean meta description from the first <p> in content.
+ */
+function extractMetaDescription(title, content) {
+    const match = content.match(/<p>([\s\S]*?)<\/p>/);
+    if (match) {
+        const text = match[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+        return text.slice(0, 155).trim();
+    }
+    return `Technical analysis of ${title} — insights on protocols, yields, and on-chain signals.`;
+}
+
+/**
+ * Extract 4-6 SEO keyword phrases from takeaways bullets + h2 headings.
+ */
+function extractSEOKeywords(content) {
+    const keywords = [];
+    const h2s = [...content.matchAll(/<h2[^>]*>(.*?)<\/h2>/gi)].map(m => m[1].replace(/<[^>]+>/g, '').trim());
+    const bullets = [...content.matchAll(/<li>(.*?)<\/li>/gi)].slice(0, 4).map(m =>
+        m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 60)
+    );
+    keywords.push(...h2s.slice(0, 2), ...bullets.slice(0, 3));
+    return keywords.filter(Boolean).join(', ');
+}
+
+/**
+ * Load history, syncing out deleted files.
+ */
+function loadHistory() {
+    if (!fs.existsSync(config.HISTORY_PATH)) return {};
     try {
-        // Load & Sync History with Filesystem
-        let historyObj = {};
-        if (fs.existsSync(config.HISTORY_PATH)) {
-            try {
-                historyObj = JSON.parse(fs.readFileSync(config.HISTORY_PATH, 'utf8'));
-                // SYNC: Remove keywords if the corresponding file was deleted
-                for (const fileName in historyObj) {
-                    if (!fs.existsSync(path.join(config.BLOG_DIR, fileName))) {
-                        console.log(`[Sync] File ${fileName} deleted; removing keyword "${historyObj[fileName]}" from history.`);
-                        delete historyObj[fileName];
-                    }
-                }
-            } catch (e) {
-                console.warn("[Sync] History file corrupted or not JSON, starting fresh.");
-                historyObj = {};
+        const historyObj = JSON.parse(fs.readFileSync(config.HISTORY_PATH, 'utf8'));
+        for (const fileName in historyObj) {
+            if (!fs.existsSync(path.join(config.BLOG_DIR, fileName))) {
+                console.log(`[Sync] ${fileName} deleted — removing from history.`);
+                delete historyObj[fileName];
             }
         }
+        return historyObj;
+    } catch (e) {
+        console.warn("[Sync] History corrupted, starting fresh.");
+        return {};
+    }
+}
+
+/**
+ * Pick category based on keyword verticals.
+ */
+function pickCategory(keyword) {
+    const kw = keyword.toLowerCase();
+    if (/alpha|yield|staking|restaking|airdrop|farming|mev|liquid/i.test(kw))
+        return config.CATEGORIES.find(c => c.id === 'alpha') || config.CATEGORIES[0];
+    if (/zk|proof|prover|rollup|scaling|parallel|execution|\bda\b|data avail|modular/i.test(kw))
+        return config.CATEGORIES.find(c => c.id === 'spotlight') || config.CATEGORIES[0];
+    return config.CATEGORIES[0]; // Market Intelligence
+}
+
+async function run() {
+    console.log(`\n🚀 HIGH-AUTHORITY PIPELINE v4 starting... (${config.CURRENT_DATE})`);
+
+    try {
+        const historyObj = loadHistory();
         const activeKeywords = Object.values(historyObj);
 
-        // STEP 1: Keyword Discovery (llama-4-scout-17b)
-        console.log("[Flow] Step 1 Starting...");
-        const newsHeadlineContext = await sources.fetchLatestNews();
-        const selectedKeyword = await generator.discoverKeywords(newsHeadlineContext, activeKeywords.slice(-20)); // Last 20 keywords
-        console.log(`[Flow] Selected Keyword: "${selectedKeyword}"`);
+        // STEP 1: Keyword Discovery — uses cached news (4hr TTL)
+        console.log("[Flow] Step 1: Keyword Discovery...");
+        const newsContext = await sources.fetchLatestNews();
+        const selectedKeyword = await generator.discoverKeywords(newsContext, activeKeywords.slice(-20));
+        console.log(`[Flow] Keyword: "${selectedKeyword}"`);
 
-        // STEP 2: Source Analysis & E-E-A-T Drafting (gpt-oss-120b)
-        console.log("[Flow] Step 2 Starting...");
-        const sourceText = await sources.getGroundedSources(selectedKeyword, selectedKeyword);
+        // STEP 1.5 + SOURCES: Run title generation and source gathering in parallel
+        console.log("[Flow] Step 1.5 + Sources: Title generation & source gathering (parallel)...");
+        const [generatedTitle, sourceText] = await Promise.all([
+            generator.generateTitle(selectedKeyword, newsContext),
+            sources.getGroundedSources(selectedKeyword, selectedKeyword)
+        ]);
+        console.log(`[Flow] Title: "${generatedTitle}"`);
+
+        // STEP 2: Expert Drafting
+        console.log("[Flow] Step 2: Drafting...");
         let content = await generator.draftProfessionalBlog(selectedKeyword, sourceText);
 
-        // STEP 3: First Fact-Check & Fix (llama-4-scout-17b)
-        console.log("[Flow] Step 3 Starting...");
+        // STEP 3: Hallucination Audit
+        console.log("[Flow] Step 3: Hallucination Audit...");
         try {
-            const step3out = await generator.firstFactCheck(content, sourceText);
-            if (step3out && step3out.length > 200) { content = step3out; console.log(`[Flow] Step 3 OK (${step3out.length} chars)`); }
-            else { console.warn(`[Flow] Step 3 returned short or empty output (${step3out?.length || 0} chars), keeping Step 2 output.`); }
-        } catch (e) { console.warn(`[Flow] Step 3 FAILED: ${e.message}. Keeping Step 2 output.`); }
+            const out = await generator.firstFactCheck(content, sourceText);
+            if (out && out.length > 200) { content = out; console.log(`[Flow] Step 3 OK (${out.length} chars)`); }
+            else console.warn(`[Flow] Step 3 short output (${out?.length || 0} chars), keeping Step 2.`);
+        } catch (e) { console.warn(`[Flow] Step 3 FAILED: ${e.message}`); }
 
-        // STEP 4: Final Fact-Check & Publish (llama-4-scout-17b)
-        console.log("[Flow] Step 4 Starting...");
+        // STEP 4: Final Polish
+        console.log("[Flow] Step 4: Final Polish...");
         try {
-            const step4out = await generator.finalFactCheck(content, sourceText);
-            if (step4out && step4out.length > 200) { content = step4out; console.log(`[Flow] Step 4 OK (${step4out.length} chars)`); }
-            else { console.warn(`[Flow] Step 4 returned short or empty output (${step4out?.length || 0} chars), keeping Step 3 output.`); }
-        } catch (e) { console.warn(`[Flow] Step 4 FAILED: ${e.message}. Keeping Step 3 output.`); }
+            const out = await generator.finalFactCheck(content, sourceText);
+            if (out && out.length > 200) { content = out; console.log(`[Flow] Step 4 OK (${out.length} chars)`); }
+            else console.warn(`[Flow] Step 4 short output (${out?.length || 0} chars), keeping Step 3.`);
+        } catch (e) { console.warn(`[Flow] Step 4 FAILED: ${e.message}`); }
 
-        // STEP 5: Data Sanitizer — corrects inaccurate dates, figures, TPS numbers (llama-4-scout-17b)
-        console.log("[Flow] Step 5 Starting...");
+        // STEP 5: Data Sanitizer
+        console.log("[Flow] Step 5: Data Sanitizer...");
         try {
-            const step5out = await generator.dataSanitizer(content, sourceText);
-            if (step5out && step5out.length > 200) { content = step5out; console.log(`[Flow] Step 5 OK (${step5out.length} chars)`); }
-            else { console.warn(`[Flow] Step 5 returned short or empty output (${step5out?.length || 0} chars), keeping Step 4 output.`); }
-        } catch (e) { console.warn(`[Flow] Step 5 FAILED: ${e.message}. Keeping Step 4 output.`); }
+            const out = await generator.dataSanitizer(content, sourceText);
+            if (out && out.length > 200) { content = out; console.log(`[Flow] Step 5 OK (${out.length} chars)`); }
+            else console.warn(`[Flow] Step 5 short output (${out?.length || 0} chars), keeping Step 4.`);
+        } catch (e) { console.warn(`[Flow] Step 5 FAILED: ${e.message}`); }
+
+        // STEP 6: Local structure fix (no LLM needed)
+        console.log("[Flow] Step 6: Auto-fixing HTML structure...");
+        content = autoFixStructure(content);
 
         // Final assembly
         const today = config.CURRENT_DATE;
-
-        // Title-case the keyword for display (preserve known acronyms)
-        const acronyms = new Set(['RWA', 'DeFi', 'AVS', 'MEV', 'TPS', 'TVL', 'ZK', 'AI', 'L1', 'L2', 'L3', 'DA', 'EVM', 'DAO', 'NFT', 'KYC', 'AML']);
-        const displayTitle = selectedKeyword.replace(/\b\w+/g, word => {
-            const upper = word.toUpperCase();
-            if (acronyms.has(upper)) return upper;
-            // Preserve known protocol casing from PROJECT_KNOWLEDGE keys
-            const knownKey = Object.keys(config.PROJECT_KNOWLEDGE).find(k => k.toLowerCase() === word.toLowerCase());
-            if (knownKey) return knownKey.charAt(0).toUpperCase() + knownKey.slice(1);
-            return word.charAt(0).toUpperCase() + word.slice(1);
-        });
-
+        const displayTitle = generatedTitle || toDisplayTitle(selectedKeyword);
+        const metaDescription = extractMetaDescription(displayTitle, content);
+        const seoKeywords = extractSEOKeywords(content);
+        const category = pickCategory(selectedKeyword);
         const slug = selectedKeyword.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-        let fileName = `${today}-${slug}.html`;
 
-        // Ensure Uniqueness (don't overwrite)
+        let fileName = `${today}-${slug}.html`;
         let counter = 1;
         while (fs.existsSync(path.join(config.BLOG_DIR, fileName))) {
-            fileName = `${today}-${slug}-v${counter}.html`;
-            counter++;
-        }
-
-        // Pick category based on keyword content
-        const kwLower = selectedKeyword.toLowerCase();
-        let category = config.CATEGORIES[0]; // default: Market Intelligence
-        if (/alpha|yield|staking|restaking|airdrop|farming|mev/i.test(kwLower)) {
-            category = config.CATEGORIES.find(c => c.id === 'alpha') || category;
-        } else if (/zk|proof|prover|rollup|scaling|parallel|execution|da\b|data avail/i.test(kwLower)) {
-            category = config.CATEGORIES.find(c => c.id === 'spotlight') || category;
+            fileName = `${today}-${slug}-v${counter++}.html`;
         }
 
         let template = fs.readFileSync(config.TEMPLATE_PATH, 'utf8');
@@ -105,6 +182,8 @@ async function run() {
             .replaceAll('{{TITLE}}', displayTitle)
             .replaceAll('{{DATE}}', today)
             .replaceAll('{{TOPICS}}', selectedKeyword)
+            .replaceAll('{{META_DESCRIPTION}}', metaDescription)
+            .replaceAll('{{SEO_KEYWORDS}}', seoKeywords)
             .replaceAll('{{CATEGORY}}', category.name)
             .replaceAll('{{CATEGORY_BADGE}}', category.badge)
             .replaceAll('{{CONTENT}}', content)
@@ -115,14 +194,12 @@ async function run() {
 
         fs.writeFileSync(path.join(config.BLOG_DIR, fileName), finalHtml);
 
-        // Record and Save History
         historyObj[fileName] = selectedKeyword;
         fs.writeFileSync(config.HISTORY_PATH, JSON.stringify(historyObj, null, 4));
 
-        console.log(`✅ Step 4 Complete: blog/${fileName} is PUBLISHED.`);
-
+        console.log(`✅ Published: blog/${fileName}`);
         utils.syncBlogIndex();
-        console.log(`[Flow] End-to-end pipeline complete.`);
+        console.log(`[Flow] Pipeline complete.`);
 
     } catch (err) {
         console.error(`❌ CRITICAL ERROR:`, err.message);
