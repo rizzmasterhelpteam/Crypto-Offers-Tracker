@@ -252,13 +252,22 @@ ${knowledgeSnippet}
 SOURCES:
 ${sourceText}`;
 
-    const draft = await callGroq([
+    const rawDraft = await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `Draft the full 800-word technical report for: "${keyword}" targeting the ${persona.name} audience.` }
     ], 'openai/gpt-oss-120b', 0.7, 4000);
 
+    const draft = rawDraft.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
+    if (!draft || draft.length < 500) {
+        throw new Error(`[Step 2] FAILED: Draft was too short or empty (${draft?.length || 0} chars). Model may have refused or returned CoT only.`);
+    }
+
     // Attach persona metadata for Step 5
-    return { draft, personaKey: manualPersona || (manualPersona ? manualPersona : Object.keys(AUDIENCE_PROFILES).find(k => AUDIENCE_PROFILES[k].name === persona.name)) };
+    return {
+        draft,
+        personaKey: manualPersona || (manualPersona ? manualPersona : Object.keys(AUDIENCE_PROFILES).find(k => AUDIENCE_PROFILES[k].name === persona.name))
+    };
 }
 
 /**
@@ -278,10 +287,16 @@ CHECKLIST:
 6. STRIP AI LABELS: Delete any "Analyst Note:" or "Note:" markers.
 OUTPUT ONLY: The corrected HTML article body.`;
 
-    return await callGroq([
+    const out = await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `DRAFT:\n${draftContent}` }
     ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.3);
+
+    if (!out || out.length < 200 || out.includes("I can't audit") || out.includes("no HTML article")) {
+        console.warn(`[Step 3] Audit rejected (Refusal or short output). Keeping original draft.`);
+        return draftContent;
+    }
+    return out;
 }
 
 /**
@@ -290,10 +305,16 @@ OUTPUT ONLY: The corrected HTML article body.`;
 async function finalFactCheck(draftContent, sourceText) {
     console.log(`[Step 4] Final Polish (llama-4-scout-17b)...`);
     const systemPrompt = `You are the Lead Editor. Fix POV (use project name, not "We/Our"). Ensure <h2> tags are not wrapping long text. Ensure all visual cards are properly closed. Remove any "Conclusion" headers. First output must be an HTML tag.`;
-    return await callGroq([
+    const out = await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `FINAL POLISH:\n${draftContent}` }
     ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.3);
+
+    if (!out || out.length < 200 || out.includes("I can't audit") || out.includes("no HTML article")) {
+        console.warn(`[Step 4] Audit rejected (Refusal or short output). Keeping Step 3 state.`);
+        return draftContent;
+    }
+    return out;
 }
 
 /**
@@ -303,10 +324,16 @@ async function dataSanitizer(draftContent, sourceText) {
     console.log(`[Step 5] Data Sanitizer (llama-4-scout-17b)...`);
     const systemPrompt = `You are a Data Accuracy Auditor. Fix factual date/TPS/TVL errors. Ensure ${config.CURRENT_DATE} consistency. Do not change style. Do not remove real protocol names. 
 OUTPUT ONLY: The corrected HTML article body.`;
-    return await callGroq([
+    const out = await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `DATA AUDIT:\n${draftContent}` }
     ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.2);
+
+    if (!out || out.length < 200 || out.includes("I can't audit") || out.includes("no HTML article")) {
+        console.warn(`[Step 5] Audit rejected (Refusal or short output). Keeping Step 4 state.`);
+        return draftContent;
+    }
+    return out;
 }
 
 /**
