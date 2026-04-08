@@ -193,6 +193,16 @@ async function run() {
         content = autoFixStructure(content);
 
         // Final assembly
+        const today = config.CURRENT_DATE;
+        const displayTitle = generatedTitle || selectedKeyword;
+        const slug = selectedKeyword.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+        let fileName = `${today}-${slug}.html`;
+        let counter = 1;
+        while (fs.existsSync(path.join(config.BLOG_DIR, fileName))) {
+            fileName = `${today}-${slug}-v${counter++}.html`;
+        }
+
         const finalHtml = generator.assembleFullHtml(displayTitle, content, personaKey);
 
         fs.writeFileSync(path.join(config.BLOG_DIR, fileName), finalHtml);
