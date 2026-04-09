@@ -43,31 +43,37 @@
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://crypto-offers.vercel.app/blog/2026-04-08-eigenlayer-avs-restaking-security-models.html</loc>
+    <loc>https://crypto-offers.vercel.app/blog/2026-04/09/berachain-proof-of-liquidity-governance-framework.html</loc>
     <lastmod>2026-04-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://crypto-offers.vercel.app/blog/2026-04-08-jito-retail-guide-yield-savings.html</loc>
+    <loc>https://crypto-offers.vercel.app/blog/2026-04/09/eigenlayer-avs-restaking-security-models.html</loc>
     <lastmod>2026-04-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://crypto-offers.vercel.app/blog/2026-04-08-starknet-parallel-transaction-processing-efficiency.html</loc>
+    <loc>https://crypto-offers.vercel.app/blog/2026-04/09/jito-retail-guide-yield-savings.html</loc>
     <lastmod>2026-04-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://crypto-offers.vercel.app/blog/2026-04-08-zksync-era-gas-efficiency-optimization-strategies.html</loc>
+    <loc>https://crypto-offers.vercel.app/blog/2026-04/09/sei-parallel-execution-chain-architecture.html</loc>
     <lastmod>2026-04-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://crypto-offers.vercel.app/blog/2026-04-09-sei-parallel-execution-chain-performance-optimization.html</loc>
+    <loc>https://crypto-offers.vercel.app/blog/2026-04/09/starknet-parallel-transaction-processing-efficiency.html</loc>
+    <lastmod>2026-04-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://crypto-offers.vercel.app/blog/2026-04/09/zksync-era-gas-efficiency-optimization-strategies.html</loc>
     <lastmod>2026-04-09</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
