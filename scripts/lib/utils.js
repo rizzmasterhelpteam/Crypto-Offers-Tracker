@@ -33,32 +33,59 @@ function writeCSV(headers, rows, targetPath) {
 
 function syncBlogIndex() {
     console.log("[Utils] Syncing Blog Index...");
-    const blogFiles = fs.readdirSync(config.BLOG_DIR)
-        .filter(f => f.endsWith('.html') && f !== 'template.html' && f !== 'index.html')
-        .sort((a, b) => b.localeCompare(a)); // Newest first
+
+    // Recursive file finder
+    function getFiles(dir, allFiles = []) {
+        const files = fs.readdirSync(dir, { withFileTypes: true });
+        for (const file of files) {
+            const res = path.resolve(dir, file.name);
+            if (file.isDirectory()) {
+                getFiles(res, allFiles);
+            } else if (file.name.endsWith('.html') && file.name !== 'template.html' && file.name !== 'index.html') {
+                allFiles.push(res);
+            }
+        }
+        return allFiles;
+    }
+
+    const blogRoot = path.resolve(config.BLOG_DIR);
+    const absoluteFiles = getFiles(blogRoot).sort((a, b) => b.localeCompare(a)); // Sort by full path (reverse)
 
     let postEntries = '';
-    blogFiles.forEach(file => {
-        const content = fs.readFileSync(path.join(config.BLOG_DIR, file), 'utf8');
+    absoluteFiles.forEach(absolutePath => {
+        const file = path.relative(blogRoot, absolutePath).replace(/\\/g, '/');
+        const content = fs.readFileSync(absolutePath, 'utf8');
         const titleMatch = content.match(/<title>(.*?)<\/title>/);
-        const dateMatch = content.match(/\u2022\s*(\d{4}-\d{2}-\d{2})/) || content.match(/Published on (\d{4}-\d{2}-\d{2})/);
+        const dateMatch = content.match(/\u2022\s*(\d{4}-\d{2}-\d{2})/) ||
+            content.match(/Published on (\d{4}-\d{2}-\d{2})/) ||
+            content.match(/<span class="date">(\d{4}-\d{2}-\d{2})<\/span>/);
+
         const categoryMatch = content.match(/<div class="category-badge (.*?)">(.*?)<\/div>/);
         const descriptionMatch = content.match(/<meta name="description" content="(.*?)"/);
 
         const title = titleMatch
             ? titleMatch[1].replace(/ \| crypto offers.*$/i, '').replace(/^["']+|["']+$/g, '').trim()
             : file;
-        const date = dateMatch ? dateMatch[1] : 'Recent';
+
+        // Extract date from content or filename (DD-slug.html)
+        let date = 'Recent';
+        if (dateMatch) {
+            date = dateMatch[1];
+        } else if (file.match(/^\d{2}-/)) {
+            // If file is 09-slug.html, we need the parent YYYY/MM
+            const parts = file.split('/');
+            if (parts.length >= 3) {
+                date = `${parts[0]}-${parts[1]}-${parts[2].split('-')[0]}`;
+            }
+        }
+
         const categoryName = categoryMatch ? categoryMatch[2] : 'Insight';
         const categoryBadge = categoryMatch ? categoryMatch[1] : 'blue';
-        // Build excerpt: strip boilerplate prefixes and author suffixes, fall back to first <p> content
+        const categoryFilter = categoryName.toLowerCase().replace(/\s+/g, '-');
+
         let excerpt = '';
         if (descriptionMatch) {
-            excerpt = descriptionMatch[1]
-                .replace(/^Expert (?:crypto )?analysis on\s*/i, '')
-                .split(/\s*by Chain Signals/i)[0]
-                .replace(/\s*\. Published on.*$/i, '')
-                .trim();
+            excerpt = descriptionMatch[1].replace(/^Expert (?:crypto )?analysis on\s*/i, '').split(/\s*by Chain Signals/i)[0].trim();
         }
         if (!excerpt) {
             const firstPMatch = content.match(/<div class="content-body">\s*<p>([\s\S]*?)<\/p>/);
@@ -68,7 +95,7 @@ function syncBlogIndex() {
         }
 
         postEntries += `
-        <a href="${file}" class="post-card">
+        <a href="${file}" class="post-card" data-category="${categoryFilter}">
             <div class="category-badge ${categoryBadge}">${categoryName}</div>
             <span class="date">${date}</span>
             <h3>${title}</h3>

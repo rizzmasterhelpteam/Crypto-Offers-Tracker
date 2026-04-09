@@ -196,23 +196,62 @@ async function run() {
         const today = config.CURRENT_DATE;
         const displayTitle = generatedTitle || selectedKeyword;
         const slug = selectedKeyword.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const year = today.split('-')[0];
+        const month = today.split('-')[1];
+        const day = today.split('-')[2];
+        const nestedDir = path.join(config.BLOG_DIR, year, month);
 
-        let fileName = `${today}-${slug}.html`;
+        if (!fs.existsSync(nestedDir)) {
+            fs.mkdirSync(nestedDir, { recursive: true });
+        }
+
+        let fileName = `${day}-${slug}.html`;
+        let relativeFileName = path.join(year, month, fileName).replace(/\\/g, '/');
+        let fullPath = path.join(nestedDir, fileName);
+
         let counter = 1;
-        while (fs.existsSync(path.join(config.BLOG_DIR, fileName))) {
-            fileName = `${today}-${slug}-v${counter++}.html`;
+        while (fs.existsSync(fullPath)) {
+            fileName = `${day}-${slug}-v${counter++}.html`;
+            relativeFileName = path.join(year, month, fileName).replace(/\\/g, '/');
+            fullPath = path.join(nestedDir, fileName);
         }
 
         const finalHtml = generator.assembleFullHtml(displayTitle, content, personaKey);
 
-        fs.writeFileSync(path.join(config.BLOG_DIR, fileName), finalHtml);
+        fs.writeFileSync(fullPath, finalHtml);
 
-        historyObj[fileName] = selectedKeyword;
+        historyObj[relativeFileName] = selectedKeyword;
         fs.writeFileSync(config.HISTORY_PATH, JSON.stringify(historyObj, null, 4));
 
-        console.log(`✅ Published: blog/${fileName}`);
-        utils.syncBlogIndex();
+        // Register in Approvals Queue
+        let approvals = {};
+        if (fs.existsSync(config.APPROVALS_PATH)) {
+            try { approvals = JSON.parse(fs.readFileSync(config.APPROVALS_PATH, 'utf8')); } catch (e) { approvals = {}; }
+        }
+
+        approvals[fileName] = {
+            title: displayTitle,
+            subject: selectedKeyword,
+            date: today,
+            approved: false,
+            pushed: false
+        };
+        fs.writeFileSync(config.APPROVALS_PATH, JSON.stringify(approvals, null, 4));
+
+        if (config.REQUIRE_APPROVAL) {
+            console.log(`\n⚠️  MANUAL REVIEW REQUIRED`);
+            console.log(`- Draft saved: blog/${fileName}`);
+            console.log(`- Action: Open admin/approvals.json and set "approved": true for this file.`);
+            console.log(`- Then run: node scripts/publish.js\n`);
+        } else {
+            console.log(`✅ Published: blog/${fileName}`);
+            utils.syncBlogIndex();
+            // Optional: git auto-push if configured
+        }
+
         console.log(`[Flow] Pipeline complete.`);
+        console.log(`[Cooldown] Waiting 60 seconds...`);
+        await new Promise(r => setTimeout(r, 60000));
 
     } catch (err) {
         console.error(`❌ CRITICAL ERROR:`, err.message);

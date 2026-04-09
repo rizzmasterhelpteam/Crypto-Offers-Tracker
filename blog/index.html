@@ -43,7 +43,7 @@
                     <span class="date">LATEST ANALYSIS</span>
                     <h2>Expert Crypto Market Intelligence, Updated Daily</h2>
                     <div class="excerpt">Technical deep-dives on L2 scaling, restaking protocols, parallel execution chains, and the 2026 modular landscape.</div>
-                    <a href="/blog/" class="read-more">Browse All Reports</a>
+                    <a href="#postList" class="read-more">Browse All Reports</a>
                 </div>
                 <div class="featured-image"
                     style="background: url('../assets/hero-bg.png') center/cover; border-radius: 24px; min-height: 300px; border: 1px solid var(--card-border);">
@@ -51,36 +51,43 @@
             </section>
 
             <div class="content-area">
+                <div class="filter-tabs" id="filterTabs">
+                    <button class="filter-tab active" data-filter="all">All</button>
+                    <button class="filter-tab" data-filter="Protocol Alpha">Protocol Alpha</button>
+                    <button class="filter-tab" data-filter="Deep Tech">Deep Tech</button>
+                    <button class="filter-tab" data-filter="Market Analysis">Market Analysis</button>
+                </div>
+                <p class="post-count" id="postCount"></p>
                 <div class="post-list" id="postList">
-        <a href="2026-04-09-berachain-proof-of-liquidity-governance-framework.html" class="post-card">
+        <a href="2026/04/09-berachain-proof-of-liquidity-governance-framework.html" class="post-card" data-category="deep-tech">
             <div class="category-badge blue">Deep Tech</div>
             <span class="date">2026-04-09</span>
             <h3>Berachain Unveils Revolutionary Proof of Liquidity Governance Model</h3>
             <div class="excerpt">Berachain’s Proof of Liquidity (PoL) model ties validator stakes directly to on-chain liquidity depth. As a developer eyeing the next generation of DeFi-centric...</div>
             <span class="read-more">Read Full Insight</span>
         </a>
-        <a href="2026-04-08-zksync-era-gas-efficiency-optimization-strategies.html" class="post-card">
+        <a href="2026/04/08-zksync-era-gas-efficiency-optimization-strategies.html" class="post-card" data-category="protocol-alpha">
             <div class="category-badge green">Protocol Alpha</div>
             <span class="date">2026-04-08</span>
             <h3>Boosting zkSync Era Efficiency with Proven Gas Optimization Strategies</h3>
             <div class="excerpt">After conducting a thorough review, I found no factual date/TPS/TVL errors in the provided HTML article body. However, I did notice that the article mentions a...</div>
             <span class="read-more">Read Full Insight</span>
         </a>
-        <a href="2026-04-08-starknet-parallel-transaction-processing-efficiency.html" class="post-card">
+        <a href="2026/04/08-starknet-parallel-transaction-processing-efficiency.html" class="post-card" data-category="deep-tech">
             <div class="category-badge blue">Deep Tech</div>
             <span class="date">2026-04-08</span>
             <h3>Starknet Boosts Transaction Speed with Parallel Processing Efficiency Upgrade</h3>
             <div class="excerpt"></div>
             <span class="read-more">Read Full Insight</span>
         </a>
-        <a href="2026-04-08-jito-retail-guide-yield-savings.html" class="post-card">
+        <a href="2026/04/08-jito-retail-guide-yield-savings.html" class="post-card" data-category="protocol-alpha">
             <div class="category-badge green">Protocol Alpha</div>
             <span class="date">2026-04-08</span>
             <h3>How Jito Lowers Your Solana Trading Fees and Boosts Yield</h3>
             <div class="excerpt">If you’ve been watching Solana’s price chart, you’ve probably noticed the market’s appetite for faster, cheaper trades. Yet the hidden cost of staking can bite...</div>
             <span class="read-more">Read Full Insight</span>
         </a>
-        <a href="2026-04-08-eigenlayer-avs-restaking-security-models.html" class="post-card">
+        <a href="2026/04/08-eigenlayer-avs-restaking-security-models.html" class="post-card" data-category="protocol-alpha">
             <div class="category-badge green">Protocol Alpha</div>
             <span class="date">2026-04-08</span>
             <h3>EigenLayer AVS Boosts Restaking Security with Innovative Models</h3>
@@ -88,6 +95,17 @@
             <span class="read-more">Read Full Insight</span>
         </a>
             <!-- POST_ITEM_TEMPLATE -->
+                </div>
+
+                <!-- Mobile newsletter (shown on tablet/mobile, hidden on desktop) -->
+                <div class="mobile-newsletter">
+                    <h4>Stay Ahead of the Market</h4>
+                    <p>Get the twice-daily digest delivered straight to your inbox.</p>
+                    <form class="newsletter-form" id="mobileNewsletterForm">
+                        <input type="email" id="mobileNewsletterEmail" placeholder="Your email address" required>
+                        <button type="submit">Subscribe Now</button>
+                        <p class="newsletter-success hidden" id="mobileNewsletterSuccess">&#10003; You’re on the list! Welcome aboard.</p>
+                    </form>
                 </div>
             </div>
         </div>
@@ -103,9 +121,10 @@
             <div class="widget newsletter-widget animate" style="animation-delay: 0.5s;">
                 <h4>Stay Ahead</h4>
                 <p>Get the twice-daily digest delivered straight to your inbox.</p>
-                <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Joined successfully!');">
-                    <input type="email" placeholder="Your email address" required>
+                <form class="newsletter-form" id="sidebarNewsletterForm">
+                    <input type="email" id="sidebarNewsletterEmail" placeholder="Your email address" required>
                     <button type="submit">Subscribe Now</button>
+                    <p class="newsletter-success hidden" id="sidebarNewsletterSuccess">&#10003; You're on the list! Welcome aboard.</p>
                 </form>
             </div>
         </aside>
@@ -116,6 +135,55 @@
             <p>&copy; 2026 Crypto Offers Tracker. All Rights Reserved.</p>
         </div>
     </footer>
+
+    <script>
+        // ---- Category filter tabs ----
+        (function () {
+            const tabs = document.querySelectorAll('.filter-tab');
+            const cards = document.querySelectorAll('.post-card');
+            const postCount = document.getElementById('postCount');
+
+            function updateCount(n) {
+                postCount.textContent = n + ' article' + (n !== 1 ? 's' : '');
+            }
+
+            updateCount(cards.length);
+
+            tabs.forEach(function (tab) {
+                tab.addEventListener('click', function () {
+                    tabs.forEach(function (t) { t.classList.remove('active'); });
+                    tab.classList.add('active');
+                    var filter = tab.dataset.filter;
+                    var visible = 0;
+                    cards.forEach(function (card) {
+                        var cat = card.dataset.category || '';
+                        var show = filter === 'all' || cat === filter;
+                        card.style.display = show ? '' : 'none';
+                        if (show) visible++;
+                    });
+                    updateCount(visible);
+                });
+            });
+        })();
+
+        // ---- Newsletter forms (replaces alert()) ----
+        function bindNewsletter(formId, successId, emailId) {
+            var form = document.getElementById(formId);
+            if (!form) return;
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var success = document.getElementById(successId);
+                var email = document.getElementById(emailId);
+                var btn = form.querySelector('button[type="submit"]');
+                if (success) success.classList.remove('hidden');
+                if (email) email.disabled = true;
+                if (btn) { btn.disabled = true; btn.textContent = 'Subscribed!'; }
+            });
+        }
+
+        bindNewsletter('sidebarNewsletterForm', 'sidebarNewsletterSuccess', 'sidebarNewsletterEmail');
+        bindNewsletter('mobileNewsletterForm', 'mobileNewsletterSuccess', 'mobileNewsletterEmail');
+    </script>
 </body>
 
 </html>

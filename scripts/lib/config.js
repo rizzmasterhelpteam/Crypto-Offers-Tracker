@@ -21,7 +21,12 @@ module.exports = {
     HISTORY_PATH: path.join(ADMIN_DIR, 'history.json'),
     NEWS_CACHE_PATH: path.join(ADMIN_DIR, 'cache-news.json'),
     TRENDING_CACHE_PATH: path.join(ADMIN_DIR, 'cache-trending.json'),
-    CACHE_TTL_MS: 4 * 60 * 60 * 1000, // 4-hour TTL for external API caches
+    CACHE_TTL_MS: 4 * 60 * 60 * 1000,
+
+    // Manual Approval Gate settings
+    REQUIRE_APPROVAL: true,
+    APPROVALS_PATH: path.join(ADMIN_DIR, 'approvals.json'),
+    AUTO_PUSH: false,
 
     // 2026 PROJECT KNOWLEDGE: SOURCE OF TRUTH
     PROJECT_KNOWLEDGE: {

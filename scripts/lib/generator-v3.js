@@ -360,7 +360,9 @@ function assembleFullHtml(title, bodyHtml, personaKey = 'RET') {
         .replace(/{{DATE}}/g, config.CURRENT_DATE)
         .replace(/{{AUTHOR_NAME}}/g, config.AUTHOR.name)
         .replace(/{{CATEGORY}}/g, category)
-        .replace(/{{CATEGORY_BADGE}}/g, badge);
+        .replace(/{{CATEGORY_BADGE}}/g, badge)
+        .replace(/href="style\.css"/g, 'href="../../style.css"')
+        .replace(/src="\.\.\/assets\//g, 'src="../../../assets/');
 }
 
 module.exports = {

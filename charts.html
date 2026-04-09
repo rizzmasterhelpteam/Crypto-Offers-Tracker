@@ -119,6 +119,22 @@
             background: rgba(255, 255, 255, 0.02);
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.25s ease, border-color 0.25s ease;
+        }
+
+        .upcoming-item:hover {
+            background: rgba(59, 130, 246, 0.05);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .data-table tbody tr:hover td {
+            background: rgba(59, 130, 246, 0.04);
+        }
+
+        .data-table td:first-child {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
     </style>
 </head>
@@ -177,54 +193,54 @@
                     </thead>
                     <tbody id="topYearly">
                         <tr>
-                            <td><strong>Zcash</strong> (ZEC)</td>
+                            <td><span class="rank-num top3">1</span><strong>Zcash</strong> (ZEC)</td>
                             <td>$251.76</td>
-                            <td class="trend-up">+572.93%</td>
+                            <td class="trend-up"><div class="gain-cell">+572.93%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:100%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>Hyperliquid</strong> (HYPE)</td>
+                            <td><span class="rank-num top3">2</span><strong>Hyperliquid</strong> (HYPE)</td>
                             <td>$36.99</td>
-                            <td class="trend-up">+214.86%</td>
+                            <td class="trend-up"><div class="gain-cell">+214.86%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:38%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>JUST</strong> (JST)</td>
+                            <td><span class="rank-num top3">3</span><strong>JUST</strong> (JST)</td>
                             <td>$0.063</td>
-                            <td class="trend-up">+102.81%</td>
+                            <td class="trend-up"><div class="gain-cell">+102.81%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:18%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>WhiteBIT Coin</strong> (WBT)</td>
+                            <td><span class="rank-num">4</span><strong>WhiteBIT Coin</strong> (WBT)</td>
                             <td>$52.21</td>
-                            <td class="trend-up">+86.23%</td>
+                            <td class="trend-up"><div class="gain-cell">+86.23%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:15%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>Monero</strong> (XMR)</td>
+                            <td><span class="rank-num">5</span><strong>Monero</strong> (XMR)</td>
                             <td>$329.47</td>
-                            <td class="trend-up">+53.52%</td>
+                            <td class="trend-up"><div class="gain-cell">+53.52%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:9%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>OKB</strong> (OKB)</td>
+                            <td><span class="rank-num">6</span><strong>OKB</strong> (OKB)</td>
                             <td>$82.93</td>
-                            <td class="trend-up">+53.10%</td>
+                            <td class="trend-up"><div class="gain-cell">+53.10%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:9%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>PAX Gold</strong> (PAXG)</td>
+                            <td><span class="rank-num">7</span><strong>PAX Gold</strong> (PAXG)</td>
                             <td>$4,638.04</td>
-                            <td class="trend-up">+51.48%</td>
+                            <td class="trend-up"><div class="gain-cell">+51.48%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:9%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>Tether Gold</strong> (XAUT)</td>
+                            <td><span class="rank-num">8</span><strong>Tether Gold</strong> (XAUT)</td>
                             <td>$4,620.64</td>
-                            <td class="trend-up">+51.41%</td>
+                            <td class="trend-up"><div class="gain-cell">+51.41%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:9%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>Bitcoin Cash</strong> (BCH)</td>
+                            <td><span class="rank-num">9</span><strong>Bitcoin Cash</strong> (BCH)</td>
                             <td>$434.93</td>
-                            <td class="trend-up">+46.03%</td>
+                            <td class="trend-up"><div class="gain-cell">+46.03%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:8%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>Bittensor</strong> (TAO)</td>
+                            <td><span class="rank-num">10</span><strong>Bittensor</strong> (TAO)</td>
                             <td>$315.15</td>
-                            <td class="trend-up">+44.33%</td>
+                            <td class="trend-up"><div class="gain-cell">+44.33%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:8%"></div></div></div></td>
                         </tr>
                     </tbody>
                 </table>
@@ -242,54 +258,54 @@
                     </thead>
                     <tbody id="topMonthly">
                         <tr>
-                            <td><strong>MemeCore</strong> (M)</td>
+                            <td><span class="rank-num top3">1</span><strong>MemeCore</strong> (M)</td>
                             <td>$2.76</td>
-                            <td class="trend-up">+83.83%</td>
+                            <td class="trend-up"><div class="gain-cell">+83.83%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:100%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>Bittensor</strong> (TAO)</td>
+                            <td><span class="rank-num top3">2</span><strong>Bittensor</strong> (TAO)</td>
                             <td>$315.15</td>
-                            <td class="trend-up">+79.05%</td>
+                            <td class="trend-up"><div class="gain-cell">+79.05%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:94%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>Artificial Superintelligence Alliance</strong> (FET)</td>
+                            <td><span class="rank-num top3">3</span><strong>ASI Alliance</strong> (FET)</td>
                             <td>$0.236</td>
-                            <td class="trend-up">+62.51%</td>
+                            <td class="trend-up"><div class="gain-cell">+62.51%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:75%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>Algorand</strong> (ALGO)</td>
+                            <td><span class="rank-num">4</span><strong>Algorand</strong> (ALGO)</td>
                             <td>$0.125</td>
-                            <td class="trend-up">+48.83%</td>
+                            <td class="trend-up"><div class="gain-cell">+48.83%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:58%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>Render</strong> (RENDER)</td>
+                            <td><span class="rank-num">5</span><strong>Render</strong> (RENDER)</td>
                             <td>$1.92</td>
-                            <td class="trend-up">+43.53%</td>
+                            <td class="trend-up"><div class="gain-cell">+43.53%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:52%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>JUST</strong> (JST)</td>
+                            <td><span class="rank-num">6</span><strong>JUST</strong> (JST)</td>
                             <td>$0.063</td>
-                            <td class="trend-up">+29.86%</td>
+                            <td class="trend-up"><div class="gain-cell">+29.86%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:36%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>Hyperliquid</strong> (HYPE)</td>
+                            <td><span class="rank-num">7</span><strong>Hyperliquid</strong> (HYPE)</td>
                             <td>$36.99</td>
-                            <td class="trend-up">+20.51%</td>
+                            <td class="trend-up"><div class="gain-cell">+20.51%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:24%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>Zcash</strong> (ZEC)</td>
+                            <td><span class="rank-num">8</span><strong>Zcash</strong> (ZEC)</td>
                             <td>$251.76</td>
-                            <td class="trend-up">+20.34%</td>
+                            <td class="trend-up"><div class="gain-cell">+20.34%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:24%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>Quant</strong> (QNT)</td>
+                            <td><span class="rank-num">9</span><strong>Quant</strong> (QNT)</td>
                             <td>$75.28</td>
-                            <td class="trend-up">+13.78%</td>
+                            <td class="trend-up"><div class="gain-cell">+13.78%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:16%"></div></div></div></td>
                         </tr>
                         <tr>
-                            <td><strong>TRON</strong> (TRX)</td>
+                            <td><span class="rank-num">10</span><strong>TRON</strong> (TRX)</td>
                             <td>$0.317</td>
-                            <td class="trend-up">+11.86%</td>
+                            <td class="trend-up"><div class="gain-cell">+11.86%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:14%"></div></div></div></td>
                         </tr>
                     </tbody>
                 </table>

@@ -796,3 +796,169 @@ footer p {
         display: none;
     }
 }
+
+/* ============================
+   STATUS BADGE (used in charts)
+   ============================ */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    background: rgba(59, 130, 246, 0.1);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    white-space: nowrap;
+}
+
+/* ============================
+   CATEGORY FILTER TABS (blog)
+   ============================ */
+.filter-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.filter-tab {
+    padding: 8px 18px;
+    border-radius: 100px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    backdrop-filter: var(--glass-blur);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: 'Inter', sans-serif;
+}
+
+.filter-tab:hover {
+    border-color: rgba(139, 92, 246, 0.4);
+    color: var(--text-primary);
+}
+
+.filter-tab.active {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(139, 92, 246, 0.3);
+}
+
+/* ============================
+   POST COUNT
+   ============================ */
+.post-count {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+/* ============================
+   READING TIME
+   ============================ */
+.reading-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+}
+
+/* ============================
+   NEWSLETTER SUCCESS STATE
+   ============================ */
+.newsletter-success {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 10px 0 0;
+    letter-spacing: 0.01em;
+}
+
+/* ============================
+   MOBILE NEWSLETTER (visible < 1024px)
+   ============================ */
+.mobile-newsletter {
+    display: none;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    border-radius: 24px;
+    padding: 32px;
+    color: #fff;
+    margin-top: 48px;
+}
+
+.mobile-newsletter h4 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.mobile-newsletter p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.95rem;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 1024px) {
+    .mobile-newsletter {
+        display: block;
+    }
+}
+
+/* ============================
+   GAIN BAR (used in charts)
+   ============================ */
+.gain-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.gain-bar-wrap {
+    height: 5px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 3px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 80px;
+}
+
+.gain-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #10b981, #3b82f6);
+}
+
+/* ============================
+   RANK NUMBER IN TABLE
+   ============================ */
+.rank-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.rank-num.top3 {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.1));
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+}
