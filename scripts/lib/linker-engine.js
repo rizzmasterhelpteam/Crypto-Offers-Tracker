@@ -50,7 +50,7 @@ async function processBlog(html, historyObj, currentFilename) {
 
     const systemPrompt = `You are a Senior SEO Strategist.
 TASK: Find exactly 6-8 SEMANTIC link placements.
-LIBRARY: ${JSON.stringify(internalLibrary.slice(0, 15))}
+LIBRARY: ${JSON.stringify(internalLibrary.slice(-15))}
 VERIFIED DOMAINS: ${config.TRUSTED_DOMAINS.join(', ')}
 
 RULES:
@@ -73,7 +73,12 @@ RULES:
         for (const link of sortedLinks) {
             const { phrase, url, type } = link;
             if (usedUrls.has(url)) continue;
-            if (type === 'external' && !(await isValidUrl(url))) continue;
+            if (type === 'external') {
+                // Reject links not on the trusted domain whitelist
+                const isTrusted = config.TRUSTED_DOMAINS.some(d => url.includes(d));
+                if (!isTrusted) { console.log(`[Linker] Skipping untrusted domain: ${url}`); continue; }
+                if (!(await isValidUrl(url))) continue;
+            }
 
             const escapedText = phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             const regex = new RegExp(`(?<!<a[^>]*?>)(?<!<h[1-6][^>]*?>)${escapedText}(?![^<]*?</a>)(?![^<]*?</h[1-6]>)`, 'i');
@@ -88,7 +93,7 @@ RULES:
                 usedUrls.add(url);
             }
         }
-        return linkedHtml + '\n<!-- seo-linked: true -->';
+        return linkedHtml.replace('</body>', '<!-- seo-linked: true -->\n</body>');
     } catch (e) {
         console.error(`[Linker] FAILED: ${e.message}`);
         return html;
