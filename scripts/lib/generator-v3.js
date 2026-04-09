@@ -43,8 +43,8 @@ async function callGroq(messages, model, temperature = 0.5, maxTokensOverride = 
     if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not set.");
 
     const max_tokens = maxTokensOverride || MODEL_MAX_TOKENS[model] || 4000;
-    let retries = 5;
-    let delay = 10000;
+    let retries = 8;
+    let delay = 15000;
 
     while (retries > 0) {
         try {
@@ -73,12 +73,16 @@ async function callGroq(messages, model, temperature = 0.5, maxTokensOverride = 
             }
             return data.choices[0].message.content.trim();
         } catch (err) {
-            if (retries <= 1) throw err;
+            if (retries <= 1) {
+                console.error(`[Groq] Final Error: ${err.message}`);
+                return null; // Return null on total failure
+            }
             console.log(`[Network Error] ${err.message}. Retrying...`);
             await new Promise(r => setTimeout(r, 2000));
             retries--;
         }
     }
+    return null;
 }
 
 /**
@@ -119,6 +123,11 @@ OUTPUT RULES (CRITICAL):
         { role: 'user', content: `TRENDING CONTEXT:\n${trendingContext}` }
     ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.8);
 
+    if (!raw) {
+        console.warn(`[Step 1] Discovery failed (Rate limit or API error). Choosing random fallback...`);
+        return config.RESEARCH_SEEDS[Math.floor(Math.random() * config.RESEARCH_SEEDS.length)];
+    }
+
     // Strip any AI formatting artifacts from the response
     const cleaned = raw
         .replace(/<think>[\s\S]*?<\/think>/gi, '')  // safety: strip CoT blocks
@@ -152,6 +161,11 @@ RULES:
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `KEYWORD: ${keyword}\n\nSOURCE CONTEXT:\n${sourceContext.slice(0, 800)}` }
     ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.7, 80);
+
+    if (!raw) {
+        console.warn(`[Step 1.5] Title generation failed. Using default.`);
+        return `${keyword}: 2026 Technical Report & Alpha Insights`;
+    }
 
     const title = raw
         .replace(/<think>[\s\S]*?<\/think>/gi, '')
@@ -258,10 +272,14 @@ ${sourceText}`;
         { role: 'user', content: `Draft the full 800-word technical report for: "${keyword}" targeting the ${persona.name} audience.` }
     ], 'openai/gpt-oss-120b', 0.7, 4000);
 
+    if (!rawDraft) {
+        throw new Error(`[Step 2] FAILED: API return null (Rate limit exceeded).`);
+    }
+
     const draft = rawDraft.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
 
     if (!draft || draft.length < 500) {
-        throw new Error(`[Step 2] FAILED: Draft was too short or empty (${draft?.length || 0} chars). Model may have refused or returned CoT only.`);
+        throw new Error(`[Step 2] FAILED: Draft was too short or empty (${draft?.length || 0} chars).`);
     }
 
     return {
@@ -361,8 +379,8 @@ function assembleFullHtml(title, bodyHtml, personaKey = 'RET') {
         .replace(/{{AUTHOR_NAME}}/g, config.AUTHOR.name)
         .replace(/{{CATEGORY}}/g, category)
         .replace(/{{CATEGORY_BADGE}}/g, badge)
-        .replace(/href="style\.css"/g, 'href="../../../style.css"')
-        .replace(/src="\.\.\/assets\//g, 'src="../../../../assets/');
+        .replace(/href="style\.css"/g, 'href="../../style.css"')
+        .replace(/src="\.\.\/assets\//g, 'src="../../../assets/');
 }
 
 module.exports = {
