@@ -42,21 +42,38 @@ async function isValidUrl(url) {
     }
 }
 
+// Generic editorial/UI phrases that must never be used as link anchors
+const BANNED_ANCHOR_PHRASES = new Set([
+    'bottom line', 'pro tips', 'pro tip', 'key takeaways', 'key takeaway',
+    'final thoughts', 'in conclusion', 'to summarize', 'wrapping up',
+    'read more', 'learn more', 'click here', 'check it out', 'find out more',
+    'stay ahead', 'going forward', 'at the end of the day', 'the bottom line',
+    'worth noting', 'it is worth', 'that said', 'with that said',
+    'analyst note', 'quick note', 'important note', 'keep in mind',
+    'the future', 'moving forward', 'in practice', 'in summary'
+]);
+
 async function processBlog(html, historyObj, currentFilename) {
     console.log(`[Linker] Analyzing context for semantic placements...`);
     const internalLibrary = Object.entries(historyObj)
         .filter(([file]) => file !== currentFilename)
         .map(([file, keyword]) => ({ keyword, url: `/blog/${file}` }));
 
-    const systemPrompt = `You are a Senior SEO Strategist.
-TASK: Find exactly 6-8 SEMANTIC link placements.
-LIBRARY: ${JSON.stringify(internalLibrary.slice(-15))}
-VERIFIED DOMAINS: ${config.TRUSTED_DOMAINS.join(', ')}
+    const systemPrompt = `You are a Senior SEO Strategist for a crypto technical blog.
+TASK: Find exactly 6-8 link placements in the article. Choose anchors that are CRYPTO/PROTOCOL-SPECIFIC terms only.
 
-RULES:
-1. SEMANTIC ANCHORS: Link a meaningful phrase (2-5 words).
-2. DIVERSITY: Do not link to the same URL more than once.
-3. FORMAT: Output JSON object: {"links": [{"phrase": "...", "url": "...", "type": "internal|external"}]}`;
+LIBRARY (internal posts): ${JSON.stringify(internalLibrary.slice(-15))}
+VERIFIED DOMAINS (external): ${config.TRUSTED_DOMAINS.join(', ')}
+
+ANCHOR RULES — CRITICAL:
+- ONLY link specific crypto terms: protocol names, mechanisms, metrics (e.g. "EigenLayer AVS restaking", "Starknet parallel execution", "JitoSOL MEV yield")
+- NEVER link generic editorial phrases like "bottom line", "pro tips", "key takeaways", "final thoughts", "in conclusion", "read more", "learn more", "it is worth noting"
+- NEVER link navigation copy or calls-to-action
+- Anchors must be 2-5 words and must appear verbatim in the article text
+- DIVERSITY: Do not link to the same URL more than once
+- For external links, only use URLs from VERIFIED DOMAINS
+
+FORMAT: Output JSON object: {"links": [{"phrase": "...", "url": "...", "type": "internal|external"}]}`;
 
     try {
         const result = await callGroq([
@@ -73,6 +90,10 @@ RULES:
         for (const link of sortedLinks) {
             const { phrase, url, type } = link;
             if (usedUrls.has(url)) continue;
+            if (BANNED_ANCHOR_PHRASES.has(phrase.toLowerCase().trim())) {
+                console.log(`[Linker] Skipping banned anchor: "${phrase}"`);
+                continue;
+            }
             if (type === 'external') {
                 // Reject links not on the trusted domain whitelist
                 const isTrusted = config.TRUSTED_DOMAINS.some(d => url.includes(d));
