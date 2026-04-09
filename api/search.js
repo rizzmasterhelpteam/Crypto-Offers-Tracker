@@ -42,6 +42,7 @@ export default async function handler(req, res) {
     try {
         // Fetch news for context to improve currency/accuracy
         const newsResponse = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
+        if (!newsResponse.ok) throw new Error(`News API error: ${newsResponse.status}`);
         const newsData = await newsResponse.json();
 
         // Safety check: Ensure newsData.Data exists and is an array

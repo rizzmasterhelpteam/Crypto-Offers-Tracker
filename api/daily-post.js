@@ -38,6 +38,9 @@ export default async function handler(req, res) {
         if (!trendingResponse.ok) throw new Error('CoinGecko API busy');
 
         const trendingData = await trendingResponse.json();
+        if (!trendingData || !Array.isArray(trendingData.coins)) {
+            throw new Error('Unexpected CoinGecko response format');
+        }
         const trendingCoins = trendingData.coins.slice(0, 5).map(c => c.item.name).join(', ');
 
         const today = new Date().toISOString().split('T')[0];
@@ -76,6 +79,9 @@ Write a concise technical blog post analyzing what's driving these moves. Includ
         }
 
         const data = await groqResponse.json();
+        if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+            return res.status(500).json({ error: 'Unexpected response format from Groq API', detail: data });
+        }
         const content = data.choices[0].message.content;
 
         const result = {

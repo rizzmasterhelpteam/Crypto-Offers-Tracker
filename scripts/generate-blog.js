@@ -241,7 +241,12 @@ async function run() {
         }
 
         const finalHtml = generator.assembleFullHtml(generatedTitle || selectedKeyword, content, personaKey);
-        fs.writeFileSync(fullPath, finalHtml);
+        try {
+            fs.writeFileSync(fullPath, finalHtml);
+        } catch (writeErr) {
+            console.error(`[Flow] Failed to write blog file at ${fullPath}: ${writeErr.message}`);
+            throw writeErr;
+        }
 
         historyObj[relativeFileName] = selectedKeyword;
         fs.writeFileSync(config.HISTORY_PATH, JSON.stringify(historyObj, null, 4));
@@ -252,8 +257,8 @@ async function run() {
             try { approvals = JSON.parse(fs.readFileSync(config.APPROVALS_PATH, 'utf8')); } catch (e) { approvals = {}; }
         }
 
-        approvals[fileName] = {
-            title: displayTitle,
+        approvals[relativeFileName] = {
+            title: generatedTitle || selectedKeyword,
             subject: selectedKeyword,
             date: today,
             approved: false,

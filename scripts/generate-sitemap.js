@@ -5,10 +5,18 @@ const BASE_URL = 'https://crypto-offers.vercel.app';
 const PROJECT_ROOT = path.join(__dirname, '..');
 const BLOG_DIR = path.join(PROJECT_ROOT, 'blog');
 
-function getFiles(dir, extension) {
-    if (!fs.existsSync(dir)) return [];
-    return fs.readdirSync(dir)
-        .filter(file => file.endsWith(extension));
+function getHtmlFilesRecursive(dir, base, results = []) {
+    if (!fs.existsSync(dir)) return results;
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            getHtmlFilesRecursive(fullPath, base, results);
+        } else if (entry.name.endsWith('.html') && !['index.html', 'template.html'].includes(entry.name)) {
+            results.push({ fullPath, relPath: path.relative(base, fullPath).replace(/\\/g, '/') });
+        }
+    }
+    return results;
 }
 
 function generateSitemap() {
@@ -24,16 +32,19 @@ function generateSitemap() {
         { url: '/terms.html', priority: '0.3', changefreq: 'monthly' }
     ];
 
-    const blogPosts = getFiles(BLOG_DIR, '.html')
-        .filter(file => file !== 'index.html' && file !== 'template.html')
-        .map(file => {
-            const filePath = path.join(BLOG_DIR, file);
-            const stats = fs.statSync(filePath);
+    const blogPosts = getHtmlFilesRecursive(BLOG_DIR, BLOG_DIR)
+        .map(({ fullPath, relPath }) => {
+            let lastmod;
+            try {
+                lastmod = fs.statSync(fullPath).mtime.toISOString().split('T')[0];
+            } catch (_) {
+                lastmod = new Date().toISOString().split('T')[0];
+            }
             return {
-                url: `/blog/${file}`,
+                url: `/blog/${relPath}`,
                 priority: '0.7',
                 changefreq: 'monthly',
-                lastmod: stats.mtime.toISOString().split('T')[0]
+                lastmod
             };
         });
 

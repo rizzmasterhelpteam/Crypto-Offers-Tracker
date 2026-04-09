@@ -106,13 +106,16 @@ function syncBlogIndex() {
     let indexHtml = fs.readFileSync(config.INDEX_PATH, 'utf8');
     const startMarker = '<div class="post-list" id="postList">';
     const endMarker = '<!-- POST_ITEM_TEMPLATE -->';
-    const startIndex = indexHtml.indexOf(startMarker) + startMarker.length;
+    const startMarkerPos = indexHtml.indexOf(startMarker);
     const endIndex = indexHtml.indexOf(endMarker);
 
-    if (startIndex > -1 && endIndex > -1) {
-        indexHtml = indexHtml.substring(0, startIndex) + postEntries + '\n            ' + indexHtml.substring(endIndex);
-        fs.writeFileSync(config.INDEX_PATH, indexHtml);
+    if (startMarkerPos === -1 || endIndex === -1) {
+        console.warn('[Utils] Could not find post list markers in blog/index.html — skipping index sync.');
+        return;
     }
+    const startIndex = startMarkerPos + startMarker.length;
+    indexHtml = indexHtml.substring(0, startIndex) + postEntries + '\n            ' + indexHtml.substring(endIndex);
+    fs.writeFileSync(config.INDEX_PATH, indexHtml);
 }
 
 module.exports = {

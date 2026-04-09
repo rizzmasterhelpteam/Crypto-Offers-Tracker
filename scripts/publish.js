@@ -30,12 +30,15 @@ async function publish() {
                 // 2. Git Operations
                 if (fs.existsSync('.git')) {
                     console.log(`   - Pushing to GitHub...`);
-                    execSync(`git add blog/${fileName} blog/index.html admin/history.json`, { stdio: 'inherit' });
-                    execSync(`git commit -m "Publish: ${entry.title}"`, { stdio: 'inherit' });
+                    // fileName here is the key from approvals.json which is the relative path
+                    // e.g. "2026-04/09/slug.html" — git add needs the full blog/ prefix
+                    execSync(`git add "blog/${fileName}" blog/index.html admin/history.json`, { stdio: 'inherit' });
+                    // Use stdio array to avoid shell interpretation of title characters
+                    execSync('git commit -m ' + JSON.stringify(`Publish: ${entry.title}`), { stdio: 'inherit', shell: true });
                     execSync(`git push origin main`, { stdio: 'inherit' });
                 }
 
-                // 3. Mark as Pushed
+                // 3. Mark as Pushed (after successful git push)
                 entry.pushed = true;
                 count++;
             } catch (err) {
