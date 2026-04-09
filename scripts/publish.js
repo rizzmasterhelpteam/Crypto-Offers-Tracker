@@ -4,55 +4,49 @@ const { execSync } = require('child_process');
 const config = require('./lib/config');
 const utils = require('./lib/utils');
 
-async function publish() {
-    console.log(`🚀 PUBLISHING APPROVED CONTENT...`);
+async function syncAndDeploy() {
+    console.log(`🚀 STARTING MANUAL BATCH SYNC & DEPLOY...`);
 
-    if (!fs.existsSync(config.APPROVALS_PATH)) {
-        console.log(`❌ No approvals registry found at ${config.APPROVALS_PATH}`);
-        return;
-    }
+    try {
+        // 1. Sync Sitemap/Index (Deep scan of directories)
+        console.log(`[1/4] Scanning blog folders and updating index.html...`);
+        utils.syncBlogIndex();
+        console.log(`✅ Index synchronized.`);
 
-    const approvals = JSON.parse(fs.readFileSync(config.APPROVALS_PATH, 'utf8'));
-    const files = Object.keys(approvals);
-    let count = 0;
+        // 2. Git Operations
+        const gitDir = path.join(config.ADMIN_DIR, '..', '.git');
+        if (fs.existsSync(gitDir)) {
+            console.log(`[2/4] Staging changes for GitHub...`);
+            execSync(`git add blog/ admin/history.json admin/usage.log`, { stdio: 'inherit' });
 
-    for (const fileName of files) {
-        const entry = approvals[fileName];
-
-        if (entry.approved && !entry.pushed) {
-            console.log(`[Publishing] ${fileName} ("${entry.title}")...`);
-
+            console.log(`[3/4] Integrating remote changes...`);
             try {
-                // 1. Sync Index (Local)
-                utils.syncBlogIndex();
-                console.log(`   - Index synced.`);
-
-                // 2. Git Operations
-                if (fs.existsSync('.git')) {
-                    console.log(`   - Pushing to GitHub...`);
-                    // fileName here is the key from approvals.json which is the relative path
-                    // e.g. "2026-04/09/slug.html" — git add needs the full blog/ prefix
-                    execSync(`git add "blog/${fileName}" blog/index.html admin/history.json`, { stdio: 'inherit' });
-                    // Use stdio array to avoid shell interpretation of title characters
-                    execSync('git commit -m ' + JSON.stringify(`Publish: ${entry.title}`), { stdio: 'inherit', shell: true });
-                    execSync(`git push origin main`, { stdio: 'inherit' });
-                }
-
-                // 3. Mark as Pushed (after successful git push)
-                entry.pushed = true;
-                count++;
-            } catch (err) {
-                console.error(`   ❌ Failed to publish ${fileName}:`, err.message);
+                execSync(`git pull origin main --no-rebase`, { stdio: 'inherit' });
+            } catch (pullErr) {
+                console.warn(`⚠️  Pull resulted in conflicts or needs attention. Proceeding with commit...`);
             }
-        }
-    }
 
-    if (count > 0) {
-        fs.writeFileSync(config.APPROVALS_PATH, JSON.stringify(approvals, null, 4));
-        console.log(`\n🎉 Successfully published ${count} new blog(s).`);
-    } else {
-        console.log(`\n😴 No newly approved content found. (Check "approved": true in admin/approvals.json)`);
+            console.log(`[4/4] Committing and Pushing...`);
+            const commitMsg = `Publish: Batch update ${new Date().toISOString().split('T')[0]}`;
+            try {
+                execSync(`git commit -m "${commitMsg}"`, { stdio: 'inherit' });
+                execSync(`git push origin main`, { stdio: 'inherit' });
+                console.log(`\n🎉 Successfully synced and pushed to GitHub.`);
+            } catch (pushErr) {
+                if (pushErr.message.includes('nothing to commit')) {
+                    console.log(`\n😴 No new changes were identified for commit.`);
+                } else {
+                    console.error(`\n❌ Push failed:`, pushErr.message);
+                }
+            }
+        } else {
+            console.log(`\n⚠️  No .git repository found. Skipping push.`);
+        }
+
+    } catch (err) {
+        console.error(`\n❌ CRITICAL ERROR during sync:`, err.message);
+        process.exit(1);
     }
 }
 
-publish();
+syncAndDeploy();

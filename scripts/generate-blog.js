@@ -251,31 +251,8 @@ async function run() {
         historyObj[relativeFileName] = selectedKeyword;
         fs.writeFileSync(config.HISTORY_PATH, JSON.stringify(historyObj, null, 4));
 
-        // Register in Approvals Queue
-        let approvals = {};
-        if (fs.existsSync(config.APPROVALS_PATH)) {
-            try { approvals = JSON.parse(fs.readFileSync(config.APPROVALS_PATH, 'utf8')); } catch (e) { approvals = {}; }
-        }
-
-        approvals[relativeFileName] = {
-            title: generatedTitle || selectedKeyword,
-            subject: selectedKeyword,
-            date: today,
-            approved: false,
-            pushed: false
-        };
-        fs.writeFileSync(config.APPROVALS_PATH, JSON.stringify(approvals, null, 4));
-
-        if (config.REQUIRE_APPROVAL) {
-            console.log(`\n⚠️  MANUAL REVIEW REQUIRED`);
-            console.log(`- Draft saved: blog/${fileName}`);
-            console.log(`- Action: Open admin/approvals.json and set "approved": true for this file.`);
-            console.log(`- Then run: node scripts/publish.js\n`);
-        } else {
-            console.log(`✅ Published: blog/${fileName}`);
-            utils.syncBlogIndex();
-            // Optional: git auto-push if configured
-        }
+        console.log(`✅ Saved: ${relativeFileName}`);
+        console.log(`- Note: Sitemap/Index will NOT update until you run "node scripts/publish.js"`);
 
         console.log(`[Flow] Pipeline complete.`);
         console.log(`[Cooldown] Waiting 60 seconds...`);

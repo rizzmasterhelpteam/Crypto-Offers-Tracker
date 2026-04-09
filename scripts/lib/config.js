@@ -24,7 +24,7 @@ module.exports = {
     CACHE_TTL_MS: 4 * 60 * 60 * 1000,
 
     // Manual Approval Gate settings
-    REQUIRE_APPROVAL: true,
+    REQUIRE_APPROVAL: false,
     APPROVALS_PATH: path.join(ADMIN_DIR, 'approvals.json'),
     AUTO_PUSH: false,
 
