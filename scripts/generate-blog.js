@@ -193,31 +193,54 @@ async function run() {
         content = autoFixStructure(content);
 
         // Final assembly
-        const today = config.CURRENT_DATE;
-        const displayTitle = generatedTitle || selectedKeyword;
+        // Phase 6: Deep Hierarchical Storage & Persistence
+        const today = config.CURRENT_DATE; // e.g., 2026-04-09
+        const yearMonth = today.substring(0, 7); // 2026-04
+        const day = today.substring(8, 10);     // 09
+
         const slug = selectedKeyword.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-        const year = today.split('-')[0];
-        const month = today.split('-')[1];
-        const day = today.split('-')[2];
-        const nestedDir = path.join(config.BLOG_DIR, year, month);
 
-        if (!fs.existsSync(nestedDir)) {
-            fs.mkdirSync(nestedDir, { recursive: true });
+        // Check for existing blog to maintain path stability
+        let existingRelPath = null;
+        function scanDir(dir) {
+            const items = fs.readdirSync(dir, { withFileTypes: true });
+            for (const item of items) {
+                const res = path.resolve(dir, item.name);
+                if (item.isDirectory()) {
+                    const found = scanDir(res);
+                    if (found) return found;
+                } else if (item.name.endsWith(`-${slug}.html`) || item.name === `${slug}.html`) {
+                    return path.relative(config.BLOG_DIR, res).replace(/\\/g, '/');
+                }
+            }
+            return null;
         }
 
-        let fileName = `${day}-${slug}.html`;
-        let relativeFileName = path.join(year, month, fileName).replace(/\\/g, '/');
-        let fullPath = path.join(nestedDir, fileName);
+        existingRelPath = scanDir(config.BLOG_DIR);
 
-        let counter = 1;
-        while (fs.existsSync(fullPath)) {
-            fileName = `${day}-${slug}-v${counter++}.html`;
-            relativeFileName = path.join(year, month, fileName).replace(/\\/g, '/');
+        let relativeFileName, fullPath, fileName;
+        if (existingRelPath) {
+            console.log(`[Persistence] Existing blog found: ${existingRelPath}. Staying in original folder.`);
+            relativeFileName = existingRelPath;
+            fullPath = path.join(config.BLOG_DIR, relativeFileName);
+            fileName = path.basename(fullPath);
+        } else {
+            const nestedDir = path.join(config.BLOG_DIR, yearMonth, day);
+            if (!fs.existsSync(nestedDir)) fs.mkdirSync(nestedDir, { recursive: true });
+
+            fileName = `${slug}.html`; // Simplified filename since date is in folder
+            relativeFileName = path.join(yearMonth, day, fileName).replace(/\\/g, '/');
             fullPath = path.join(nestedDir, fileName);
+
+            let counter = 1;
+            while (fs.existsSync(fullPath)) {
+                fileName = `${slug}-v${counter++}.html`;
+                relativeFileName = path.join(yearMonth, day, fileName).replace(/\\/g, '/');
+                fullPath = path.join(nestedDir, fileName);
+            }
         }
 
-        const finalHtml = generator.assembleFullHtml(displayTitle, content, personaKey);
-
+        const finalHtml = generator.assembleFullHtml(generatedTitle || selectedKeyword, content, personaKey);
         fs.writeFileSync(fullPath, finalHtml);
 
         historyObj[relativeFileName] = selectedKeyword;

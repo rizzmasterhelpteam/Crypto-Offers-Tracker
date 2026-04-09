@@ -67,15 +67,14 @@ function syncBlogIndex() {
             ? titleMatch[1].replace(/ \| crypto offers.*$/i, '').replace(/^["']+|["']+$/g, '').trim()
             : file;
 
-        // Extract date from content or filename (DD-slug.html)
+        // Extract date from content or filename (YYYY-MM/DD/slug.html)
         let date = 'Recent';
         if (dateMatch) {
             date = dateMatch[1];
-        } else if (file.match(/^\d{2}-/)) {
-            // If file is 09-slug.html, we need the parent YYYY/MM
-            const parts = file.split('/');
+        } else {
+            const parts = file.split('/'); // 2026-04/09/slug.html
             if (parts.length >= 3) {
-                date = `${parts[0]}-${parts[1]}-${parts[2].split('-')[0]}`;
+                date = `${parts[0]}-${parts[1]}`; // This should be parts[0] is YYYY-MM, parts[1] is DD
             }
         }
 
