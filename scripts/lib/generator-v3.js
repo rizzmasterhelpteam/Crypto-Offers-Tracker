@@ -359,7 +359,7 @@ OUTPUT ONLY: The corrected HTML article body.`;
  */
 function assembleFullHtml(title, bodyHtml, personaKey = 'RET') {
     console.log(`[Utils] Assembling UI for ${personaKey}...`);
-    const template = fs.readFileSync('blog/template.html', 'utf8');
+    const template = fs.readFileSync(config.TEMPLATE_PATH, 'utf8');
     const description = bodyHtml.replace(/<[^>]+>/g, '').slice(0, 160).trim() + "...";
 
     // Dynamic metadata from Persona

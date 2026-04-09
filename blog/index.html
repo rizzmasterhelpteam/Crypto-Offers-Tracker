@@ -56,7 +56,7 @@
                     <button class="filter-tab active" data-filter="all">All</button>
                     <button class="filter-tab" data-filter="Protocol Alpha">Protocol Alpha</button>
                     <button class="filter-tab" data-filter="Deep Tech">Deep Tech</button>
-                    <button class="filter-tab" data-filter="Market Analysis">Market Analysis</button>
+                    <button class="filter-tab" data-filter="Education">Education</button>
                 </div>
                 <p class="post-count" id="postCount"></p>
                 <div class="post-list" id="postList">
@@ -164,10 +164,11 @@
                     tabs.forEach(function (t) { t.classList.remove('active'); });
                     tab.classList.add('active');
                     var filter = tab.dataset.filter;
+                    var filterNorm = filter === 'all' ? 'all' : filter.toLowerCase().replace(/\s+/g, '-');
                     var visible = 0;
                     cards.forEach(function (card) {
                         var cat = card.dataset.category || '';
-                        var show = filter === 'all' || cat === filter;
+                        var show = filterNorm === 'all' || cat === filterNorm;
                         card.style.display = show ? '' : 'none';
                         if (show) visible++;
                     });

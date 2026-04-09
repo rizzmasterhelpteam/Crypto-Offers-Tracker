@@ -83,6 +83,7 @@ async function fetchUpcomingProjects() {
             },
             body: JSON.stringify({
                 model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+                max_tokens: 1000,
                 messages: [
                     {
                         role: 'system',
@@ -107,11 +108,12 @@ Do NOT list these as "upcoming" — they are already live. Focus on genuinely pr
         });
 
         const data = await groqResponse.json();
+        if (!data.choices?.[0]?.message) throw new Error(`Unexpected Groq response: ${JSON.stringify(data)}`);
         let raw = data.choices[0].message.content;
         // Strip markdown code blocks if present
         raw = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
         const content = JSON.parse(raw);
-        return content.projects || Object.values(content)[0] || [];
+        return Array.isArray(content) ? content : (content.projects || Object.values(content)[0] || []);
     } catch (err) {
         console.error("Error fetching upcoming projects with AI:", err);
         return [];
@@ -119,14 +121,18 @@ Do NOT list these as "upcoming" — they are already live. Focus on genuinely pr
 }
 
 function formatTableRows(data, key) {
-    return data.map(c => {
+    const maxChange = Math.max(...data.map(c => Math.abs(c[key] || 0)));
+    return data.map((c, i) => {
         const change = c[key];
         const colorClass = change >= 0 ? 'trend-up' : 'trend-down';
         const sign = change >= 0 ? '+' : '';
+        const barWidth = maxChange > 0 ? Math.round((Math.abs(change) / maxChange) * 100) : 0;
+        const rankClass = i < 3 ? 'rank-num top3' : 'rank-num';
+        const price = c.current_price != null ? `$${c.current_price.toLocaleString()}` : 'N/A';
         return `<tr>
-            <td><strong>${c.name}</strong> (${c.symbol.toUpperCase()})</td>
-            <td>$${c.current_price.toLocaleString()}</td>
-            <td class="${colorClass}">${sign}${change.toFixed(2)}%</td>
+            <td><span class="${rankClass}">${i + 1}</span><strong>${c.name}</strong> (${c.symbol.toUpperCase()})</td>
+            <td>${price}</td>
+            <td class="${colorClass}"><div class="gain-cell">${sign}${change.toFixed(2)}%<div class="gain-bar-wrap"><div class="gain-bar-fill" style="width:${barWidth}%"></div></div></div></td>
         </tr>`;
     }).join('');
 }

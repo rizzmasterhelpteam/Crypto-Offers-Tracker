@@ -71,41 +71,6 @@ function autoFixStructure(html) {
 }
 
 /**
- * Extract a clean meta description from the first <p> in content.
- */
-function extractMetaDescription(title, content) {
-    const match = content.match(/<p>([\s\S]*?)<\/p>/);
-    if (match) {
-        let text = match[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-        // If meta starts with the title, strip it
-        if (text.toLowerCase().startsWith(title.toLowerCase())) {
-            text = text.slice(title.length).replace(/^[:\s\-—]+/, '').trim();
-        }
-        return text.slice(0, 155).trim() + (text.length > 155 ? '...' : '');
-    }
-    return `Technical analysis of ${title} — absolute alpha on protocols, yields, and on-chain signals.`;
-}
-
-/**
- * Extract 4-6 SEO keyword phrases from takeaways bullets + h2 headings.
- */
-function extractSEOKeywords(content) {
-    const keywords = [];
-    const h2s = [...content.matchAll(/<h2[^>]*>(.*?)<\/h2>/gi)]
-        .map(m => m[1].replace(/<[^>]+>/g, '').trim())
-        .filter(t => t.length > 3 && t.length < 40);
-
-    const bullets = [...content.matchAll(/<li>(.*?)<\/li>/gi)]
-        .map(m => m[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim())
-        .filter(t => t.length > 10 && t.length < 60)
-        .map(t => t.split(/[.,;]/)[0]) // take first clause
-        .slice(0, 4);
-
-    keywords.push(...h2s.slice(0, 3), ...bullets.slice(0, 3));
-    return [...new Set(keywords)].filter(Boolean).join(', ');
-}
-
-/**
  * Load history, syncing out deleted files.
  */
 function loadHistory() {
@@ -125,17 +90,6 @@ function loadHistory() {
     }
 }
 
-/**
- * Pick category based on keyword verticals.
- */
-function pickCategory(keyword) {
-    const kw = keyword.toLowerCase();
-    if (/alpha|yield|staking|restaking|airdrop|farming|mev|liquid/i.test(kw))
-        return config.CATEGORIES.find(c => c.id === 'alpha') || config.CATEGORIES[0];
-    if (/zk|proof|prover|rollup|scaling|parallel|execution|\bda\b|data avail|modular/i.test(kw))
-        return config.CATEGORIES.find(c => c.id === 'spotlight') || config.CATEGORIES[0];
-    return config.CATEGORIES[0]; // Market Intelligence
-}
 
 async function run() {
     console.log(`\n🚀 HIGH-AUTHORITY PIPELINE v4 starting... (${config.CURRENT_DATE})`);
