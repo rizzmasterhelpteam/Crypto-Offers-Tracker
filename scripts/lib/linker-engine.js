@@ -21,6 +21,10 @@ async function callGroq(messages, model = 'meta-llama/llama-4-scout-17b-16e-inst
             response_format: { type: "json_object" }
         })
     });
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Groq API Error (${response.status}): ${errorText}`);
+    }
     const data = await response.json();
     return JSON.parse(data.choices[0].message.content.trim());
 }
