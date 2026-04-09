@@ -253,11 +253,6 @@ async function run() {
 
         console.log(`✅ Saved: ${relativeFileName}`);
 
-        // Sync blog/index.html so the new post is immediately visible
-        console.log("[Flow] Syncing blog index...");
-        utils.syncBlogIndex();
-        console.log("[Flow] Blog index synced.");
-
         console.log(`[Flow] Pipeline complete.`);
         console.log(`[Cooldown] Waiting 60 seconds...`);
         await new Promise(r => setTimeout(r, 60000));
