@@ -18,6 +18,12 @@ function getNestedHtmlFiles(dir, base, results = []) {
 
 async function run() {
     console.log(`🚀 SEO AUTO-LINKER starting...`);
+
+    if (!process.env.GROQ_API_KEY) {
+        console.error(`[Flow] GROQ_API_KEY is not set. Aborting.`);
+        process.exit(1);
+    }
+
     if (!fs.existsSync(config.HISTORY_PATH)) {
         console.log(`[Flow] History not found at ${config.HISTORY_PATH}. Skipping.`);
         return;
@@ -43,6 +49,12 @@ async function run() {
     }).sort((a, b) => (a.isProcessed !== b.isProcessed) ? (a.isProcessed ? 1 : -1) : b.mtime - a.mtime);
 
     const target = targets[0];
+
+    if (target.isProcessed) {
+        console.log(`[Flow] All posts are already SEO-linked. Nothing to do.`);
+        return;
+    }
+
     console.log(`[Flow] Target: ${target.file}`);
     const updated = await linker.processBlog(target.content, historyObj, target.file);
     try {

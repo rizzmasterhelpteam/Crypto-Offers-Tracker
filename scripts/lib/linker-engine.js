@@ -46,7 +46,7 @@ async function processBlog(html, historyObj, currentFilename) {
     console.log(`[Linker] Analyzing context for semantic placements...`);
     const internalLibrary = Object.entries(historyObj)
         .filter(([file]) => file !== currentFilename)
-        .map(([file, keyword]) => ({ keyword, url: file }));
+        .map(([file, keyword]) => ({ keyword, url: `/blog/${file}` }));
 
     const systemPrompt = `You are a Senior SEO Strategist.
 TASK: Find exactly 6-8 SEMANTIC link placements.
