@@ -55,18 +55,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://crypto-offers.vercel.app/blog/2026-04/09/monad.html</loc>
-    <lastmod>2026-04-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://crypto-offers.vercel.app/blog/2026-04/09/starknet-parallel-transaction-processing-efficiency.html</loc>
-    <lastmod>2026-04-11</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://crypto-offers.vercel.app/blog/2026-04/09/starknet-parallel-transaction-processing-techniques.html</loc>
     <lastmod>2026-04-11</lastmod>
     <changefreq>monthly</changefreq>
