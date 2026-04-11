@@ -26,6 +26,9 @@ async function callGroq(messages, model = 'meta-llama/llama-4-scout-17b-16e-inst
         throw new Error(`Groq API Error (${response.status}): ${errorText}`);
     }
     const data = await response.json();
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error('Unexpected response format from Groq API');
+    }
     return JSON.parse(data.choices[0].message.content.trim());
 }
 

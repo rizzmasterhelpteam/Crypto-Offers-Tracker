@@ -784,14 +784,14 @@
 
             <div class="search-grid" style="grid-template-columns: 1fr;">
                 <select id="searchType" aria-label="Filter offers by type" onchange="handleSearch()">
+                    <option value="all">All Types</option>
                     <option value="airdrop">🪂 Airdrops</option>
                     <option value="staking">🔒 Staking</option>
                     <option value="trading">💰 Trading</option>
                     <option value="learn">📚 Learn & Earn</option>
                     <option value="launchpad">🚀 Launchpads</option>
-                    <option value="all">All Types</option>
                 </select>
-                <button class="btn" style="margin-top:15px;" onclick="handleSearch()">🔍 Search All Daily
+                <button type="button" class="btn" style="margin-top:15px;" onclick="handleSearch()">🔍 Search All Daily
                     Offers</button>
                 <a href="/blog/" class="btn-blog">📖 Read Our Blog</a>
             </div>
@@ -1214,10 +1214,10 @@
                     ${displayDomain ? `<div class="meta-item"><span>🔗</span> <span style="color:#60a5fa;font-size:0.8rem;">${esc(displayDomain)}</span></div>` : ''}
                 </div>
                 <div class="card-actions">
-                    <button class="btn-card" data-url="${esc(offerUrl)}">
+                    <button type="button" class="btn-card" data-url="${esc(offerUrl)}">
                         🔗 View Real Offer
                     </button>
-                    <button class="btn-card" style="flex: 0 0 50px;" data-share-title="${esc(result.title)}" data-share-url="${esc(offerUrl)}">📤</button>
+                    <button type="button" class="btn-card" style="flex: 0 0 50px;" data-share-title="${esc(result.title)}" data-share-url="${esc(offerUrl)}">📤</button>
                 </div>
             `;
 

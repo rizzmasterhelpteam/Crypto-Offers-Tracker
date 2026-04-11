@@ -190,7 +190,7 @@
 
     <div class="contact-box">
         <h2>Get in Touch</h2>
-        <form class="contact-form" action="mailto:contact@cryptoofferstracker.com" method="post" enctype="text/plain">
+        <form class="contact-form" id="contactForm" onsubmit="submitContact(event)">
             <label for="contact-name">Name</label>
             <input type="text" id="contact-name" name="name" placeholder="Your name" required>
             <label for="contact-email">Email</label>
@@ -201,6 +201,17 @@
         </form>
         <p style="margin-top: 20px; font-size: 0.9rem; color: #9ca3af;">Or email us directly at: <strong>contact@cryptoofferstracker.com</strong></p>
         <p style="font-size: 0.9rem; color: #9ca3af;">We strive to respond to all inquiries within 48 hours.</p>
+        <script>
+            function submitContact(e) {
+                e.preventDefault();
+                var name = document.getElementById('contact-name').value;
+                var email = document.getElementById('contact-email').value;
+                var message = document.getElementById('contact-message').value;
+                var subject = encodeURIComponent('Contact from ' + name);
+                var body = encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\n\n' + message);
+                window.location.href = 'mailto:contact@cryptoofferstracker.com?subject=' + subject + '&body=' + body;
+            }
+        </script>
     </div>
 
     <footer class="site-footer">
