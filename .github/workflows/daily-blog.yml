@@ -1,10 +1,7 @@
-name: Twice-Daily Automated Blog Generation
+name: Generate Blog Draft
 
 on:
-  schedule:
-    # 9:00 AM IST (3:30 AM UTC), 4:00 PM IST (10:30 AM UTC) & 9:00 PM IST (3:30 PM UTC)
-    - cron: '30 3,10,15 * * *'
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+  workflow_dispatch: # Manual trigger only — generates a draft for review
 
 jobs:
   generate-blog:
@@ -20,22 +17,19 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Generate Daily Blog
+      - name: Generate Blog Draft
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: node scripts/generate-blog.js
 
-      - name: Generate Sitemap
-        run: node scripts/generate-sitemap.js
-
-      - name: Commit and Push Changes
+      - name: Commit Draft
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add .
+          git add drafts/
           if git diff --staged --quiet; then
-            echo "No changes to commit"
+            echo "No draft generated"
           else
-            git commit -m "Auto-generate daily blog post - $(date +'%Y-%m-%d')"
+            git commit -m "Draft: $(date +'%Y-%m-%d') — awaiting review"
             git push
           fi

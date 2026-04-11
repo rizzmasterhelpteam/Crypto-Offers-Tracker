@@ -7,7 +7,6 @@ const path = require('path');
 const config = require('./lib/config');
 const sources = require('./lib/sources');
 const generator = require('./lib/generator-v3');
-const linker = require('./lib/linker-engine');
 const utils = require('./lib/utils');
 
 // Known acronyms to preserve casing during title-casing
@@ -147,85 +146,30 @@ async function run() {
         console.log("[Flow] Step 6: Auto-fixing HTML structure...");
         content = autoFixStructure(content);
 
-        // Final assembly
-        // Phase 6: Deep Hierarchical Storage & Persistence
-        const today = config.CURRENT_DATE; // e.g., 2026-04-09
-        const yearMonth = today.substring(0, 7); // 2026-04
-        const day = today.substring(8, 10);     // 09
-
+        // Save as DRAFT — not published to blog yet
         const slug = selectedKeyword.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        const draftsDir = path.join(path.join(__dirname, '..'), 'drafts');
+        if (!fs.existsSync(draftsDir)) fs.mkdirSync(draftsDir, { recursive: true });
 
-        // Check for existing blog to maintain path stability
-        let existingRelPath = null;
-        function scanDir(dir) {
-            const items = fs.readdirSync(dir, { withFileTypes: true });
-            for (const item of items) {
-                const res = path.resolve(dir, item.name);
-                if (item.isDirectory()) {
-                    const found = scanDir(res);
-                    if (found) return found;
-                } else if (item.name.endsWith(`-${slug}.html`) || item.name === `${slug}.html`) {
-                    return path.relative(config.BLOG_DIR, res).replace(/\\/g, '/');
-                }
-            }
-            return null;
+        let draftFileName = `${slug}.html`;
+        let fullPath = path.join(draftsDir, draftFileName);
+        let counter = 1;
+        while (fs.existsSync(fullPath)) {
+            draftFileName = `${slug}-v${counter++}.html`;
+            fullPath = path.join(draftsDir, draftFileName);
         }
 
-        existingRelPath = scanDir(config.BLOG_DIR);
-
-        let relativeFileName, fullPath, fileName;
-        if (existingRelPath) {
-            console.log(`[Persistence] Existing blog found: ${existingRelPath}. Staying in original folder.`);
-            relativeFileName = existingRelPath;
-            fullPath = path.join(config.BLOG_DIR, relativeFileName);
-            fileName = path.basename(fullPath);
-        } else {
-            const nestedDir = path.join(config.BLOG_DIR, yearMonth, day);
-            if (!fs.existsSync(nestedDir)) fs.mkdirSync(nestedDir, { recursive: true });
-
-            fileName = `${slug}.html`; // Simplified filename since date is in folder
-            relativeFileName = path.join(yearMonth, day, fileName).replace(/\\/g, '/');
-            fullPath = path.join(nestedDir, fileName);
-
-            let counter = 1;
-            while (fs.existsSync(fullPath)) {
-                fileName = `${slug}-v${counter++}.html`;
-                relativeFileName = path.join(yearMonth, day, fileName).replace(/\\/g, '/');
-                fullPath = path.join(nestedDir, fileName);
-            }
-        }
-
-        let finalHtml = generator.assembleFullHtml(generatedTitle || selectedKeyword, content, personaKey);
-
-        // STEP 7: SEO Auto-Linking (inline — no separate autolink.js pass needed)
-        console.log("[Flow] Step 7: SEO Auto-Linking...");
-        try {
-            const linked = await linker.processBlog(finalHtml, historyObj, relativeFileName);
-            if (linked && linked.length > finalHtml.length) {
-                finalHtml = linked;
-                console.log("[Flow] Step 7 OK — SEO links applied.");
-            } else {
-                console.warn("[Flow] Step 7 returned empty/short output — saving without links.");
-            }
-        } catch (e) {
-            console.warn(`[Flow] Step 7 FAILED: ${e.message} — saving without links.`);
-        }
+        const finalHtml = generator.assembleFullHtml(generatedTitle || selectedKeyword, content, personaKey);
 
         try {
             fs.writeFileSync(fullPath, finalHtml);
         } catch (writeErr) {
-            console.error(`[Flow] Failed to write blog file at ${fullPath}: ${writeErr.message}`);
+            console.error(`[Flow] Failed to write draft at ${fullPath}: ${writeErr.message}`);
             throw writeErr;
         }
 
-        historyObj[relativeFileName] = selectedKeyword;
-        fs.writeFileSync(config.HISTORY_PATH, JSON.stringify(historyObj, null, 4));
-
-        console.log(`✅ Saved: ${relativeFileName}`);
-
-        console.log(`[Flow] Pipeline complete.`);
-        console.log(`[Cooldown] Waiting 60 seconds...`);
-        await new Promise(r => setTimeout(r, 60000));
+        console.log(`✅ Draft saved: drafts/${draftFileName}`);
+        console.log(`[Flow] Review the draft, then run the Publish workflow to go live.`);
 
     } catch (err) {
         console.error(`❌ CRITICAL ERROR:`, err.message);
