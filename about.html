@@ -49,6 +49,46 @@
             font-weight: 600;
         }
 
+        .site-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 16px 0 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 40px;
+        }
+
+        .site-nav .logo {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #f1f5f9;
+            text-decoration: none;
+        }
+
+        .site-nav .nav-links {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .site-nav .nav-links a {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .site-footer {
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
         .ad-container {
             margin: 25px auto;
             padding: 12px;
@@ -75,7 +115,16 @@
 </head>
 
 <body>
-    <a href="/" class="back-link">← Back to Tracker</a>
+    <nav class="site-nav">
+        <a href="/" class="logo">crypto offers</a>
+        <div class="nav-links">
+            <a href="/">Tracker</a>
+            <a href="/blog/">Digest</a>
+            <a href="/charts.html">Charts</a>
+            <a href="/about.html">About</a>
+            <a href="/contact.html">Contact</a>
+        </div>
+    </nav>
 
     <!-- Top Banner Ad -->
     <div class="ad-container">
@@ -106,6 +155,16 @@
     <h2>Supported Platforms</h2>
     <p>We track over 20 top-tier platforms, including Binance, OKX, Bybit, Coinbase, KuCoin, Kraken, and major
         decentralized exchanges like Uniswap and PancakeSwap.</p>
+
+    <footer class="site-footer">
+        <a href="/">Tracker</a>
+        <a href="/blog/">Digest</a>
+        <a href="/charts.html">Charts</a>
+        <a href="/about.html">About</a>
+        <a href="/contact.html">Contact</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+    </footer>
 </body>
 
 </html>

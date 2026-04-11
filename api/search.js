@@ -41,7 +41,10 @@ export default async function handler(req, res) {
 
     try {
         // Fetch news for context to improve currency/accuracy
-        const newsResponse = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
+        const newsController = new AbortController();
+        const newsTimeout = setTimeout(() => newsController.abort(), 10000);
+        const newsResponse = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN', { signal: newsController.signal });
+        clearTimeout(newsTimeout);
         if (!newsResponse.ok) throw new Error(`News API error: ${newsResponse.status}`);
         const newsData = await newsResponse.json();
 
@@ -50,12 +53,15 @@ export default async function handler(req, res) {
             ? newsData.Data.slice(0, 5).map(n => n.title).join(', ')
             : "General crypto market interest";
 
+        const groqController = new AbortController();
+        const groqTimeout = setTimeout(() => groqController.abort(), 30000);
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
             },
+            signal: groqController.signal,
             body: JSON.stringify({
                 model: 'llama-3.1-8b-instant', // Fast data retrieval
                 messages: [
@@ -91,6 +97,7 @@ Return ONLY a JSON array. Each item MUST follow this format:
             })
         });
 
+        clearTimeout(groqTimeout);
         if (!groqResponse.ok) {
             const errorText = await groqResponse.text();
             return res.status(groqResponse.status).json({
@@ -114,7 +121,6 @@ Return ONLY a JSON array. Each item MUST follow this format:
             const jsonMatch = cleanContent.match(/\[[\s\S]*\]/);
 
             if (!jsonMatch) {
-                console.error("Groq raw content did not contain an array:", content);
                 return res.status(500).json({ error: 'No valid JSON array found in Groq response', raw: content });
             }
 
@@ -123,7 +129,6 @@ Return ONLY a JSON array. Each item MUST follow this format:
 
             results = JSON.parse(arrayStr);
         } catch (parseErr) {
-            console.error('JSON Parse Error:', parseErr, 'Raw Content:', content);
             return res.status(500).json({ error: 'Failed to parse JSON from Groq', detail: parseErr.message });
         }
 
@@ -146,7 +151,6 @@ Return ONLY a JSON array. Each item MUST follow this format:
         });
 
     } catch (err) {
-        console.error('Search error:', err);
         return res.status(500).json({ error: err.message });
     }
 }

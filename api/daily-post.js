@@ -35,7 +35,10 @@ export default async function handler(req, res) {
 
     try {
         // 1. Fetch Trending Topics from CoinGecko
-        const trendingResponse = await fetch('https://api.coingecko.com/api/v3/search/trending');
+        const geckoController = new AbortController();
+        const geckoTimeout = setTimeout(() => geckoController.abort(), 10000);
+        const trendingResponse = await fetch('https://api.coingecko.com/api/v3/search/trending', { signal: geckoController.signal });
+        clearTimeout(geckoTimeout);
         if (!trendingResponse.ok) throw new Error('CoinGecko API busy');
 
         const trendingData = await trendingResponse.json();
@@ -47,12 +50,15 @@ export default async function handler(req, res) {
         const today = new Date().toISOString().split('T')[0];
 
         // 2. Generate Post using Groq
+        const groqController = new AbortController();
+        const groqTimeout = setTimeout(() => groqController.abort(), 30000);
         const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
                 'Content-Type': 'application/json'
             },
+            signal: groqController.signal,
             body: JSON.stringify({
                 model: 'meta-llama/llama-4-scout-17b-16e-instruct',
                 messages: [
@@ -75,6 +81,7 @@ Write a concise technical blog post analyzing what's driving these moves. Includ
             })
         });
 
+        clearTimeout(groqTimeout);
         if (!groqResponse.ok) {
             throw new Error(`Groq API error: ${groqResponse.status}`);
         }
@@ -102,7 +109,6 @@ Write a concise technical blog post analyzing what's driving these moves. Includ
         });
 
     } catch (err) {
-        console.error('Generation error:', err);
         return res.status(500).json({ error: err.message });
     }
 }

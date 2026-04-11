@@ -52,6 +52,87 @@
             width: 100%;
         }
 
+        .site-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 16px 0 32px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 40px;
+            text-align: left;
+        }
+
+        .site-nav .logo {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #f1f5f9;
+            text-decoration: none;
+        }
+
+        .site-nav .nav-links {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .site-nav .nav-links a {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #f1f5f9;
+            font-family: inherit;
+            font-size: 0.95rem;
+            margin-top: 6px;
+            box-sizing: border-box;
+        }
+
+        .contact-form textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .contact-form label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-top: 20px;
+        }
+
+        .contact-form button {
+            margin-top: 24px;
+            padding: 12px 32px;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .site-footer {
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 0.85rem;
+            color: #64748b;
+            text-align: left;
+        }
+
         .contact-box {
             background: rgba(30, 41, 59, 0.5);
             /* Slate 800 */
@@ -87,7 +168,16 @@
 </head>
 
 <body>
-    <div style="text-align: left;"><a href="/" class="back-link">← Back to Tracker</a></div>
+    <nav class="site-nav">
+        <a href="/" class="logo">crypto offers</a>
+        <div class="nav-links">
+            <a href="/">Tracker</a>
+            <a href="/blog/">Digest</a>
+            <a href="/charts.html">Charts</a>
+            <a href="/about.html">About</a>
+            <a href="/contact.html">Contact</a>
+        </div>
+    </nav>
 
     <!-- Top Banner Ad -->
     <div class="ad-container">
@@ -100,10 +190,28 @@
 
     <div class="contact-box">
         <h2>Get in Touch</h2>
-        <p>Email us at: <strong>contact@cryptoofferstracker.com</strong></p>
-        <p style="margin-top: 20px; font-size: 0.9rem; color: #9ca3af;">We strive to respond to all inquiries within 48
-            hours.</p>
+        <form class="contact-form" action="mailto:contact@cryptoofferstracker.com" method="post" enctype="text/plain">
+            <label for="contact-name">Name</label>
+            <input type="text" id="contact-name" name="name" placeholder="Your name" required>
+            <label for="contact-email">Email</label>
+            <input type="email" id="contact-email" name="email" placeholder="Your email address" required>
+            <label for="contact-message">Message</label>
+            <textarea id="contact-message" name="message" placeholder="Your message..." required></textarea>
+            <button type="submit">Send Message</button>
+        </form>
+        <p style="margin-top: 20px; font-size: 0.9rem; color: #9ca3af;">Or email us directly at: <strong>contact@cryptoofferstracker.com</strong></p>
+        <p style="font-size: 0.9rem; color: #9ca3af;">We strive to respond to all inquiries within 48 hours.</p>
     </div>
+
+    <footer class="site-footer">
+        <a href="/">Tracker</a>
+        <a href="/blog/">Digest</a>
+        <a href="/charts.html">Charts</a>
+        <a href="/about.html">About</a>
+        <a href="/contact.html">Contact</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+    </footer>
 </body>
 
 </html>

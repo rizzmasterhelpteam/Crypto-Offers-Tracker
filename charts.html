@@ -9,6 +9,14 @@
         content="Top crypto performers of the month, year, and upcoming project highlights. Updated weekly.">
     <link rel="stylesheet" href="blog/style.css">
     <style>
+        /* Fallback CSS variables in case blog/style.css is unavailable */
+        :root {
+            --glass-blur: blur(20px);
+            --accent-secondary: #3b82f6;
+            --text-muted: #4b5a72;
+            --card-border: rgba(255, 255, 255, 0.07);
+        }
+
         .charts-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -150,7 +158,8 @@
                 <a href="/">Tracker</a>
                 <a href="/blog/">Digest</a>
                 <a href="/charts.html" style="color: var(--accent-secondary)">Charts</a>
-                <a href="/about.html">Architecture</a>
+                <a href="/about.html">About</a>
+                <a href="/contact.html">Contact</a>
             </nav>
         </div>
     </header>
