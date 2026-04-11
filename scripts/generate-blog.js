@@ -7,6 +7,7 @@ const path = require('path');
 const config = require('./lib/config');
 const sources = require('./lib/sources');
 const generator = require('./lib/generator-v3');
+const linker = require('./lib/linker-engine');
 const utils = require('./lib/utils');
 
 // Known acronyms to preserve casing during title-casing
@@ -194,7 +195,22 @@ async function run() {
             }
         }
 
-        const finalHtml = generator.assembleFullHtml(generatedTitle || selectedKeyword, content, personaKey);
+        let finalHtml = generator.assembleFullHtml(generatedTitle || selectedKeyword, content, personaKey);
+
+        // STEP 7: SEO Auto-Linking (inline — no separate autolink.js pass needed)
+        console.log("[Flow] Step 7: SEO Auto-Linking...");
+        try {
+            const linked = await linker.processBlog(finalHtml, historyObj, relativeFileName);
+            if (linked && linked.length > finalHtml.length) {
+                finalHtml = linked;
+                console.log("[Flow] Step 7 OK — SEO links applied.");
+            } else {
+                console.warn("[Flow] Step 7 returned empty/short output — saving without links.");
+            }
+        } catch (e) {
+            console.warn(`[Flow] Step 7 FAILED: ${e.message} — saving without links.`);
+        }
+
         try {
             fs.writeFileSync(fullPath, finalHtml);
         } catch (writeErr) {
