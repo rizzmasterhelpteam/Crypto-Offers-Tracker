@@ -355,9 +355,21 @@ OUTPUT ONLY: The corrected HTML article body.`;
 }
 
 /**
+ * Converts any residual markdown (**, *, __, _) to HTML after LLM pipeline.
+ */
+function scrubMarkdown(html) {
+    return html
+        .replace(/\*\*(.+?)\*\*/gs, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/gs,     '<em>$1</em>')
+        .replace(/__(.+?)__/gs,     '<strong>$1</strong>')
+        .replace(/_(.+?)_/gs,       '<em>$1</em>');
+}
+
+/**
  * UI Assembly: Wraps the final body in the institutional template.
  */
 function assembleFullHtml(title, bodyHtml, personaKey = 'RET') {
+    bodyHtml = scrubMarkdown(bodyHtml);
     console.log(`[Utils] Assembling UI for ${personaKey}...`);
     const template = fs.readFileSync(config.TEMPLATE_PATH, 'utf8');
     const description = bodyHtml.replace(/<[^>]+>/g, '').slice(0, 160).trim() + "...";
@@ -376,7 +388,7 @@ function assembleFullHtml(title, bodyHtml, personaKey = 'RET') {
         .replace(/{{SEO_KEYWORDS}}/g, keywords)
         .replace(/{{CONTENT}}/g, bodyHtml)
         .replace(/{{DATE}}/g, config.CURRENT_DATE)
-        .replace(/{{AUTHOR_NAME}}/g, config.AUTHOR.name)
+        .replace(/{{AUTHOR_LINK}}/g, `<a href="/author/${config.AUTHOR.name.toLowerCase()}.html" style="color: #60a5fa; font-weight: 600; text-decoration: none;">${config.AUTHOR.name}</a>`)
         .replace(/{{CATEGORY}}/g, category)
         .replace(/{{CATEGORY_BADGE}}/g, badge)
         .replace(/href="style\.css"/g, 'href="../../style.css"')

@@ -81,7 +81,11 @@ FORMAT: Output JSON object: {"links": [{"phrase": "...", "url": "...", "type": "
             { role: 'user', content: `SOURCE:\n${html.replace(/<[^>]+>/g, ' ').slice(0, 5000)}` }
         ]);
 
-        let linkedHtml = html;
+        // Isolate <head> so the linker never touches <title> or <meta> content
+        const headEnd = html.indexOf('</head>');
+        const headHtml  = headEnd !== -1 ? html.slice(0, headEnd + 7) : '';
+        let linkedHtml  = headEnd !== -1 ? html.slice(headEnd + 7) : html;
+
         if (!result.links || !Array.isArray(result.links)) return html;
 
         const sortedLinks = result.links.sort((a, b) => b.phrase.length - a.phrase.length);
@@ -114,7 +118,7 @@ FORMAT: Output JSON object: {"links": [{"phrase": "...", "url": "...", "type": "
                 usedUrls.add(url);
             }
         }
-        return linkedHtml.replace('</body>', '<!-- seo-linked: true -->\n</body>');
+        return headHtml + linkedHtml.replace('</body>', '<!-- seo-linked: true -->\n</body>');
     } catch (e) {
         console.error(`[Linker] FAILED: ${e.message}`);
         return html;
