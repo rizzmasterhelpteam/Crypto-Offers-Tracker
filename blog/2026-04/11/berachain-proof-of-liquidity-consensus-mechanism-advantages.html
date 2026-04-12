@@ -8,7 +8,7 @@
         crypto offers Digest</title>
     <meta name="description"
         content="Discover how Berachain's Proof of Liquidity (PoL) redefines blockchain security by aligning incentives between validators, DeFi apps, and users. Learn why PoL creates deeper liquidity and enhanced security compared to traditional Proof of Stake.">
-    <meta name="keywords" content="{{SEO_KEYWORDS}}">
+    <meta name="keywords" content="Berachain Proof of Liquidity, BGT governance token, BERA staking, PoL vs Proof of Stake, DeFi security, Reward Vaults">
 
     <!-- OpenGraph / Social -->
     <meta property="og:type" content="article">
@@ -23,7 +23,7 @@
     <meta name="twitter:description"
         content="Discover how Berachain's Proof of Liquidity (PoL) redefines blockchain security by aligning incentives between validators, DeFi apps, and users. Learn why PoL creates deeper liquidity and enhanced security compared to traditional Proof of Stake.">
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../../style.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
         crossorigin="anonymous"></script>
 
@@ -51,22 +51,12 @@
     </script>
 
     <script>
-        window.onscroll = function () {
-            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            let scrolled = (winScroll / height) * 100;
-            const bar = document.getElementById("myBar");
-            if (bar) bar.style.width = scrolled + "%";
-
-            // Sticky Header Logic
-            const stickyHeader = document.getElementById("stickyHeader");
-            const mainHeaderHeight = 300; // Show after scrolling past hero
-            if (winScroll > mainHeaderHeight) {
-                stickyHeader.classList.add("visible");
-            } else {
-                stickyHeader.classList.remove("visible");
-            }
-        };
+        window.addEventListener('scroll', function () {
+            var el = document.documentElement;
+            var scrolled = (el.scrollTop || document.body.scrollTop) / (el.scrollHeight - el.clientHeight) * 100;
+            var bar = document.getElementById('myBar');
+            if (bar) bar.style.width = scrolled + '%';
+        }, { passive: true });
     </script>
 </head>
 
@@ -75,20 +65,10 @@
         <div class="progress-bar" id="myBar"></div>
     </div>
 
-    <!-- Sticky Header (Hidden by default) -->
-    <div id="stickyHeader" class="sticky-header">
-        <div class="sticky-header-inner">
-            <div class="sticky-title">Berachain Proof of Liquidity (PoL) Explained: Unlocking Deeper Liquidity and
-                Enhanced Network Security</div>
-            <div class="sticky-nav">
-                <a href="/blog/" class="read-more" style="margin: 0; font-size: 0.85rem;">Back to Digest</a>
-            </div>
-        </div>
-    </div>
     <header>
         <div class="container header-inner">
             <a href="/" class="logo">
-                <img src="../assets/logo.png" alt="crypto offers Logo">
+                <img src="../../../assets/logo.png" alt="crypto offers Logo">
                 <span id="logo-title">crypto offers Digest</span>
             </a>
             <nav class="nav-links">
@@ -111,9 +91,6 @@
         <div class="post-detail-container">
             <article class="post-detail">
                 <header class="post-header">
-                    <div class="breadcrumbs">
-                        <a href="/">Home</a> <span>/</span> <a href="/blog/">Blog</a> <span>/</span> Protocol Alpha
-                    </div>
                     <div class="category-badge green">Protocol Alpha</div>
                     <h1>Berachain Proof of Liquidity (PoL) Explained: Unlocking Deeper Liquidity and Enhanced Network
                         Security</h1>
@@ -123,15 +100,16 @@
                             style="color: #60a5fa; font-weight: 600; text-decoration: none;">Mark</a>
                         &nbsp;&middot;&nbsp; April 12, 2026<span id="reading-time"></span>
                     </p>
-
                 </header>
 
                 <div class="content-body">
 
-                    <div class="post-hero-wrap">
-                        <img src="../../../assets/blog/berachain_hero.png" alt="Berachain Proof of Liquidity">
+                    <div style="margin: 0 0 32px; border-radius: 16px; overflow: hidden;">
+                        <img src="../../../assets/blog/berachain_hero.png" alt="Berachain Proof of Liquidity"
+                            style="width: 100%; height: auto; display: block;">
                     </div>
-                    <p>Berachain’s <strong>Proof of Liquidity (PoL)</strong> is one of the most innovative consensus
+
+                    <p>Berachain's <strong>Proof of Liquidity (PoL)</strong> is one of the most innovative consensus
                         mechanisms in crypto today. Unlike traditional blockchains that secure the network by locking up
                         tokens or burning energy, PoL ties security directly to real DeFi activity and productive
                         liquidity.</p>
@@ -141,8 +119,8 @@
                         2026, as DeFi matures, this model is proving especially powerful for building sustainable
                         Layer-1 ecosystems.</p>
 
-                    <div class="snapshot" style="border:1px solid #ddd;padding:10px;margin:15px 0;">
-                        <ul style="margin:0;padding-left:20px;">
+                    <div class="snapshot">
+                        <ul>
                             <li>PoL extends Proof-of-Stake with a two-token model ($BERA for security, $BGT for
                                 rewards).</li>
                             <li>Liquidity providers earn governance rewards while keeping capital productive in DeFi.
@@ -153,7 +131,7 @@
                     </div>
 
                     <h2>What is Berachain Proof of Liquidity (PoL)?</h2>
-                    <p>Proof of Liquidity is Berachain’s novel economic mechanism built as an extension of traditional
+                    <p>Proof of Liquidity is Berachain's novel economic mechanism built as an extension of traditional
                         Proof-of-Stake (PoS). It solves a core problem in most blockchains: the conflict between staking
                         (which locks capital) and DeFi activity (which needs liquid capital).</p>
 
@@ -168,7 +146,7 @@
 
                     <p>Users deposit liquidity (e.g., LP tokens from BEX pools or other whitelisted protocols) into
                         Reward Vaults to earn BGT. They can then delegate that BGT to validators, boosting the
-                        validators’ emissions and influence. Validators, in turn, earn incentives (often bribes from
+                        validators' emissions and influence. Validators, in turn, earn incentives (often bribes from
                         protocols) for directing BGT to productive vaults.</p>
 
                     <h2>Why Liquidity Matters More Than Ever in 2026</h2>
@@ -176,7 +154,7 @@
                         sits idle in staking contracts instead of generating yield in DEXes, lending protocols, or
                         perps.</p>
 
-                    <p>Berachain’s PoL flips this dynamic. Liquidity provided to the ecosystem directly influences
+                    <p>Berachain's PoL flips this dynamic. Liquidity provided to the ecosystem directly influences
                         reward distribution and indirectly strengthens network alignment. The more useful liquidity
                         on-chain, the more attractive the chain becomes for traders, builders, and new capital.</p>
 
@@ -193,49 +171,49 @@
                         alignment through BGT.</p>
 
                     <p>Key differences from classic Proof of Stake:</p>
-                    <table style="width:100%; border-collapse:collapse; margin:20px 0;">
-                        <thead>
-                            <tr style="background:#f1f5f9;">
-                                <th style="padding:10px; border:1px solid #ddd;">Aspect</th>
-                                <th style="padding:10px; border:1px solid #ddd;">Traditional PoS</th>
-                                <th style="padding:10px; border:1px solid #ddd;">Berachain PoL</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="padding:10px; border:1px solid #ddd;">Security Collateral</td>
-                                <td style="padding:10px; border:1px solid #ddd;">Locked native tokens</td>
-                                <td style="padding:10px; border:1px solid #ddd;">Staked $BERA + ecosystem liquidity
-                                    activity</td>
-                            </tr>
-                            <tr>
-                                <td style="padding:10px; border:1px solid #ddd;">User Participation</td>
-                                <td style="padding:10px; border:1px solid #ddd;">Passive staking</td>
-                                <td style="padding:10px; border:1px solid #ddd;">Active liquidity provision in DeFi</td>
-                            </tr>
-                            <tr>
-                                <td style="padding:10px; border:1px solid #ddd;">Incentive Flow</td>
-                                <td style="padding:10px; border:1px solid #ddd;">Direct staking rewards</td>
-                                <td style="padding:10px; border:1px solid #ddd;">Validators direct BGT to Reward Vaults
-                                </td>
-                            </tr>
-                            <tr>
-                                <td style="padding:10px; border:1px solid #ddd;">Capital Efficiency</td>
-                                <td style="padding:10px; border:1px solid #ddd;">Low (capital idle)</td>
-                                <td style="padding:10px; border:1px solid #ddd;">High (liquidity stays productive)</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="comparison-table-wrapper">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Aspect</th>
+                                    <th>Traditional PoS</th>
+                                    <th>Berachain PoL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Security Collateral</td>
+                                    <td>Locked native tokens</td>
+                                    <td>Staked $BERA + ecosystem liquidity activity</td>
+                                </tr>
+                                <tr>
+                                    <td>User Participation</td>
+                                    <td>Passive staking</td>
+                                    <td>Active liquidity provision in DeFi</td>
+                                </tr>
+                                <tr>
+                                    <td>Incentive Flow</td>
+                                    <td>Direct staking rewards</td>
+                                    <td>Validators direct BGT to Reward Vaults</td>
+                                </tr>
+                                <tr>
+                                    <td>Capital Efficiency</td>
+                                    <td>Low (capital idle)</td>
+                                    <td>High (liquidity stays productive)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <p>This design discourages attacks economically because compromising the network would require
                         attacking both the BERA stake and the vibrant, high-value liquidity layers that validators are
                         incentivized to protect.</p>
 
                     <h2>Economic Incentives Simplified</h2>
-                    <p>Think of it like this: Validators act as “fund allocators.” They earn the right to direct BGT
+                    <p>Think of it like this: Validators act as "fund allocators." They earn the right to direct BGT
                         emissions to specific Reward Vaults (smart contracts that reward liquidity providers).</p>
 
-                    <p>Protocols can offer additional incentives (“bribes”) to attract more BGT emissions to their
+                    <p>Protocols can offer additional incentives ("bribes") to attract more BGT emissions to their
                         pools. Liquidity providers earn BGT on top of trading fees or yield, then delegate it to
                         preferred validators for potential extra upside.</p>
 
@@ -268,7 +246,7 @@
 
                     <h2>Frequently Asked Questions (FAQ)</h2>
                     <h3>Is Proof of Liquidity better than Proof of Stake?</h3>
-                    <p>PoL builds on PoS but improves capital efficiency and incentive alignment. It’s especially strong
+                    <p>PoL builds on PoS but improves capital efficiency and incentive alignment. It's especially strong
                         for DeFi-heavy chains like Berachain.</p>
 
                     <h3>Can I lose money providing liquidity for PoL?</h3>
@@ -279,7 +257,7 @@
                     <p>Provide liquidity in whitelisted pools (e.g., on BEX), deposit receipt tokens into Reward Vaults,
                         earn BGT, and delegate to validators.</p>
 
-                    <p>Ultimately, Berachain’s Proof of Liquidity represents a smart evolution in blockchain design. By
+                    <p>Ultimately, Berachain's Proof of Liquidity represents a smart evolution in blockchain design. By
                         making liquidity productive for both users and network security, it creates a more sustainable,
                         user-aligned ecosystem. As we move deeper into 2026, mechanisms like PoL could become the
                         standard for next-generation Layer-1s.</p>
@@ -287,37 +265,27 @@
                     <p>Ready to explore Berachain? Start by checking official docs or whitelisted pools on BeraHub.</p>
                 </div>
 
+                <!-- Post-Content Ad -->
                 <div class="ad-container" style="margin-top: 40px;">
                     <div class="ad-label">Advertisement</div>
                     <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX"
                         data-ad-slot="3333333333" data-ad-format="fluid" data-ad-layout-key="-fb+5w+4e-db+86"></ins>
                 </div>
+            </article>
 
-        </div>
-
-        <!-- Post-Content Ad -->
-        <div class="ad-container" style="margin-top: 40px;">
-            <div class="ad-label">Advertisement</div>
-            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX" data-ad-slot="3333333333"
-                data-ad-format="fluid" data-ad-layout-key="-fb+5w+4e-db+86"></ins>
-        </div>
-        </article>
-
-        <div style="margin-top: 80px; text-align: center;">
-            <a href="/blog/" class="read-more" style="justify-content: center; font-size: 1.2rem;">Back to all
-                Digests</a>
-        </div>
+            <div style="margin-top: 80px; text-align: center;">
+                <a href="/blog/" class="read-more" style="justify-content: center; font-size: 1.2rem;">Back to all
+                    Digests</a>
+            </div>
         </div>
     </main>
-
-
 
     <button id="back-to-top" aria-label="Back to top">&#8593;</button>
 
     <footer>
         <div class="container">
             <div class="footer-logo">
-                <img src="../assets/logo.png" alt="Logo">
+                <img src="../../../assets/logo.png" alt="Logo">
                 <span>Crypto Digest</span>
             </div>
             <p>Expert-led technical analysis for the modular crypto ecosystem.</p>
