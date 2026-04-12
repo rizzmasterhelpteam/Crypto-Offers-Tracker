@@ -11,12 +11,11 @@
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
         crossorigin="anonymous"></script>
     <script>
-        window.onscroll = function () {
-            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            let scrolled = (winScroll / height) * 100;
-            document.getElementById("myBar").style.width = scrolled + "%";
-        };
+        window.addEventListener('scroll', function() {
+            var el = document.documentElement;
+            var scrolled = (el.scrollTop || document.body.scrollTop) / (el.scrollHeight - el.clientHeight) * 100;
+            document.getElementById('myBar').style.width = scrolled + '%';
+        }, { passive: true });
     </script>
 </head>
 
@@ -28,12 +27,12 @@
         <div class="container header-inner">
             <a href="/" class="logo">
                 <img src="../assets/logo.png" alt="crypto offers Logo">
-                <span>crypto offers Digest</span>
+                <span id="logo-title">crypto offers Digest</span>
             </a>
             <nav class="nav-links">
                 <a href="/">Home</a>
                 <a href="/blog/" style="color: var(--accent-secondary);">Digest</a>
-                <a href="/about.html">Architecture</a>
+                <a href="/about.html">About</a>
                 <a href="/contact.html">Contact</a>
             </nav>
         </div>
@@ -52,7 +51,7 @@
                 <header class="post-header">
                     <div class="category-badge {{CATEGORY_BADGE}}">{{CATEGORY}}</div>
                     <h1>{{TITLE}}</h1>
-                    <p class="post-meta-line" style="margin: 12px 0 0; font-size: 0.9rem; color: #94a3b8; font-weight: 500;">By {{AUTHOR_LINK}} &nbsp;&middot;&nbsp; {{DATE}}</p>
+                    <p class="post-meta-line" style="margin: 12px 0 0; font-size: 0.9rem; color: #94a3b8; font-weight: 500;">By {{AUTHOR_LINK}} &nbsp;&middot;&nbsp; {{DATE}}<span id="reading-time"></span></p>
 
                 </header>
 
@@ -77,6 +76,8 @@
 
 
 
+    <button id="back-to-top" aria-label="Back to top">&#8593;</button>
+
     <footer>
         <div class="container">
             <div class="footer-logo">
@@ -92,6 +93,85 @@
             (adsbygoogle = window.adsbygoogle || []).push({});
             (adsbygoogle = window.adsbygoogle || []).push({});
         } catch (e) {}
+
+        // ── Sticky Title Swap ──────────────────────────────
+        (function() {
+            var logoSpan = document.getElementById('logo-title');
+            var h1 = document.querySelector('.post-header h1');
+            if (!logoSpan || !h1) return;
+            var orig = logoSpan.textContent;
+            var short = h1.textContent.length > 55 ? h1.textContent.slice(0, 52) + '\u2026' : h1.textContent;
+            new IntersectionObserver(function(entries) {
+                var gone = !entries[0].isIntersecting;
+                document.querySelector('header').classList.toggle('has-scrolled', gone);
+                logoSpan.textContent = gone ? short : orig;
+            }, { threshold: 0 }).observe(h1);
+        })();
+
+        // ── Reading Time ───────────────────────────────────
+        (function() {
+            var body = document.querySelector('.content-body');
+            var rt = document.getElementById('reading-time');
+            if (body && rt) rt.textContent = '\u00a0\u00b7\u00a0' + Math.ceil(body.textContent.trim().split(/\s+/).length / 200) + ' min read';
+        })();
+
+        // ── Breadcrumbs ────────────────────────────────────
+        (function() {
+            var h1 = document.querySelector('.post-header h1');
+            var badge = document.querySelector('.category-badge');
+            var postHeader = document.querySelector('.post-header');
+            if (!h1 || !badge || !postHeader) return;
+            var cat = badge.textContent.trim();
+            var title = h1.textContent.length > 45 ? h1.textContent.slice(0, 42) + '\u2026' : h1.textContent;
+            var nav = document.createElement('nav');
+            nav.setAttribute('aria-label', 'Breadcrumb');
+            nav.className = 'breadcrumb';
+            nav.innerHTML = '<a href="/">Home</a><span>\u203a</span><a href="/blog/">Digest</a><span>\u203a</span>'
+                + '<span class="bc-cat">' + cat + '</span><span>\u203a</span>'
+                + '<span class="bc-title" aria-current="page">' + title + '</span>';
+            postHeader.before(nav);
+        })();
+
+        // ── Table of Contents ──────────────────────────────
+        (function() {
+            var headings = document.querySelectorAll('.content-body h2');
+            if (headings.length < 3) return;
+            headings.forEach(function(h, i) {
+                if (!h.id) h.id = 'sec-' + i + '-' + h.textContent.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '').slice(0, 40);
+            });
+            var toc = document.createElement('div');
+            toc.id = 'toc-widget';
+            toc.innerHTML = '<div class="toc-header"><span>Contents</span><button class="toc-toggle" type="button" aria-expanded="true">\u2212</button></div>'
+                + '<ol class="toc-list">' + Array.from(headings).map(function(h) {
+                    return '<li><a href="#' + h.id + '">' + h.textContent + '</a></li>';
+                }).join('') + '</ol>';
+            headings[0].before(toc);
+            toc.querySelector('.toc-toggle').addEventListener('click', function() {
+                var list = toc.querySelector('.toc-list');
+                var open = list.style.display !== 'none';
+                list.style.display = open ? 'none' : '';
+                this.textContent = open ? '+' : '\u2212';
+                this.setAttribute('aria-expanded', String(!open));
+            });
+            headings.forEach(function(h) {
+                new IntersectionObserver(function(entries) {
+                    var link = toc.querySelector('a[href="#' + h.id + '"]');
+                    if (link) link.classList.toggle('toc-active', entries[0].isIntersecting);
+                }, { rootMargin: '-10% 0px -80% 0px' }).observe(h);
+            });
+        })();
+
+        // ── Back to Top ────────────────────────────────────
+        (function() {
+            var btt = document.getElementById('back-to-top');
+            if (!btt) return;
+            window.addEventListener('scroll', function() {
+                btt.classList.toggle('visible', window.scrollY > 400);
+            }, { passive: true });
+            btt.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        })();
     </script>
 </body>
 
