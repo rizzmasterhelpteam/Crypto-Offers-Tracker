@@ -48,24 +48,6 @@
     }
     </script>
 
-    <script>
-        window.onscroll = function () {
-            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-            let scrolled = (winScroll / height) * 100;
-            const bar = document.getElementById("myBar");
-            if (bar) bar.style.width = scrolled + "%";
-
-            // Sticky Header Logic
-            const stickyHeader = document.getElementById("stickyHeader");
-            const mainHeaderHeight = 300; // Show after scrolling past hero
-            if (winScroll > mainHeaderHeight) {
-                stickyHeader.classList.add("visible");
-            } else {
-                stickyHeader.classList.remove("visible");
-            }
-        };
-    </script>
 </head>
 
 <body>
@@ -73,15 +55,6 @@
         <div class="progress-bar" id="myBar"></div>
     </div>
 
-    <!-- Sticky Header (Hidden by default) -->
-    <div id="stickyHeader" class="sticky-header">
-        <div class="sticky-header-inner">
-            <div class="sticky-title">Unlock Solana DeFi Potential with Jito MEV Extraction Strategies</div>
-            <div class="sticky-nav">
-                <a href="/blog/" class="read-more" style="margin: 0; font-size: 0.85rem;">Back to Digest</a>
-            </div>
-        </div>
-    </div>
     <header>
         <div class="container header-inner">
             <a href="/" class="logo">
@@ -108,9 +81,6 @@
         <div class="post-detail-container">
             <article class="post-detail">
                 <header class="post-header">
-                    <div class="breadcrumbs">
-                        <a href="/">Home</a> <span>/</span> <a href="/blog/">Blog</a> <span>/</span> Deep Tech
-                    </div>
                     <div class="category-badge blue">Deep Tech</div>
                     <h1>Unlock Solana DeFi Potential with Jito MEV Extraction Strategies</h1>
                     <p class="post-meta-line"
@@ -140,7 +110,7 @@
                         performance considerations, consensus interactions, and integration pathways required to turn
                         raw MEV into a reliable revenue stream for your protocol.</p>
 
-                    <div class="snapshot" style="border:1px solid #e2e8f0;padding:1rem;margin:1rem 0;">
+                    <div class="snapshot">
                         <ul style="list-style:none;margin:0;padding:0;">
                             <li><strong>MEV Capture Rate:</strong> 0.12 % &ndash; 0.18 % of daily transaction volume.
                             </li>
@@ -286,12 +256,9 @@ async fn fetch</em>mev<em>stats() -> Result&lt;MevStats, Box&lt;dyn std::error::
                         swap latency increased by an average of 9 ms, which remained within the acceptable UI threshold
                         (&le; 50 ms). Post‑deployment analytics over a 30‑day window showed a 1.2 pp uplift in LP
                         returns, confirming the economic viability of the strategy.</p>
-</body>
+                </div>
 
-</html>
-</div>
-
-<!-- Post-Content Ad -->
+                <!-- Post-Content Ad -->
 <div class="ad-container" style="margin-top: 40px;">
     <div class="ad-label">Advertisement</div>
     <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX" data-ad-slot="3333333333"
