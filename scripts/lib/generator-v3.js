@@ -360,9 +360,9 @@ OUTPUT ONLY: The corrected HTML article body.`;
 function scrubMarkdown(html) {
     return html
         .replace(/\*\*(.+?)\*\*/gs, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/gs,     '<em>$1</em>')
-        .replace(/__(.+?)__/gs,     '<strong>$1</strong>')
-        .replace(/_(.+?)_/gs,       '<em>$1</em>');
+        .replace(/\*(.+?)\*/gs, '<em>$1</em>')
+        .replace(/__(.+?)__/gs, '<strong>$1</strong>')
+        .replace(/_(.+?)_/gs, '<em>$1</em>');
 }
 
 /**
@@ -388,12 +388,14 @@ function assembleFullHtml(title, bodyHtml, personaKey = 'RET') {
         .replace(/{{SEO_KEYWORDS}}/g, keywords)
         .replace(/{{CONTENT}}/g, bodyHtml)
         .replace(/{{DATE}}/g, config.CURRENT_DATE)
+        .replace(/{{ADSENSE_PUB_ID}}/g, config.ADSENSE_PUB_ID)
         .replace(/{{AUTHOR_LINK}}/g, `<a href="/author/${config.AUTHOR.name.toLowerCase()}.html" style="color: #60a5fa; font-weight: 600; text-decoration: none;">${config.AUTHOR.name}</a>`)
         .replace(/{{CATEGORY}}/g, category)
         .replace(/{{CATEGORY_BADGE}}/g, badge)
         .replace(/href="style\.css"/g, 'href="../../style.css"')
         .replace(/src="\.\.\/assets\//g, 'src="../../../assets/');
 }
+
 
 module.exports = {
     discoverKeywords,

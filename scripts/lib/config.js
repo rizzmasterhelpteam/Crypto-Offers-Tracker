@@ -9,6 +9,7 @@ const ADMIN_DIR = path.join(PROJECT_ROOT, 'admin');
 
 module.exports = {
     SITE_URL: 'https://crypto-offers.vercel.app',
+    ADSENSE_PUB_ID: 'ca-pub-XXXXXXXXXX', // Replace with your actual ID
     BLOG_DIR: path.join(PROJECT_ROOT, 'blog'),
     ADMIN_DIR: ADMIN_DIR,
     TEMPLATE_PATH: path.join(PROJECT_ROOT, 'blog', 'template.html'),
