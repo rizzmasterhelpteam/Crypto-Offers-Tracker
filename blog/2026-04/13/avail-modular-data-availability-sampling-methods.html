@@ -90,21 +90,21 @@
                     </div>
 
                     <h2>The Cryptographic Foundation: KZG Commitments</h2>
-                    <p>At the heart of Avail lies the Kate-Zaverucha-Goldberg (KZG) polynomial commitment scheme. When a sequencer submits transaction data, Avail encodes it as a polynomial and generates a compact KZG commitment — a cryptographic fingerprint that mathematically represents the entire dataset.</p>
+                    <p>At the heart of Avail lies the Kate-Zaverucha-Goldberg (KZG) polynomial commitment scheme. When a sequencer submits transaction data, Avail encodes it as a polynomial and generates a compact <a href="https://ethereum.org/en/developers/docs/data-availability/kzg-commitments/" target="_blank" rel="nofollow">KZG commitment</a> — a cryptographic fingerprint that mathematically represents the entire dataset.</p>
                     
                     <p>Unlike optimistic DA systems that require a challenge period during which fraud proofs can be submitted, Avail uses <strong>validity proofs</strong>. This means the correctness and availability of data can be verified instantly and deterministically through mathematics, eliminating reliance on honest actors or economic disincentives.</p>
 
                     <h2>Data Availability Sampling (DAS) Made Efficient</h2>
-                    <p>To enable light clients to verify huge blocks without downloading everything, Avail applies Reed-Solomon erasure coding to expand the original data into a larger matrix. Light nodes then perform random Data Availability Sampling (DAS) — requesting only small, random chunks of this expanded data.</p>
+                    <p>To enable light clients to verify huge blocks without downloading everything, Avail applies Reed-Solomon erasure coding to expand the original data into a larger matrix. Light nodes then perform random <a href="../../12/celestia-data-availability-sampling-mechanisms-explained.html">Data Availability Sampling (DAS)</a> — requesting only small, random chunks of this expanded data.</p>
                     
                     <p>Every returned chunk comes with a compact KZG proof that links it directly back to the block header’s commitment. Verifying this proof is extremely lightweight, allowing even consumer-grade devices to participate securely. The result is a highly decentralized, censorship-resistant network with strong guarantees of data availability.</p>
 
                     <h2>Securing Ethereum Validiums with Avail</h2>
-                    <p>Avail’s architecture shines brightest when powering Ethereum Validiums. Validiums are high-throughput Layer 2 solutions that use Zero-Knowledge proofs for execution but post transaction data off-chain to keep gas costs minimal.</p>
+                    <p>Avail’s architecture shines brightest when powering <a href="https://ethereum.org/en/developers/docs/scaling/validium/" target="_blank" rel="nofollow">Ethereum Validiums</a>. Validiums are high-throughput Layer 2 solutions that use Zero-Knowledge proofs for execution but post transaction data off-chain to keep gas costs minimal.</p>
                     
                     <p>Traditional Validiums carried a major risk: if the off-chain data committee became unavailable, users could lose access to their funds. Avail solves this elegantly. The sequencer posts data batches to Avail, which generates the KZG commitment and forwards it (along with the proof) to the Validium’s settlement contract on Ethereum.</p>
                     
-                    <p>Thanks to EIP-4844 (proto-danksharding), Ethereum already supports cheap KZG verification. This creates a seamless, trust-minimized bridge between Avail’s DA layer and Ethereum’s settlement layer.</p>
+                    <p>Thanks to <a href="../../11/optimism-eip-4844-blob-transaction-cost-reduction-strategies.html">EIP-4844</a> (proto-danksharding), Ethereum already supports cheap KZG verification. This creates a seamless, trust-minimized bridge between Avail’s DA layer and Ethereum’s settlement layer.</p>
 
                     <h2>Key Advantages for Rollup Builders</h2>
                     <p>Integrating Avail delivers several architectural upgrades for teams building app-chains and rollups:</p>
@@ -118,6 +118,7 @@
                     <p>By treating Data Availability as a pure cryptographic problem instead of an economic one, Avail is laying the groundwork for the next generation of scalable, secure, and truly decentralized Web3 applications.</p>
 
                     <p><strong>Bottom line:</strong> For builders who want maximum performance without compromising on security or decentralization, Avail’s KZG-powered DA layer offers one of the most compelling solutions available today.</p>
+                    <!-- seo-linked: true -->
                 </div>
                
                 <div class="ad-container" style="margin-top: 40px;">
