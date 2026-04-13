@@ -204,21 +204,36 @@
             (adsbygoogle = window.adsbygoogle || []).push({});
         } catch (e) { }
 
-                // ── Sticky Title Swap ──────────────────────────────────
+                // ── Sticky Header & Progress Bar ───────────────────────
         (function () {
-            var logoSpan = document.getElementById('logo-title');
             var h1 = document.querySelector('.post-header h1');
-            if (!logoSpan || !h1) return;
-            var orig = logoSpan.textContent;
-            var short = h1.textContent.length > 55 ? h1.textContent.slice(0, 52) + '…' : h1.textContent;
-            var headerEl = document.querySelector('body > header');
-            function checkScroll() {
-                var gone = h1.getBoundingClientRect().bottom <= 0;
-                headerEl.classList.toggle('has-scrolled', gone);
-                logoSpan.textContent = gone ? short : orig;
+            var stickyHeader = document.querySelector('.sticky-header');
+            var progressBar = document.getElementById('myBar');
+            var stickyTitle = document.querySelector('.sticky-title');
+            
+            if (h1 && stickyTitle) {
+                stickyTitle.textContent = h1.textContent;
             }
-            window.addEventListener('scroll', checkScroll, { passive: true });
-            checkScroll();
+
+            window.addEventListener('scroll', function () {
+                if (h1 && stickyHeader) {
+                    var gone = h1.getBoundingClientRect().bottom <= 0;
+                    if (gone) {
+                        stickyHeader.classList.add('visible');
+                    } else {
+                        stickyHeader.classList.remove('visible');
+                    }
+                }
+                
+                if (progressBar) {
+                    var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                    var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    if (height > 0) {
+                        var scrolled = (winScroll / height) * 100;
+                        progressBar.style.width = scrolled + "%";
+                    }
+                }
+            }, { passive: true });
         })();
 
         // ── Reading Time ───────────────────────────────────
