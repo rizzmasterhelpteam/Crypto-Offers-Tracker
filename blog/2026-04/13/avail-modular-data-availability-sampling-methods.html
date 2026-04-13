@@ -95,7 +95,7 @@
                     <p>Unlike optimistic DA systems that require a challenge period during which fraud proofs can be submitted, Avail uses <strong>validity proofs</strong>. This means the correctness and availability of data can be verified instantly and deterministically through mathematics, eliminating reliance on honest actors or economic disincentives.</p>
 
                     <h2>Data Availability Sampling (DAS) Made Efficient</h2>
-                    <p>To enable light clients to verify huge blocks without downloading everything, Avail applies Reed-Solomon erasure coding to expand the original data into a larger matrix. Light nodes then perform random <a href="../../12/celestia-data-availability-sampling-mechanisms-explained.html">Data Availability Sampling (DAS)</a> — requesting only small, random chunks of this expanded data.</p>
+                    <p>To enable light clients to verify huge blocks without downloading everything, Avail applies Reed-Solomon erasure coding to expand the original data into a larger matrix. Light nodes then perform random <a href="../12/celestia-data-availability-sampling-mechanisms-explained.html">Data Availability Sampling (DAS)</a> — requesting only small, random chunks of this expanded data.</p>
                     
                     <p>Every returned chunk comes with a compact KZG proof that links it directly back to the block header’s commitment. Verifying this proof is extremely lightweight, allowing even consumer-grade devices to participate securely. The result is a highly decentralized, censorship-resistant network with strong guarantees of data availability.</p>
 
@@ -104,7 +104,7 @@
                     
                     <p>Traditional Validiums carried a major risk: if the off-chain data committee became unavailable, users could lose access to their funds. Avail solves this elegantly. The sequencer posts data batches to Avail, which generates the KZG commitment and forwards it (along with the proof) to the Validium’s settlement contract on Ethereum.</p>
                     
-                    <p>Thanks to <a href="../../11/optimism-eip-4844-blob-transaction-cost-reduction-strategies.html">EIP-4844</a> (proto-danksharding), Ethereum already supports cheap KZG verification. This creates a seamless, trust-minimized bridge between Avail’s DA layer and Ethereum’s settlement layer.</p>
+                    <p>Thanks to <a href="../11/optimism-eip-4844-blob-transaction-cost-reduction-strategies.html">EIP-4844</a> (proto-danksharding), Ethereum already supports cheap KZG verification. This creates a seamless, trust-minimized bridge between Avail’s DA layer and Ethereum’s settlement layer.</p>
 
                     <h2>Key Advantages for Rollup Builders</h2>
                     <p>Integrating Avail delivers several architectural upgrades for teams building app-chains and rollups:</p>
