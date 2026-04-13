@@ -153,18 +153,21 @@
             (adsbygoogle = window.adsbygoogle || []).push({});
         } catch (e) { }
        
-        // ── Sticky Title Swap ──────────────────────────────
+                // ── Sticky Title Swap ──────────────────────────────────
         (function () {
             var logoSpan = document.getElementById('logo-title');
             var h1 = document.querySelector('.post-header h1');
             if (!logoSpan || !h1) return;
             var orig = logoSpan.textContent;
-            var short = h1.textContent.length > 55 ? h1.textContent.slice(0, 52) + '\u2026' : h1.textContent;
-            new IntersectionObserver(function (entries) {
-                var gone = !entries[0].isIntersecting;
-                document.querySelector('header').classList.toggle('has-scrolled', gone);
+            var short = h1.textContent.length > 55 ? h1.textContent.slice(0, 52) + '…' : h1.textContent;
+            var headerEl = document.querySelector('body > header');
+            function checkScroll() {
+                var gone = h1.getBoundingClientRect().bottom <= 0;
+                headerEl.classList.toggle('has-scrolled', gone);
                 logoSpan.textContent = gone ? short : orig;
-            }, { threshold: 0 }).observe(h1);
+            }
+            window.addEventListener('scroll', checkScroll, { passive: true });
+            checkScroll();
         })();
        
         // ── Reading Time ───────────────────────────────────
