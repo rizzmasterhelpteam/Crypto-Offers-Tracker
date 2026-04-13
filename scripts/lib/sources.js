@@ -26,6 +26,7 @@ async function fetchLatestNews() {
     try {
         console.log("[Sources] Fetching latest crypto news...");
         const response = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
+        if (!response.ok) throw new Error(`CryptoCompare API error: ${response.status}`);
         const data = await response.json();
         if (!data || !data.Data || !Array.isArray(data.Data)) return "No recent news available.";
         const result = data.Data.slice(0, 8).map(n => `- ${n.title} (${n.source})`).join('\n');
@@ -44,6 +45,7 @@ async function fetchTrendingCoins() {
     try {
         console.log("[Sources] Fetching trending crypto data from CoinGecko...");
         const response = await fetch('https://api.coingecko.com/api/v3/search/trending');
+        if (!response.ok) throw new Error(`CoinGecko API error: ${response.status}`);
         const data = await response.json();
         if (!data || !data.coins || data.coins.length === 0) return config.RESEARCH_SEEDS;
         const result = data.coins.slice(0, 5).map(c => c.item.name);

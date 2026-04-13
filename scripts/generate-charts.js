@@ -40,6 +40,7 @@ async function fetchNewsContext() {
     try {
         console.log("Fetching market news for upcoming trends...");
         const response = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN');
+        if (!response.ok) throw new Error(`CryptoCompare API error: ${response.status}`);
         const data = await response.json();
         return data.Data.slice(0, 10).map(n => n.title).join('\n');
     } catch (err) {
@@ -51,6 +52,7 @@ async function fetchPerformanceData() {
     try {
         console.log("Fetching market performance data from CoinGecko...");
         const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=150&page=1&sparkline=false&price_change_percentage=30d,1y');
+        if (!response.ok) throw new Error(`CoinGecko API error: ${response.status}`);
         const data = await response.json();
 
         const topMonthly = [...data]
