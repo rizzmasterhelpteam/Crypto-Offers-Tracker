@@ -128,9 +128,6 @@ header {
 
 header.has-scrolled {
     padding: 10px 0;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-100%);
 }
 
 .header-inner {
