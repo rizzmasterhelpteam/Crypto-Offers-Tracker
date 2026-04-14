@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EigenLayer Liquid Restaking Protocols: Yield Comparison & Guide for 2026</title>
+    <title>EigenLayer Liquid Restaking Protocols: Yield Comparison & Guide for 2026 | Crypto Digest</title>
     <meta name="description" content="EigenLayer dominates liquid restaking with $18B+ TVL and 1,900+ operators. Compare yields, risks, and strategies against Solana’s JitoSOL — plus practical tips for capturing extra rewards in 2026.">
     <meta name="keywords" content="EigenLayer liquid restaking, LRT yield 2026, AVS rewards, ETH restaking protocols, JitoSOL comparison, liquid restaking tokens">
 
@@ -28,14 +28,15 @@
       "@type": "BlogPosting",
       "headline": "EigenLayer Liquid Restaking Protocols: Yield Comparison & Guide for 2026",
       "description": "EigenLayer dominates liquid restaking with $18B+ TVL and 1,900+ operators. Compare yields, risks, and strategies against Solana’s JitoSOL — plus practical tips for capturing extra rewards in 2026.",
-      "datePublished": "April 12, 2026",
+      "image": "../../../assets/logo.png",
+      "datePublished": "2026-04-14",
       "author": {
         "@type": "Person",
         "name": "Mark"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "crypto offers",
+        "name": "Crypto Digest",
         "logo": {
           "@type": "ImageObject",
           "url": "https://crypto-offers.vercel.app/assets/logo.png"
@@ -51,15 +52,26 @@
         <div class="progress-bar" id="myBar"></div>
     </div>
 
+    <!-- Sticky Header -->
+    <div class="sticky-header">
+        <div class="sticky-header-inner">
+            <span class="sticky-title"></span>
+            <nav class="sticky-nav nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/" style="color: var(--accent);">Digest</a>
+            </nav>
+        </div>
+    </div>
+
     <header>
         <div class="container header-inner">
             <a href="/" class="logo">
-                <img src="../../../assets/logo.png" alt="crypto offers Logo">
-                <span id="logo-title">crypto offers Digest</span>
+                <img src="../../../assets/logo.png" alt="Crypto Digest Logo">
+                <span>Crypto Digest</span>
             </a>
             <nav class="nav-links">
                 <a href="/">Home</a>
-                <a href="/blog/" style="color: var(--accent-secondary);">Digest</a>
+                <a href="/blog/" style="color: var(--accent);">Digest</a>
                 <a href="/about.html">About</a>
                 <a href="/contact.html">Contact</a>
             </nav>
@@ -79,14 +91,13 @@
                 <header class="post-header">
                     <div class="category-badge green">Protocol Alpha</div>
                     <h1>EigenLayer Liquid Restaking Protocols: Yield Comparison & Guide for 2026</h1>
-                    <p class="post-meta-line"
-                        style="margin: 12px 0 0; font-size: 0.9rem; color: #94a3b8; font-weight: 500;">By
-                        <a href="/author/mark.html" style="color: #60a5fa; font-weight: 600; text-decoration: none;">Mark</a> &nbsp;&middot;&nbsp; April 12, 2026<span id="reading-time"></span></p>
-
+                    <p class="post-meta-line">By <a href="/author/mark.html" style="color: var(--link); font-weight: 600; text-decoration: none;">Mark</a> &nbsp;&middot;&nbsp; <span
+                            class="date">2026-04-14</span><span id="reading-time"></span></p>
                 </header>
 
+                
+
                 <div class="content-body">
-                    
                     <p>Liquid restaking builds on traditional staking by allowing users to earn extra rewards from Actively Validated Services (AVSs) without locking capital. EigenLayer leads this sector on Ethereum, while protocols like Jito on Solana offer MEV-enhanced liquid staking in a different ecosystem.</p>
                     
                     <p>Both approaches improve capital efficiency, but they differ in yield sources, risks, and use cases. This guide breaks down the mechanics, compares key options, and shows practical applications for traders and liquidity providers in 2026.</p>
@@ -152,6 +163,8 @@
 
                     <p><em>Questions about choosing operators, specific AVS yields, or combining EigenLayer with Solana strategies? Share them in the comments below.</em></p>
                 </div>
+
+                <!-- Post-Content Ad -->
                 <div class="ad-container" style="margin-top: 40px;">
                     <div class="ad-label">Advertisement</div>
                     <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX"
@@ -159,14 +172,12 @@
                 </div>
             </article>
 
-            <div style="margin-top: 80px; text-align: center;">
-                <a href="/blog/" class="read-more" style="justify-content: center; font-size: 1.2rem;">Back to all
-                    Digests</a>
+            <div style="margin-top: 60px; text-align: center;">
+                <a href="/blog/" class="read-more" style="justify-content: center; font-size: 1.1rem;">&#8592; Back to
+                    all Digests</a>
             </div>
         </div>
     </main>
-
-
 
     <button id="back-to-top" aria-label="Back to top">&#8593;</button>
 
@@ -177,55 +188,44 @@
                 <span>Crypto Digest</span>
             </div>
             <p>Expert-led technical analysis for the modular crypto ecosystem.</p>
-            <p>&copy; 2026 Crypto Offers Tracker. All Rights Reserved.</p>
+            <p>&copy; 2026 Crypto Digest. All Rights Reserved.</p>
         </div>
     </footer>
+
     <script>
         try {
             (adsbygoogle = window.adsbygoogle || []).push({});
             (adsbygoogle = window.adsbygoogle || []).push({});
         } catch (e) { }
 
-                // ── Sticky Header & Progress Bar ───────────────────────
+        // Sticky Header & Progress Bar
         (function () {
             var h1 = document.querySelector('.post-header h1');
             var stickyHeader = document.querySelector('.sticky-header');
             var progressBar = document.getElementById('myBar');
             var stickyTitle = document.querySelector('.sticky-title');
-            
-            if (h1 && stickyTitle) {
-                stickyTitle.textContent = h1.textContent;
-            }
+
+            if (h1 && stickyTitle) stickyTitle.textContent = h1.textContent;
 
             window.addEventListener('scroll', function () {
                 if (h1 && stickyHeader) {
-                    var gone = h1.getBoundingClientRect().bottom <= 0;
-                    if (gone) {
-                        stickyHeader.classList.add('visible');
-                    } else {
-                        stickyHeader.classList.remove('visible');
-                    }
+                    stickyHeader.classList.toggle('visible', h1.getBoundingClientRect().bottom <= 0);
                 }
-                
                 if (progressBar) {
-                    var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-                    var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                    if (height > 0) {
-                        var scrolled = (winScroll / height) * 100;
-                        progressBar.style.width = scrolled + "%";
-                    }
+                    var h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    if (h > 0) progressBar.style.width = ((document.documentElement.scrollTop / h) * 100) + '%';
                 }
             }, { passive: true });
         })();
 
-        // ── Reading Time ───────────────────────────────────
+        // Reading Time
         (function () {
             var body = document.querySelector('.content-body');
             var rt = document.getElementById('reading-time');
             if (body && rt) rt.textContent = '\u00a0\u00b7\u00a0' + Math.ceil(body.textContent.trim().split(/\s+/).length / 200) + ' min read';
         })();
 
-        // ── Breadcrumbs ────────────────────────────────────
+        // Breadcrumbs
         (function () {
             var h1 = document.querySelector('.post-header h1');
             var badge = document.querySelector('.category-badge');
@@ -242,7 +242,7 @@
             postHeader.before(nav);
         })();
 
-        // ── Table of Contents ──────────────────────────────
+        // Table of Contents
         (function () {
             var headings = document.querySelectorAll('.content-body h2');
             if (headings.length < 3) return;
@@ -271,16 +271,14 @@
             });
         })();
 
-        // ── Back to Top ────────────────────────────────────
+        // Back to Top
         (function () {
             var btt = document.getElementById('back-to-top');
             if (!btt) return;
             window.addEventListener('scroll', function () {
                 btt.classList.toggle('visible', window.scrollY > 400);
             }, { passive: true });
-            btt.addEventListener('click', function () {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
+            btt.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
         })();
     </script>
 </body>
