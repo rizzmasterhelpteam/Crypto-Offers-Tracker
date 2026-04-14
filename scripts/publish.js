@@ -17,7 +17,7 @@ async function syncAndDeploy() {
         const gitDir = path.join(config.ADMIN_DIR, '..', '.git');
         if (fs.existsSync(gitDir)) {
             console.log(`[2/4] Staging changes for GitHub...`);
-            execSync(`git add blog/ admin/history.json admin/usage.log`, { stdio: 'inherit' });
+            execSync(`git add blog/ assets/ sitemap.xml admin/history.json admin/usage.log`, { stdio: 'inherit' });
 
             console.log(`[3/4] Integrating remote changes...`);
             try {
