@@ -366,34 +366,31 @@ function scrubMarkdown(html) {
 }
 
 /**
- * UI Assembly: Wraps the final body in the institutional template.
+ * assembleDraftContent: Saves a content-only draft file.
+ * Format: YAML front matter + pure HTML body only (no full HTML page).
+ * Full page wrapping happens at publish time via scripts/lib/publisher.js.
  */
-function assembleFullHtml(title, bodyHtml, personaKey = 'RET') {
+function assembleDraftContent(title, bodyHtml, personaKey = 'RET') {
     bodyHtml = scrubMarkdown(bodyHtml);
-    console.log(`[Utils] Assembling UI for ${personaKey}...`);
-    const template = fs.readFileSync(config.TEMPLATE_PATH, 'utf8');
-    const description = bodyHtml.replace(/<[^>]+>/g, '').slice(0, 160).trim() + "...";
-
-    // Dynamic metadata from Persona
     const p = AUDIENCE_PROFILES[personaKey] || AUDIENCE_PROFILES['RET'];
-    const category = p.category || "Protocol Alpha";
-    const badge = p.badge || "green";
+    const description = bodyHtml.replace(/<[^>]+>/g, '').slice(0, 200).trim();
+    const keywords = bodyHtml.match(/<h2>(.*?)<\/h2>/g)?.map(h => h.replace(/<[^>]+>/g, '')).slice(0, 5).join(', ') || '';
 
-    // Extract some keywords for meta tags
-    const keywords = bodyHtml.match(/<h2>(.*?)<\/h2>/g)?.map(h => h.replace(/<[^>]+>/g, '')).slice(0, 5).join(', ') || "";
+    // YAML front matter — all metadata the publisher needs
+    const frontMatter = [
+        '---',
+        `title: ${title}`,
+        `date: ${config.CURRENT_DATE}`,
+        `category: ${p.category || 'Protocol Alpha'}`,
+        `category_badge: ${p.badge || 'green'}`,
+        `author: ${config.AUTHOR.name}`,
+        `description: ${description}`,
+        `keywords: ${keywords}`,
+        `hero_image: `,
+        '---'
+    ].join('\n');
 
-    return template
-        .replace(/{{TITLE}}/g, title)
-        .replace(/{{META_DESCRIPTION}}/g, description)
-        .replace(/{{SEO_KEYWORDS}}/g, keywords)
-        .replace(/{{CONTENT}}/g, bodyHtml)
-        .replace(/{{DATE}}/g, config.CURRENT_DATE)
-        .replace(/{{ADSENSE_PUB_ID}}/g, config.ADSENSE_PUB_ID)
-        .replace(/{{AUTHOR_LINK}}/g, `<a href="/author/${config.AUTHOR.name.toLowerCase()}.html" style="color: #60a5fa; font-weight: 600; text-decoration: none;">${config.AUTHOR.name}</a>`)
-        .replace(/{{CATEGORY}}/g, category)
-        .replace(/{{CATEGORY_BADGE}}/g, badge)
-        .replace(/href="style\.css"/g, 'href="../../style.css"')
-        .replace(/src="\.\.\/assets\//g, 'src="../../../assets/');
+    return `${frontMatter}\n\n${bodyHtml.trim()}`;
 }
 
 
@@ -404,5 +401,5 @@ module.exports = {
     firstFactCheck,
     finalFactCheck,
     dataSanitizer,
-    assembleFullHtml
+    assembleDraftContent
 };

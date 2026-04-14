@@ -159,10 +159,10 @@ async function run() {
             fullPath = path.join(draftsDir, draftFileName);
         }
 
-        const finalHtml = generator.assembleFullHtml(generatedTitle || selectedKeyword, content, personaKey);
+        const finalDraftContent = generator.assembleDraftContent(generatedTitle || selectedKeyword, content, personaKey);
 
         try {
-            fs.writeFileSync(fullPath, finalHtml);
+            fs.writeFileSync(fullPath, finalDraftContent);
         } catch (writeErr) {
             console.error(`[Flow] Failed to write draft at ${fullPath}: ${writeErr.message}`);
             throw writeErr;
