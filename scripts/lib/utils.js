@@ -55,16 +55,16 @@ function syncBlogIndex() {
     absoluteFiles.forEach(absolutePath => {
         const file = path.relative(blogRoot, absolutePath).replace(/\\/g, '/');
         const content = fs.readFileSync(absolutePath, 'utf8');
-        const titleMatch = content.match(/<title>(.*?)<\/title>/);
+        const titleMatch = content.match(/<title>([\s\S]*?)<\/title>/);
         const dateMatch = content.match(/\u2022\s*(\d{4}-\d{2}-\d{2})/) ||
             content.match(/Published on (\d{4}-\d{2}-\d{2})/) ||
             content.match(/<span class="date">(\d{4}-\d{2}-\d{2})<\/span>/);
 
         const categoryMatch = content.match(/<div class="category-badge (.*?)">(.*?)<\/div>/);
-        const descriptionMatch = content.match(/<meta name="description" content="(.*?)"/);
+        const descriptionMatch = content.match(/<meta name="description"[\s\S]*?content="([\s\S]*?)"/);
 
         const title = titleMatch
-            ? titleMatch[1].replace(/ \| crypto offers.*$/i, '').replace(/^["']+|["']+$/g, '').trim()
+            ? titleMatch[1].replace(/ \| crypto (offers|digest).*$/i, '').replace(/^["']+|["']+$/g, '').replace(/\r?\n|\r/g, ' ').trim()
             : file;
 
         // Extract date from content or filename (YYYY-MM/DD/slug.html)
@@ -84,7 +84,7 @@ function syncBlogIndex() {
 
         let excerpt = '';
         if (descriptionMatch) {
-            excerpt = descriptionMatch[1].replace(/^Expert (?:crypto )?analysis on\s*/i, '').split(/\s*by Chain Signals/i)[0].trim();
+            excerpt = descriptionMatch[1].replace(/\r?\n|\r/g, ' ').replace(/^Expert (?:crypto )?analysis on\s*/i, '').split(/\s*by Chain Signals/i)[0].trim();
         }
         if (!excerpt) {
             const firstPMatch = content.match(/<div class="content-body">\s*<p>([\s\S]*?)<\/p>/);
