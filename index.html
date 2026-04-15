@@ -589,6 +589,16 @@
             background: linear-gradient(135deg, #f59e0b, #d97706);
         }
 
+        .badge-trending {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
         .card-title {
             font-size: 1.25rem;
             font-weight: 700;
@@ -769,6 +779,25 @@
 
         </div>
 
+
+        <!-- Market Ticker Bar -->
+        <div id="marketTicker" class="market-ticker hidden" style="background: rgba(30,41,59,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 16px; margin: 20px 0; font-size: 0.9rem; overflow-x: auto;">
+            <div style="display: flex; gap: 24px; white-space: nowrap;" id="tickerContent">
+                <span>⏳ Loading market data...</span>
+            </div>
+        </div>
+
+        <!-- Market Sentiment Banner -->
+        <div id="sentimentBanner" class="sentiment-banner hidden" style="background: rgba(30,41,59,0.6); border-left: 4px solid #10b981; border-radius: 12px; padding: 14px 16px; margin: 15px 0; font-size: 0.95rem; display: flex; align-items: center; gap: 12px;">
+            <span id="sentimentIcon">🟢</span>
+            <span id="sentimentText">Crypto market sentiment loading...</span>
+        </div>
+
+        <!-- Trending Now Section -->
+        <div id="trendingSection" class="trending-section hidden" style="margin: 25px 0; padding: 20px; background: rgba(30,41,59,0.4); border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);">
+            <h3 style="margin: 0 0 15px 0; font-size: 1.1rem; color: #f1f5f9;">🔥 Trending Now</h3>
+            <div id="trendingCoins" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;"></div>
+        </div>
 
         <!-- Below Header Ad -->
         <div class="ad-container">
@@ -999,27 +1028,31 @@
             } catch (e) { }
         }
 
-        let globalOffersList = []; // Stores the full 40-item batch
+        let globalOffersList = []; // Stores the full batch
         let currentNextRefresh = null;
         let isFetching = false;
+        let cachedMarketData = null;
+        let cachedPrices = null;
 
         async function fetchGlobalOffers() {
             // Check local slot cache first
             const cached = getCachedGlobalResults();
             if (cached) {
-                globalOffersList = cached.data;
+                globalOffersList = cached.data.enhancedOffers || cached.data;
                 currentNextRefresh = cached.nextRefresh;
-                return { cached: true };
+                cachedMarketData = cached.data.marketData;
+                cachedPrices = cached.data.prices;
+                return { cached: true, marketData: cachedMarketData, prices: cachedPrices };
             }
 
-            // Call our secure serverless API route — fetches the massive 40-item global batch
+            // Call our secure serverless API route
             const fetchController = new AbortController();
             const fetchTimeout = setTimeout(() => fetchController.abort(), 30000);
             const response = await fetch('/api/search', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 signal: fetchController.signal,
-                body: JSON.stringify({}) // Backend now ignores specific filters and gets everything
+                body: JSON.stringify({})
             });
             clearTimeout(fetchTimeout);
 
@@ -1036,9 +1069,12 @@
 
             globalOffersList = data.results;
             currentNextRefresh = data.nextRefresh;
-            setCachedGlobalResults(globalOffersList, currentNextRefresh);
+            cachedMarketData = data.marketData;
+            cachedPrices = data.prices;
 
-            return { cached: data.cached };
+            setCachedGlobalResults({ enhancedOffers: globalOffersList, marketData: cachedMarketData, prices: cachedPrices }, currentNextRefresh);
+
+            return { cached: data.cached, marketData: cachedMarketData, prices: cachedPrices };
         }
 
         async function handleSearch(isInitialLoad = false) {
@@ -1062,11 +1098,18 @@
                 if (resultCountEl) resultCountEl.classList.add('hidden');
 
                 try {
-                    showNotification('🤖 AI fetching all daily offers...', 'info');
-                    const { cached: wasLocallyCached } = await fetchGlobalOffers();
+                    showNotification('🔄 Fetching live market data & verified offers...', 'info');
+                    const { cached: wasLocallyCached, marketData, prices } = await fetchGlobalOffers();
+
+                    // Display market widgets
+                    if (marketData && prices) {
+                        displayMarketTicker(marketData, prices);
+                        displaySentimentBanner(marketData);
+                        if (globalOffersList.length > 0) displayTrendingCoins(globalOffersList);
+                    }
 
                     if (isInitialLoad) {
-                        const msg = wasLocallyCached ? '📦 Latest offers loaded' : `✅ Found airdrops & rewards!`;
+                        const msg = wasLocallyCached ? '📦 Latest offers loaded with live data' : `✅ Found authentic offers with market data!`;
                         showNotification(msg, 'success');
                     }
                 } catch (error) {
@@ -1187,8 +1230,15 @@
         function createCard(result) {
             const card = document.createElement('div');
             card.className = 'card';
-            const badgeClass = `badge-${(result.badge || 'live').replace(/[^a-z]/g, '')}`;
-            const badgeText = { live: '🟢 LIVE', new: '✨ NEW', ending: '⏰ ENDING' }[result.badge] || '🟢 LIVE';
+
+            // Determine badge - trending takes priority
+            let badgeClass = `badge-${(result.badge || 'live').replace(/[^a-z]/g, '')}`;
+            let badgeText = { live: '🟢 LIVE', new: '✨ NEW', ending: '⏰ ENDING' }[result.badge] || '🟢 LIVE';
+
+            if (result.isTrending && result.trendingRank) {
+                badgeClass = 'badge-trending';
+                badgeText = `🔥 #${result.trendingRank} TRENDING`;
+            }
 
             // Use the real URL from search results — fall back to platform page or Google
             const rawUrl = result.link ||
@@ -1202,6 +1252,22 @@
             let displayDomain = '';
             try { displayDomain = new URL(offerUrl).hostname.replace('www.', ''); } catch (e) { }
 
+            // Format live price display
+            let priceDisplay = '';
+            if (result.livePrice) {
+                const change = result.priceChange24h || 0;
+                const changeColor = change >= 0 ? '#10b981' : '#ef4444';
+                const changeIcon = change >= 0 ? '📈' : '📉';
+                priceDisplay = `<div class="meta-item"><span>${changeIcon}</span> <span style="color:${changeColor};">$${result.livePrice.toLocaleString('en-US', {maximumFractionDigits: 2})} (${change > 0 ? '+' : ''}${change.toFixed(1)}%)</span></div>`;
+            }
+
+            // Trust score display
+            let trustDisplay = '';
+            if (result.exchangeTrustScore > 0) {
+                const trustColor = result.exchangeTrustScore >= 9 ? '#10b981' : result.exchangeTrustScore >= 7 ? '#f59e0b' : '#ef4444';
+                trustDisplay = `<div class="meta-item"><span>⭐</span> <span style="color:${trustColor};">Trust: ${result.exchangeTrustScore}/10</span></div>`;
+            }
+
             card.innerHTML = `
                 <span class="badge ${badgeClass}">${badgeText}</span>
                 <h3 class="card-title">${esc(result.title)}</h3>
@@ -1210,6 +1276,8 @@
                 <div class="card-meta">
                     <div class="meta-item"><span>🏢</span> ${esc(result.platform)}</div>
                     <div class="meta-item"><span>💰</span> ${esc(result.value || 'Varies')}</div>
+                    ${priceDisplay}
+                    ${trustDisplay}
                     <div class="meta-item"><span>📅</span> ${esc(result.date || 'Recent')}</div>
                     ${displayDomain ? `<div class="meta-item"><span>🔗</span> <span style="color:#60a5fa;font-size:0.8rem;">${esc(displayDomain)}</span></div>` : ''}
                 </div>
@@ -1229,6 +1297,62 @@
             });
 
             return card;
+        }
+
+        // Display market ticker with live prices
+        function displayMarketTicker(marketData, prices) {
+            const ticker = document.getElementById('marketTicker');
+            if (!ticker) return;
+
+            const tickerItems = [
+                `📊 Market Cap: $${(marketData?.total_market_cap?.usd / 1e12).toFixed(2)}T`,
+                `📈 24h Vol: $${(marketData?.total_volume?.usd / 1e9).toFixed(1)}B`,
+                `Bitcoin: $${prices?.bitcoin?.usd?.toLocaleString('en-US', {maximumFractionDigits: 0})} ${prices?.bitcoin?.usd_24h_change >= 0 ? '📈' : '📉'} ${prices?.bitcoin?.usd_24h_change?.toFixed(1)}%`,
+                `Ethereum: $${prices?.ethereum?.usd?.toLocaleString('en-US', {maximumFractionDigits: 2})} ${prices?.ethereum?.usd_24h_change >= 0 ? '📈' : '📉'} ${prices?.ethereum?.usd_24h_change?.toFixed(1)}%`,
+                `BTC Dom: ${marketData?.market_cap_percentage?.btc?.toFixed(1)}%`
+            ];
+
+            document.getElementById('tickerContent').innerHTML = tickerItems.map(item => `<span>${item}</span>`).join('');
+            ticker.classList.remove('hidden');
+        }
+
+        // Display market sentiment banner
+        function displaySentimentBanner(marketData) {
+            const banner = document.getElementById('sentimentBanner');
+            if (!banner) return;
+
+            const change = marketData?.market_cap_change_percentage_24h_usd || 0;
+            const icon = change >= 0 ? '🟢' : '🔴';
+            const sentiment = change >= 0 ? 'up' : 'down';
+            const text = change >= 0
+                ? `Crypto market up ${Math.abs(change).toFixed(1)}% today — Great time to explore earning offers!`
+                : `Crypto market down ${Math.abs(change).toFixed(1)}% — High volatility, check staking for stability!`;
+
+            document.getElementById('sentimentIcon').textContent = icon;
+            document.getElementById('sentimentText').textContent = text;
+            banner.style.borderLeftColor = change >= 0 ? '#10b981' : '#ef4444';
+            banner.classList.remove('hidden');
+        }
+
+        // Display trending coins section
+        function displayTrendingCoins(globalOffers) {
+            const section = document.getElementById('trendingSection');
+            const container = document.getElementById('trendingCoins');
+            if (!section || !container) return;
+
+            const trending = globalOffers.filter(o => o.isTrending).slice(0, 7);
+            if (trending.length === 0) return;
+
+            container.innerHTML = trending.map(offer => `
+                <div style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer;" onclick="selectPlatform('${offer.platform.replace(/'/g, "\\'")}', document.querySelector('[data-platform-filter]'));">
+                    <div style="font-size: 1.4rem; margin-bottom: 8px;">🔥 #${offer.trendingRank || '?'}</div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #60a5fa;">${esc(offer.platform)}</div>
+                    <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 6px;">${esc(offer.value || 'Varies')}</div>
+                    ${offer.livePrice ? `<div style="font-size: 0.8rem; color: #10b981; margin-top: 4px;">$${offer.livePrice.toLocaleString('en-US', {maximumFractionDigits: 2})}</div>` : ''}
+                </div>
+            `).join('');
+
+            section.classList.remove('hidden');
         }
 
 

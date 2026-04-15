@@ -260,11 +260,15 @@ export default async function handler(req, res) {
     const today = new Date().toISOString().split('T')[0];
 
     try {
-        // Enhance offers with real-time data where possible
-        const enhancedOffers = await enhanceOffersWithRealData(VERIFIED_OFFERS, today);
+        // Fetch market data for ticker display in parallel with offer enhancement
+        const [enhancedOffers, marketData, prices] = await Promise.all([
+            enhanceOffersWithRealData(VERIFIED_OFFERS, today),
+            fetchMarketData()
+        ]);
 
         // Cache globally for this slot
-        serverCache[globalCacheKey] = enhancedOffers;
+        const cachePayload = { enhancedOffers, marketData, prices };
+        serverCache[globalCacheKey] = cachePayload;
 
         // Clean up stale slot caches
         const cur = getCurrentSlot();
@@ -276,17 +280,21 @@ export default async function handler(req, res) {
 
         return res.status(200).json({
             results: enhancedOffers,
+            marketData: marketData || {},
+            prices: prices || {},
             cached: false,
             nextRefresh: getNextSlotTime().toISOString(),
             slot,
-            dataSource: "Verified Real-Time Exchange & Protocol APIs"
+            dataSource: "Verified Offers + Live CoinGecko Data"
         });
 
     } catch (err) {
         // Fallback to verified offers even if real-time enhancement fails
-        serverCache[globalCacheKey] = VERIFIED_OFFERS;
+        serverCache[globalCacheKey] = { enhancedOffers: VERIFIED_OFFERS };
         return res.status(200).json({
             results: VERIFIED_OFFERS,
+            marketData: {},
+            prices: {},
             cached: false,
             nextRefresh: getNextSlotTime().toISOString(),
             slot,
@@ -295,37 +303,129 @@ export default async function handler(req, res) {
     }
 }
 
-// Enhance offers with real-time market data from CoinGecko
+async function fetchMarketData() {
+    try {
+        const [globalRes, pricesRes] = await Promise.all([
+            fetchWithTimeout('https://api.coingecko.com/api/v3/global', 5000),
+            fetchWithTimeout('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,cardano,polkadot,ripple,binancecoin,dogecoin,tron,avalanche-2&vs_currencies=usd&include_24hr_change=true&include_market_cap=true', 5000)
+        ]);
+
+        const globalData = await globalRes.json();
+        const pricesData = await pricesRes.json();
+
+        return [globalData?.data, pricesData];
+    } catch {
+        return [null, null];
+    }
+}
+
+// Enhance offers with real-time market data from CoinGecko (FREE API, no key needed)
 async function enhanceOffersWithRealData(offers, today) {
     try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 8000);
+        // Fetch all CoinGecko data in parallel
+        const [trendingRes, globalRes, pricesRes, exchangesRes] = await Promise.all([
+            fetchWithTimeout('https://api.coingecko.com/api/v3/search/trending', 8000),
+            fetchWithTimeout('https://api.coingecko.com/api/v3/global', 8000),
+            fetchWithTimeout('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,cardano,polkadot,ripple,binancecoin,dogecoin,tron,avalanche-2&vs_currencies=usd&include_24hr_change=true&include_market_cap=true', 8000),
+            fetchWithTimeout('https://api.coingecko.com/api/v3/exchanges?per_page=30', 8000)
+        ]);
 
-        const response = await fetch('https://api.coingecko.com/api/v3/search/trending', {
-            signal: controller.signal
+        const trendingData = await trendingRes.json();
+        const globalData = await globalRes.json();
+        const pricesData = await pricesRes.json();
+        const exchangesData = await exchangesRes.json();
+
+        // Build lookup tables
+        const trendingCoins = (trendingData?.coins || []).slice(0, 7).map(c => c.item.name.toLowerCase());
+        const trendingRanks = {};
+        (trendingData?.coins || []).slice(0, 7).forEach((c, i) => {
+            trendingRanks[c.item.name.toLowerCase()] = i + 1;
         });
-        clearTimeout(timeout);
 
-        if (response.ok) {
-            const trendingData = await response.json();
-            if (trendingData && Array.isArray(trendingData.coins)) {
-                const trendingNames = trendingData.coins.slice(0, 3).map(c => c.item.name);
+        const exchangeTrustMap = {};
+        (exchangesData || []).forEach(ex => {
+            exchangeTrustMap[ex.name.toLowerCase()] = {
+                trustScore: ex.trust_score || 0,
+                volume24hBtc: ex.trade_volume_24h_btc || 0,
+                image: ex.image
+            };
+        });
 
-                // Add trending context to offers (mark relevant ones as "trending")
-                return offers.map(offer => ({
-                    ...offer,
-                    date: today,
-                    isTrending: trendingNames.some(name =>
-                        offer.title.includes(name) || offer.description.includes(name)
-                    )
-                }));
+        const marketSentiment = globalData?.data?.market_cap_change_percentage_24h_usd >= 0 ? 'bullish' : 'bearish';
+        const marketChange = globalData?.data?.market_cap_change_percentage_24h_usd || 0;
+
+        // Add live data to each offer
+        return offers.map(offer => {
+            let livePrice = null;
+            let priceChange24h = null;
+            let marketCap = null;
+            let coinLogoUrl = null;
+
+            // Map offer platforms to coins
+            const coinMap = {
+                'ethereum': 'ethereum',
+                'bitcoin': 'bitcoin',
+                'solana': 'solana',
+                'cardano': 'cardano',
+                'bnb': 'binancecoin'
+            };
+
+            const coinId = Object.keys(coinMap).find(key => offer.title.toLowerCase().includes(key) || offer.description.toLowerCase().includes(key));
+            if (coinId && pricesData[coinMap[coinId]]) {
+                const priceInfo = pricesData[coinMap[coinId]];
+                livePrice = priceInfo.usd;
+                priceChange24h = priceInfo.usd_24h_change;
+                marketCap = priceInfo.usd_market_cap;
             }
-        }
 
-        // If real-time fails, just add date
-        return offers.map(offer => ({ ...offer, date: today }));
-    } catch {
-        // Fallback - just add date
-        return offers.map(offer => ({ ...offer, date: today }));
+            // Get exchange trust score
+            const exchangeTrust = exchangeTrustMap[offer.platform.toLowerCase()] || { trustScore: 0, volume24hBtc: 0 };
+
+            // Check if trending
+            const offerCoins = offer.title.toLowerCase().split(/\s+|,/);
+            const isTrending = offerCoins.some(c => trendingCoins.includes(c));
+            const trendingRank = offerCoins.find(c => trendingRanks[c])
+                ? trendingRanks[offerCoins.find(c => trendingRanks[c])]
+                : null;
+
+            return {
+                ...offer,
+                date: today,
+                livePrice,
+                priceChange24h,
+                marketCap,
+                isTrending,
+                trendingRank,
+                exchangeTrustScore: exchangeTrust.trustScore,
+                volume24hBtc: exchangeTrust.volume24hBtc,
+                marketSentiment,
+                globalMarketChange: marketChange
+            };
+        });
+    } catch (err) {
+        // Fallback - just add date and sentiment
+        return offers.map(offer => ({
+            ...offer,
+            date: today,
+            livePrice: null,
+            priceChange24h: null,
+            isTrending: false,
+            exchangeTrustScore: 0
+        }));
+    }
+}
+
+// Utility function for fetch with timeout
+async function fetchWithTimeout(url, timeoutMs) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeout);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response;
+    } catch (err) {
+        clearTimeout(timeout);
+        throw err;
     }
 }
