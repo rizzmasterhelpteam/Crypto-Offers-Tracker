@@ -2,7 +2,6 @@
 const serverCache = {};
 
 function getCurrentSlot() {
-    // Increments every 12 hours UTC — refreshes globally twice daily
     return Math.floor(Date.now() / (12 * 60 * 60 * 1000));
 }
 
@@ -11,8 +10,8 @@ function getNextSlotTime() {
 }
 
 // Real, curated crypto offers from official sources
+// Each offer has a coinId for live price lookup and coinName for trending matching
 const VERIFIED_OFFERS = [
-    // Binance Offers
     {
         title: "Binance USDT Staking Rewards",
         platform: "Binance",
@@ -21,7 +20,9 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Minimum: 50 USDT",
-        link: "https://www.binance.com/en/activity/earn"
+        link: "https://www.binance.com/en/activity/earn",
+        coinId: "tether",
+        coinName: "Tether"
     },
     {
         title: "Binance Referral Commission",
@@ -31,10 +32,10 @@ const VERIFIED_OFFERS = [
         type: "trading",
         badge: "live",
         requirements: "Share referral link",
-        link: "https://www.binance.com/en/activity/referral"
+        link: "https://www.binance.com/en/activity/referral",
+        coinId: "binancecoin",
+        coinName: "BNB"
     },
-
-    // Coinbase Offers
     {
         title: "Coinbase Learn & Earn",
         platform: "Coinbase",
@@ -43,7 +44,9 @@ const VERIFIED_OFFERS = [
         type: "learn",
         badge: "live",
         requirements: "Complete learning modules",
-        link: "https://www.coinbase.com/earn"
+        link: "https://www.coinbase.com/earn",
+        coinId: "bitcoin",
+        coinName: "Bitcoin"
     },
     {
         title: "Coinbase Staking (Ethereum)",
@@ -53,10 +56,10 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Minimum: 0.001 ETH",
-        link: "https://www.coinbase.com/staking/ethereum"
+        link: "https://www.coinbase.com/staking/ethereum",
+        coinId: "ethereum",
+        coinName: "Ethereum"
     },
-
-    // Kraken Offers
     {
         title: "Kraken Staking Rewards",
         platform: "Kraken",
@@ -65,7 +68,9 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Varies by asset",
-        link: "https://www.kraken.com/features/staking-coins"
+        link: "https://www.kraken.com/features/staking-coins",
+        coinId: "ethereum",
+        coinName: "Ethereum"
     },
     {
         title: "Kraken Tier Rewards",
@@ -75,10 +80,10 @@ const VERIFIED_OFFERS = [
         type: "trading",
         badge: "live",
         requirements: "Monthly trading volume",
-        link: "https://www.kraken.com/features/margin-trading"
+        link: "https://www.kraken.com/features/fee-schedule",
+        coinId: "bitcoin",
+        coinName: "Bitcoin"
     },
-
-    // OKX Offers
     {
         title: "OKX Earn Program",
         platform: "OKX",
@@ -87,10 +92,10 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Minimum varies by asset",
-        link: "https://www.okx.com/earn"
+        link: "https://www.okx.com/earn",
+        coinId: "ethereum",
+        coinName: "Ethereum"
     },
-
-    // Bybit Offers
     {
         title: "Bybit New User Bonus",
         platform: "Bybit",
@@ -99,10 +104,10 @@ const VERIFIED_OFFERS = [
         type: "trading",
         badge: "new",
         requirements: "First deposit required",
-        link: "https://www.bybit.com/en-US/promo/welcome-bonus"
+        link: "https://www.bybit.com/en-US/promo/welcome-bonus",
+        coinId: "tether",
+        coinName: "Tether"
     },
-
-    // KuCoin Offers
     {
         title: "KuCoin Staking Center",
         platform: "KuCoin",
@@ -111,10 +116,10 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Asset specific",
-        link: "https://www.kucoin.com/earn"
+        link: "https://www.kucoin.com/earn",
+        coinId: "bitcoin",
+        coinName: "Bitcoin"
     },
-
-    // Gate.io Offers
     {
         title: "Gate.io Lending Products",
         platform: "Gate.io",
@@ -123,10 +128,10 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Minimum: 0.1 BTC equivalent",
-        link: "https://www.gate.io/earn"
+        link: "https://www.gate.io/earn",
+        coinId: "bitcoin",
+        coinName: "Bitcoin"
     },
-
-    // DeFi Offers
     {
         title: "Uniswap Liquidity Provider Rewards",
         platform: "Uniswap",
@@ -135,7 +140,9 @@ const VERIFIED_OFFERS = [
         type: "launchpad",
         badge: "live",
         requirements: "Pair liquidity in V4",
-        link: "https://app.uniswap.org/explore/pools"
+        link: "https://app.uniswap.org/explore/pools",
+        coinId: "uniswap",
+        coinName: "Uniswap"
     },
     {
         title: "Curve Finance Governance Token",
@@ -145,7 +152,9 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Provide liquidity to pools",
-        link: "https://curve.fi/#/ethereum/pools"
+        link: "https://curve.fi/#/ethereum/pools",
+        coinId: "curve-dao-token",
+        coinName: "Curve DAO Token"
     },
     {
         title: "Aave Liquidity Mining",
@@ -155,10 +164,10 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Supply/borrow assets",
-        link: "https://app.aave.com/markets"
+        link: "https://app.aave.com/markets",
+        coinId: "aave",
+        coinName: "Aave"
     },
-
-    // Bitget Offers
     {
         title: "Bitget Earning Center",
         platform: "Bitget",
@@ -167,10 +176,10 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Minimum varies",
-        link: "https://www.bitget.com/earn"
+        link: "https://www.bitget.com/earn",
+        coinId: "bitcoin",
+        coinName: "Bitcoin"
     },
-
-    // Crypto.com Offers
     {
         title: "Crypto.com Earn",
         platform: "Crypto.com",
@@ -179,10 +188,10 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "CRO card staking tier",
-        link: "https://crypto.com/earn"
+        link: "https://crypto.com/earn",
+        coinId: "crypto-com-chain",
+        coinName: "Cronos"
     },
-
-    // MEXC Offers
     {
         title: "MEXC Mining Rewards",
         platform: "MEXC",
@@ -191,10 +200,10 @@ const VERIFIED_OFFERS = [
         type: "trading",
         badge: "live",
         requirements: "Trading volume",
-        link: "https://www.mexc.com/activity/mining"
+        link: "https://www.mexc.com/activity/mining",
+        coinId: "bitcoin",
+        coinName: "Bitcoin"
     },
-
-    // Additional Layer 2 & Protocol Offers
     {
         title: "Optimism Delegate Rewards",
         platform: "Optimism",
@@ -203,7 +212,9 @@ const VERIFIED_OFFERS = [
         type: "launchpad",
         badge: "new",
         requirements: "Hold OP tokens",
-        link: "https://app.optimism.io/governance"
+        link: "https://app.optimism.io/governance",
+        coinId: "optimism",
+        coinName: "Optimism"
     },
     {
         title: "Arbitrum DAO Grants",
@@ -213,7 +224,9 @@ const VERIFIED_OFFERS = [
         type: "launchpad",
         badge: "live",
         requirements: "Project submission",
-        link: "https://arbitrumgrants.org"
+        link: "https://arbitrumgrants.org",
+        coinId: "arbitrum",
+        coinName: "Arbitrum"
     },
     {
         title: "Lido Liquid Staking ETH",
@@ -223,7 +236,9 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Any amount of ETH",
-        link: "https://lido.fi/eth"
+        link: "https://lido.fi/eth",
+        coinId: "ethereum",
+        coinName: "Ethereum"
     },
     {
         title: "Yearn Finance Vault APY",
@@ -233,7 +248,9 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Deposit into vault",
-        link: "https://yearn.fi"
+        link: "https://yearn.fi",
+        coinId: "ethereum",
+        coinName: "Ethereum"
     }
 ];
 
@@ -247,27 +264,35 @@ export default async function handler(req, res) {
     const slot = getCurrentSlot();
     const globalCacheKey = `global_slot_${slot}`;
 
-    // Return cached global data if available
+    // BUG FIX #2: Return cached data with correct structure including marketData & prices
     if (serverCache[globalCacheKey]) {
+        const cached = serverCache[globalCacheKey];
         return res.status(200).json({
-            results: serverCache[globalCacheKey],
+            results: cached.enhancedOffers,
+            marketData: cached.marketData || {},
+            prices: cached.prices || {},
+            trendingCoins: cached.trendingCoins || [],
             cached: true,
             nextRefresh: getNextSlotTime().toISOString(),
-            slot
+            slot,
+            dataSource: "Verified Offers + Live CoinGecko Data (Cached)"
         });
     }
 
     const today = new Date().toISOString().split('T')[0];
 
     try {
-        // Fetch market data for ticker display in parallel with offer enhancement
-        const [enhancedOffers, marketData, prices] = await Promise.all([
-            enhanceOffersWithRealData(VERIFIED_OFFERS, today),
-            fetchMarketData()
-        ]);
+        // BUG FIX #3: Single fetch call for all CoinGecko data — no duplicates
+        const liveData = await fetchAllCoinGeckoData();
+        const enhancedOffers = buildEnhancedOffers(VERIFIED_OFFERS, liveData, today);
 
-        // Cache globally for this slot
-        const cachePayload = { enhancedOffers, marketData, prices };
+        // Store full payload in cache
+        const cachePayload = {
+            enhancedOffers,
+            marketData: liveData.marketData,
+            prices: liveData.prices,
+            trendingCoins: liveData.trendingCoins
+        };
         serverCache[globalCacheKey] = cachePayload;
 
         // Clean up stale slot caches
@@ -280,8 +305,9 @@ export default async function handler(req, res) {
 
         return res.status(200).json({
             results: enhancedOffers,
-            marketData: marketData || {},
-            prices: prices || {},
+            marketData: liveData.marketData || {},
+            prices: liveData.prices || {},
+            trendingCoins: liveData.trendingCoins || [],
             cached: false,
             nextRefresh: getNextSlotTime().toISOString(),
             slot,
@@ -289,133 +315,118 @@ export default async function handler(req, res) {
         });
 
     } catch (err) {
-        // Fallback to verified offers even if real-time enhancement fails
-        serverCache[globalCacheKey] = { enhancedOffers: VERIFIED_OFFERS };
+        // Fallback: return verified offers with no live data
+        const fallbackOffers = VERIFIED_OFFERS.map(o => ({ ...o, date: today }));
+        serverCache[globalCacheKey] = { enhancedOffers: fallbackOffers, marketData: {}, prices: {}, trendingCoins: [] };
         return res.status(200).json({
-            results: VERIFIED_OFFERS,
+            results: fallbackOffers,
             marketData: {},
             prices: {},
+            trendingCoins: [],
             cached: false,
             nextRefresh: getNextSlotTime().toISOString(),
             slot,
-            dataSource: "Verified Offers (Real-time API unavailable)"
+            dataSource: "Verified Offers (Live API unavailable)"
         });
     }
 }
 
-async function fetchMarketData() {
-    try {
-        const [globalRes, pricesRes] = await Promise.all([
-            fetchWithTimeout('https://api.coingecko.com/api/v3/global', 5000),
-            fetchWithTimeout('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,cardano,polkadot,ripple,binancecoin,dogecoin,tron,avalanche-2&vs_currencies=usd&include_24hr_change=true&include_market_cap=true', 5000)
-        ]);
+// BUG FIX #3: Single function that fetches ALL CoinGecko data in parallel — no duplicate calls
+async function fetchAllCoinGeckoData() {
+    const coinIds = [...new Set(VERIFIED_OFFERS.map(o => o.coinId).filter(Boolean))].join(',');
 
-        const globalData = await globalRes.json();
-        const pricesData = await pricesRes.json();
+    const [trendingRes, globalRes, pricesRes, exchangesRes] = await Promise.allSettled([
+        fetchWithTimeout(`https://api.coingecko.com/api/v3/search/trending`, 8000),
+        fetchWithTimeout(`https://api.coingecko.com/api/v3/global`, 8000),
+        fetchWithTimeout(`https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true`, 8000),
+        fetchWithTimeout(`https://api.coingecko.com/api/v3/exchanges?per_page=50`, 8000)
+    ]);
 
-        return [globalData?.data, pricesData];
-    } catch {
-        return [null, null];
-    }
+    // Safely extract data from each settled promise
+    const trendingData = trendingRes.status === 'fulfilled' ? await trendingRes.value.json().catch(() => ({})) : {};
+    const globalData = globalRes.status === 'fulfilled' ? await globalRes.value.json().catch(() => ({})) : {};
+    const pricesData = pricesRes.status === 'fulfilled' ? await pricesRes.value.json().catch(() => ({})) : {};
+    const exchangesData = exchangesRes.status === 'fulfilled' ? await exchangesRes.value.json().catch(() => ([])) : [];
+
+    // Build trending lookup: coinId → rank
+    const trendingCoins = (trendingData?.coins || []).slice(0, 7).map((c, i) => ({
+        id: c.item.id,
+        name: c.item.name,
+        symbol: c.item.symbol,
+        rank: i + 1,
+        price: c.item.data?.price || null,
+        change24h: c.item.data?.price_change_percentage_24h?.usd || null,
+        sparkline: c.item.data?.sparkline || null
+    }));
+    const trendingById = {};
+    const trendingByName = {};
+    trendingCoins.forEach(c => {
+        trendingById[c.id.toLowerCase()] = c;
+        trendingByName[c.name.toLowerCase()] = c;
+        trendingByName[c.symbol.toLowerCase()] = c;
+    });
+
+    // Build exchange trust lookup: exchange name → trust info
+    const exchangeTrustMap = {};
+    (Array.isArray(exchangesData) ? exchangesData : []).forEach(ex => {
+        exchangeTrustMap[ex.name.toLowerCase()] = {
+            trustScore: ex.trust_score || 0,
+            volume24hBtc: Math.round(ex.trade_volume_24h_btc || 0)
+        };
+    });
+
+    return {
+        trendingCoins,
+        trendingById,
+        trendingByName,
+        exchangeTrustMap,
+        marketData: globalData?.data || {},
+        prices: pricesData
+    };
 }
 
-// Enhance offers with real-time market data from CoinGecko (FREE API, no key needed)
-async function enhanceOffersWithRealData(offers, today) {
-    try {
-        // Fetch all CoinGecko data in parallel
-        const [trendingRes, globalRes, pricesRes, exchangesRes] = await Promise.all([
-            fetchWithTimeout('https://api.coingecko.com/api/v3/search/trending', 8000),
-            fetchWithTimeout('https://api.coingecko.com/api/v3/global', 8000),
-            fetchWithTimeout('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,cardano,polkadot,ripple,binancecoin,dogecoin,tron,avalanche-2&vs_currencies=usd&include_24hr_change=true&include_market_cap=true', 8000),
-            fetchWithTimeout('https://api.coingecko.com/api/v3/exchanges?per_page=30', 8000)
-        ]);
+// BUG FIX #5: Use coinId and coinName for accurate trending matching
+function buildEnhancedOffers(offers, liveData, today) {
+    const { trendingById, trendingByName, exchangeTrustMap, prices } = liveData;
 
-        const trendingData = await trendingRes.json();
-        const globalData = await globalRes.json();
-        const pricesData = await pricesRes.json();
-        const exchangesData = await exchangesRes.json();
+    return offers.map(offer => {
+        // Price lookup using explicit coinId on each offer
+        const priceInfo = offer.coinId && prices[offer.coinId] ? prices[offer.coinId] : null;
+        const livePrice = priceInfo?.usd ?? null;
+        const priceChange24h = priceInfo?.usd_24h_change ?? null;
 
-        // Build lookup tables
-        const trendingCoins = (trendingData?.coins || []).slice(0, 7).map(c => c.item.name.toLowerCase());
-        const trendingRanks = {};
-        (trendingData?.coins || []).slice(0, 7).forEach((c, i) => {
-            trendingRanks[c.item.name.toLowerCase()] = i + 1;
-        });
+        // BUG FIX #5: Match trending using coinId and coinName fields (not title word split)
+        const trendingMatch =
+            (offer.coinId && trendingById[offer.coinId.toLowerCase()]) ||
+            (offer.coinName && trendingByName[offer.coinName.toLowerCase()]);
+        const isTrending = !!trendingMatch;
+        const trendingRank = trendingMatch?.rank || null;
 
-        const exchangeTrustMap = {};
-        (exchangesData || []).forEach(ex => {
-            exchangeTrustMap[ex.name.toLowerCase()] = {
-                trustScore: ex.trust_score || 0,
-                volume24hBtc: ex.trade_volume_24h_btc || 0,
-                image: ex.image
-            };
-        });
+        // Exchange trust score
+        const exchangeTrust = exchangeTrustMap[offer.platform.toLowerCase()] || { trustScore: 0, volume24hBtc: 0 };
 
-        const marketSentiment = globalData?.data?.market_cap_change_percentage_24h_usd >= 0 ? 'bullish' : 'bearish';
-        const marketChange = globalData?.data?.market_cap_change_percentage_24h_usd || 0;
-
-        // Add live data to each offer
-        return offers.map(offer => {
-            let livePrice = null;
-            let priceChange24h = null;
-            let marketCap = null;
-            let coinLogoUrl = null;
-
-            // Map offer platforms to coins
-            const coinMap = {
-                'ethereum': 'ethereum',
-                'bitcoin': 'bitcoin',
-                'solana': 'solana',
-                'cardano': 'cardano',
-                'bnb': 'binancecoin'
-            };
-
-            const coinId = Object.keys(coinMap).find(key => offer.title.toLowerCase().includes(key) || offer.description.toLowerCase().includes(key));
-            if (coinId && pricesData[coinMap[coinId]]) {
-                const priceInfo = pricesData[coinMap[coinId]];
-                livePrice = priceInfo.usd;
-                priceChange24h = priceInfo.usd_24h_change;
-                marketCap = priceInfo.usd_market_cap;
-            }
-
-            // Get exchange trust score
-            const exchangeTrust = exchangeTrustMap[offer.platform.toLowerCase()] || { trustScore: 0, volume24hBtc: 0 };
-
-            // Check if trending
-            const offerCoins = offer.title.toLowerCase().split(/\s+|,/);
-            const isTrending = offerCoins.some(c => trendingCoins.includes(c));
-            const trendingRank = offerCoins.find(c => trendingRanks[c])
-                ? trendingRanks[offerCoins.find(c => trendingRanks[c])]
-                : null;
-
-            return {
-                ...offer,
-                date: today,
-                livePrice,
-                priceChange24h,
-                marketCap,
-                isTrending,
-                trendingRank,
-                exchangeTrustScore: exchangeTrust.trustScore,
-                volume24hBtc: exchangeTrust.volume24hBtc,
-                marketSentiment,
-                globalMarketChange: marketChange
-            };
-        });
-    } catch (err) {
-        // Fallback - just add date and sentiment
-        return offers.map(offer => ({
-            ...offer,
+        // BUG FIX #4: Remove dead coinLogoUrl variable
+        return {
+            title: offer.title,
+            platform: offer.platform,
+            description: offer.description,
+            value: offer.value,
+            type: offer.type,
+            badge: offer.badge,
+            requirements: offer.requirements,
+            link: offer.link,
             date: today,
-            livePrice: null,
-            priceChange24h: null,
-            isTrending: false,
-            exchangeTrustScore: 0
-        }));
-    }
+            livePrice,
+            priceChange24h,
+            isTrending,
+            trendingRank,
+            exchangeTrustScore: exchangeTrust.trustScore,
+            volume24hBtc: exchangeTrust.volume24hBtc
+        };
+    });
 }
 
-// Utility function for fetch with timeout
+// Utility: fetch with timeout, throws on non-ok or timeout
 async function fetchWithTimeout(url, timeoutMs) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);

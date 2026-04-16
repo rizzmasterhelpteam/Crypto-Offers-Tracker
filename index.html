@@ -1028,11 +1028,12 @@
             } catch (e) { }
         }
 
-        let globalOffersList = []; // Stores the full batch
+        let globalOffersList = [];
         let currentNextRefresh = null;
         let isFetching = false;
         let cachedMarketData = null;
         let cachedPrices = null;
+        let cachedTrendingCoins = []; // BUG FIX #6: store real trending coins from API
 
         async function fetchGlobalOffers() {
             // Check local slot cache first
@@ -1040,12 +1041,12 @@
             if (cached) {
                 globalOffersList = cached.data.enhancedOffers || cached.data;
                 currentNextRefresh = cached.nextRefresh;
-                cachedMarketData = cached.data.marketData;
-                cachedPrices = cached.data.prices;
-                return { cached: true, marketData: cachedMarketData, prices: cachedPrices };
+                cachedMarketData = cached.data.marketData || {};
+                cachedPrices = cached.data.prices || {};
+                cachedTrendingCoins = cached.data.trendingCoins || [];
+                return { cached: true, marketData: cachedMarketData, prices: cachedPrices, trendingCoins: cachedTrendingCoins };
             }
 
-            // Call our secure serverless API route
             const fetchController = new AbortController();
             const fetchTimeout = setTimeout(() => fetchController.abort(), 30000);
             const response = await fetch('/api/search', {
@@ -1069,12 +1070,18 @@
 
             globalOffersList = data.results;
             currentNextRefresh = data.nextRefresh;
-            cachedMarketData = data.marketData;
-            cachedPrices = data.prices;
+            cachedMarketData = data.marketData || {};
+            cachedPrices = data.prices || {};
+            cachedTrendingCoins = data.trendingCoins || [];
 
-            setCachedGlobalResults({ enhancedOffers: globalOffersList, marketData: cachedMarketData, prices: cachedPrices }, currentNextRefresh);
+            setCachedGlobalResults({
+                enhancedOffers: globalOffersList,
+                marketData: cachedMarketData,
+                prices: cachedPrices,
+                trendingCoins: cachedTrendingCoins
+            }, currentNextRefresh);
 
-            return { cached: data.cached, marketData: cachedMarketData, prices: cachedPrices };
+            return { cached: data.cached, marketData: cachedMarketData, prices: cachedPrices, trendingCoins: cachedTrendingCoins };
         }
 
         async function handleSearch(isInitialLoad = false) {
@@ -1099,14 +1106,13 @@
 
                 try {
                     showNotification('🔄 Fetching live market data & verified offers...', 'info');
-                    const { cached: wasLocallyCached, marketData, prices } = await fetchGlobalOffers();
+                    const { cached: wasLocallyCached, marketData, prices, trendingCoins } = await fetchGlobalOffers();
 
-                    // Display market widgets
-                    if (marketData && prices) {
-                        displayMarketTicker(marketData, prices);
-                        displaySentimentBanner(marketData);
-                        if (globalOffersList.length > 0) displayTrendingCoins(globalOffersList);
-                    }
+                    // Display market widgets with null-safe data
+                    displayMarketTicker(marketData || {}, prices || {});
+                    displaySentimentBanner(marketData || {});
+                    // BUG FIX #6: pass actual trendingCoins array from API, not filtered offers
+                    displayTrendingCoins(trendingCoins || []);
 
                     if (isInitialLoad) {
                         const msg = wasLocallyCached ? '📦 Latest offers loaded with live data' : `✅ Found authentic offers with market data!`;
@@ -1299,19 +1305,29 @@
             return card;
         }
 
-        // Display market ticker with live prices
+        // BUG FIX #7 & #9: Null-safe market ticker — no NaN on missing data
         function displayMarketTicker(marketData, prices) {
             const ticker = document.getElementById('marketTicker');
             if (!ticker) return;
 
-            const tickerItems = [
-                `📊 Market Cap: $${(marketData?.total_market_cap?.usd / 1e12).toFixed(2)}T`,
-                `📈 24h Vol: $${(marketData?.total_volume?.usd / 1e9).toFixed(1)}B`,
-                `Bitcoin: $${prices?.bitcoin?.usd?.toLocaleString('en-US', {maximumFractionDigits: 0})} ${prices?.bitcoin?.usd_24h_change >= 0 ? '📈' : '📉'} ${prices?.bitcoin?.usd_24h_change?.toFixed(1)}%`,
-                `Ethereum: $${prices?.ethereum?.usd?.toLocaleString('en-US', {maximumFractionDigits: 2})} ${prices?.ethereum?.usd_24h_change >= 0 ? '📈' : '📉'} ${prices?.ethereum?.usd_24h_change?.toFixed(1)}%`,
-                `BTC Dom: ${marketData?.market_cap_percentage?.btc?.toFixed(1)}%`
-            ];
+            const mcap = marketData?.total_market_cap?.usd;
+            const vol = marketData?.total_volume?.usd;
+            const btcDom = marketData?.market_cap_percentage?.btc;
+            const btc = prices?.bitcoin;
+            const eth = prices?.ethereum;
 
+            const fmt = (n, decimals = 0) => n != null ? Number(n).toLocaleString('en-US', { maximumFractionDigits: decimals }) : '—';
+            const pct = (n) => n != null ? `${n >= 0 ? '📈' : '📉'} ${n >= 0 ? '+' : ''}${Number(n).toFixed(1)}%` : '';
+
+            const tickerItems = [
+                mcap != null ? `📊 Market Cap: $${(mcap / 1e12).toFixed(2)}T` : null,
+                vol != null ? `📈 24h Vol: $${(vol / 1e9).toFixed(1)}B` : null,
+                btc ? `BTC: $${fmt(btc.usd)} ${pct(btc.usd_24h_change)}` : null,
+                eth ? `ETH: $${fmt(eth.usd, 2)} ${pct(eth.usd_24h_change)}` : null,
+                btcDom != null ? `BTC Dom: ${Number(btcDom).toFixed(1)}%` : null
+            ].filter(Boolean);
+
+            if (tickerItems.length === 0) return; // nothing to show
             document.getElementById('tickerContent').innerHTML = tickerItems.map(item => `<span>${item}</span>`).join('');
             ticker.classList.remove('hidden');
         }
@@ -1321,12 +1337,13 @@
             const banner = document.getElementById('sentimentBanner');
             if (!banner) return;
 
-            const change = marketData?.market_cap_change_percentage_24h_usd || 0;
+            const change = marketData?.market_cap_change_percentage_24h_usd;
+            if (change == null) return; // no data — hide banner
+
             const icon = change >= 0 ? '🟢' : '🔴';
-            const sentiment = change >= 0 ? 'up' : 'down';
             const text = change >= 0
                 ? `Crypto market up ${Math.abs(change).toFixed(1)}% today — Great time to explore earning offers!`
-                : `Crypto market down ${Math.abs(change).toFixed(1)}% — High volatility, check staking for stability!`;
+                : `Crypto market down ${Math.abs(change).toFixed(1)}% today — High volatility, check staking for stability!`;
 
             document.getElementById('sentimentIcon').textContent = icon;
             document.getElementById('sentimentText').textContent = text;
@@ -1334,23 +1351,56 @@
             banner.classList.remove('hidden');
         }
 
-        // Display trending coins section
-        function displayTrendingCoins(globalOffers) {
+        // BUG FIX #6 & #8: Use real trendingCoins array from API; bind clicks with addEventListener
+        function displayTrendingCoins(trendingCoins) {
             const section = document.getElementById('trendingSection');
             const container = document.getElementById('trendingCoins');
             if (!section || !container) return;
 
-            const trending = globalOffers.filter(o => o.isTrending).slice(0, 7);
-            if (trending.length === 0) return;
+            if (!trendingCoins || trendingCoins.length === 0) return;
 
-            container.innerHTML = trending.map(offer => `
-                <div style="background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer;" onclick="selectPlatform('${offer.platform.replace(/'/g, "\\'")}', document.querySelector('[data-platform-filter]'));">
-                    <div style="font-size: 1.4rem; margin-bottom: 8px;">🔥 #${offer.trendingRank || '?'}</div>
-                    <div style="font-weight: 600; font-size: 0.95rem; color: #60a5fa;">${esc(offer.platform)}</div>
-                    <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 6px;">${esc(offer.value || 'Varies')}</div>
-                    ${offer.livePrice ? `<div style="font-size: 0.8rem; color: #10b981; margin-top: 4px;">$${offer.livePrice.toLocaleString('en-US', {maximumFractionDigits: 2})}</div>` : ''}
-                </div>
-            `).join('');
+            container.innerHTML = '';
+            trendingCoins.forEach(coin => {
+                const chip = document.createElement('div');
+                chip.style.cssText = 'background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:background 0.2s;';
+
+                const change = coin.change24h;
+                const changeColor = change != null ? (change >= 0 ? '#10b981' : '#ef4444') : '#9ca3af';
+                const changeText = change != null ? `${change >= 0 ? '+' : ''}${change.toFixed(1)}%` : '';
+                const priceText = coin.price != null
+                    ? `$${Number(coin.price).toLocaleString('en-US', { maximumFractionDigits: coin.price < 1 ? 4 : 2 })}`
+                    : '';
+
+                chip.innerHTML = `
+                    <div style="font-size:1.1rem;margin-bottom:6px;">🔥 #${coin.rank}</div>
+                    <div style="font-weight:700;font-size:0.9rem;color:#60a5fa;">${esc(coin.symbol?.toUpperCase())}</div>
+                    <div style="font-size:0.8rem;color:#cbd5e1;margin-top:3px;">${esc(coin.name)}</div>
+                    ${priceText ? `<div style="font-size:0.8rem;color:#f1f5f9;margin-top:4px;">${esc(priceText)}</div>` : ''}
+                    ${changeText ? `<div style="font-size:0.75rem;color:${changeColor};margin-top:2px;">${esc(changeText)}</div>` : ''}
+                `;
+
+                // BUG FIX #8: use addEventListener instead of inline onclick
+                chip.addEventListener('mouseenter', () => { chip.style.background = 'rgba(59,130,246,0.2)'; });
+                chip.addEventListener('mouseleave', () => { chip.style.background = 'rgba(59,130,246,0.1)'; });
+                chip.addEventListener('click', () => {
+                    // Filter offers that have this coin's name in title/description
+                    const q = coin.name.toLowerCase();
+                    const matches = globalOffersList.filter(o =>
+                        o.title.toLowerCase().includes(q) ||
+                        o.description.toLowerCase().includes(q) ||
+                        (o.coinName && o.coinName.toLowerCase() === q)
+                    );
+                    if (matches.length > 0) {
+                        displayResults(matches);
+                        showNotification(`Showing offers for ${coin.name}`, 'success');
+                        document.getElementById('resultsContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else {
+                        showNotification(`No specific offers for ${coin.name} — showing all`, 'info');
+                    }
+                });
+
+                container.appendChild(chip);
+            });
 
             section.classList.remove('hidden');
         }
