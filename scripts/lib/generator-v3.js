@@ -257,7 +257,7 @@ REQUIRED HTML SKELETON (Flexible):
 2. A "Snapshot" card with 4 punchy items.
 3. 3-4 major sections with natural, creative <h2> headers.
 4. For every section, write 3 paragraphs.
-5. DIAGRAMS: You must include exactly 1 Mermaid.js diagram every 300-400 words (approx. 2 diagrams total). Wrap them in: <pre class="mermaid"> graph TD; ... </pre>. Ensure they accurately map to the architecture. MAKE THEM VISUALLY APPEALING: Group related components using nested `subgraph` blocks. Use specific node shapes '[(Database)]', '((Circle))', '{Decision}'. Embed FontAwesome icons (e.g., "A[<i class='fas fa-server'></i> Server]"). Always add descriptive text labels to connection arrows (e.g., "A -->|Verifies Data| B").
+5. DIAGRAMS: You must include exactly 1 Mermaid.js diagram every 300-400 words (approx. 2 diagrams total). Wrap them in: <pre class="mermaid"> graph TD; ... </pre>. Ensure they accurately map to the architecture. MAKE THEM VISUALLY APPEALING: Group related components using nested 'subgraph' blocks. Use specific node shapes '[(Database)]', '((Circle))', '{Decision}'. Embed FontAwesome icons (e.g., "A[<i class='fas fa-server'></i> Server]"). Always add descriptive text labels to connection arrows (e.g., "A -->|Verifies Data| B").
 6. Case Study: Integrate a narrative case study (e.g. "Scenario: Scaling a DEX to $100M TVL").
 
 OUTPUT: Pure HTML. Start with <p>. NO title.
