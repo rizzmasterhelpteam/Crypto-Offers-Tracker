@@ -1266,3 +1266,47 @@ html {
     box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
     transform: translateY(-1px);
 }
+
+
+/* --- Header & Top Bar Fixes ---------------------------- */
+
+/* Fix anchor jumps (like Table of Contents) hiding behind the fixed header */
+html {
+    scroll-padding-top: 80px; 
+}
+
+/* Make the title bar scrollable horizontally without visible scrollbars */
+.sticky-header-inner {
+    overflow-x: auto;
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+.sticky-header-inner::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+/* Ensure the title text can breathe and naturally scroll */
+.sticky-title {
+    flex-shrink: 0;
+    padding-right: 20px;
+}
+
+.sticky-nav {
+    flex-shrink: 0;
+}
+
+/* On mobile, re-enable the navigation in the sticky header but strictly scrollable */
+@media (max-width: 640px) {
+    .sticky-nav {
+        display: flex !important;
+        gap: 12px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Enable a smooth glass transition for the main header */
+header {
+    background: rgba(8, 16, 30, 0.75);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
