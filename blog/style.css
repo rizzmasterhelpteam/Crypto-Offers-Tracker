@@ -1310,3 +1310,21 @@ header {
     border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
+
+
+/* --- Remove Fixed Headers ------------------------------ */
+/* The user requested headers to behave like normal text */
+.sticky-header {
+    display: none !important;
+}
+
+header {
+    position: relative !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+body {
+    padding-top: 24px !important;
+}
+
