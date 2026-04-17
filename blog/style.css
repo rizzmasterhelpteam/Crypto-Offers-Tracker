@@ -1328,3 +1328,15 @@ body {
     padding-top: 24px !important;
 }
 
+
+
+/* --- Header Placement Polish --------------------------- */
+/* Fix the ugly gap by removing body padding and adding space below the header instead */
+body {
+    padding-top: 0 !important;
+}
+header {
+    margin-bottom: 40px !important;
+    width: 100% !important;
+}
+
