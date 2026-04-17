@@ -257,7 +257,7 @@ REQUIRED HTML SKELETON (Flexible):
 2. A "Snapshot" card with 4 punchy items.
 3. 3-4 major sections with natural, creative <h2> headers.
 4. For every section, write 3 paragraphs.
-5. DIAGRAMS: If useful, use Mermaid.js to visualize architectures or flows. Wrap it in: <pre class="mermaid"> graph TD; ... </pre>.
+5. DIAGRAMS: If useful, use Mermaid.js to accurately visualize the specific architecture. Wrap it in: <pre class="mermaid"> graph TD; ... </pre>. Keep the text inside diagram nodes extremely concise (max 3-5 words per node).
 6. Case Study: Integrate a narrative case study (e.g. "Scenario: Scaling a DEX to $100M TVL").
 
 OUTPUT: Pure HTML. Start with <p>. NO title.
