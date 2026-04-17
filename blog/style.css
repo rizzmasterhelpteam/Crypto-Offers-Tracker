@@ -1340,3 +1340,26 @@ header {
     width: 100% !important;
 }
 
+
+
+/* --- Overlap Fixes ---------------------------- */
+header {
+    height: auto !important;
+    min-height: 64px;
+    padding: 14px 0 !important;
+}
+
+.header-inner {
+    height: auto !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 0 !important;
+}
+
+/* Ensure the main title text never overlaps line-to-line */
+.post-header h1, .hero h1 {
+    line-height: 1.4 !important;
+    word-break: break-word;
+}
+
