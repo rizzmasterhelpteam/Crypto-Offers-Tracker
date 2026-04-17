@@ -66,7 +66,7 @@
     <header>
         <div class="container header-inner">
             <a href="/" class="logo">
-                
+
                 <span>Crypto Digest</span>
             </a>
             <nav class="nav-links">
@@ -121,7 +121,7 @@
     <footer>
         <div class="container">
             <div class="footer-logo">
-                
+
                 <span>Crypto Digest</span>
             </div>
             <p>Expert-led technical analysis for the modular crypto ecosystem.</p>
@@ -220,7 +220,25 @@
     </script>
     <!-- Add Mermaid JS -->
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-    <script>mermaid.initialize({startOnLoad:true, theme: 'dark'});</script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                background: 'transparent',
+                primaryColor: '#0f1c30',       /* Matches var(--surface) */
+                primaryBorderColor: '#3b82f6', /* Matches var(--accent) */
+                primaryTextColor: '#e8eef7',   /* Matches var(--text) */
+                lineColor: '#60a5fa',          /* Matches var(--link) */
+                secondaryColor: '#162236',     /* Matches var(--surface-hover) */
+                tertiaryColor: '#08101e',      /* Matches var(--bg) */
+                fontFamily: 'Inter, system-ui, sans-serif',
+                nodeBorder: '#3b82f6',
+                clusterBkg: 'rgba(59, 130, 246, 0.05)',
+                clusterBorder: 'rgba(59, 130, 246, 0.25)'
+            }
+        });
+    </script>
 </body>
 
 </html>

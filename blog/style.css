@@ -1363,3 +1363,25 @@ header {
     word-break: break-word;
 }
 
+
+
+/* --- Mermaid Custom Diagrams -------------------------- */
+.mermaid {
+    background: var(--glass-bg, rgba(15, 28, 48, 0.4));
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08));
+    border-radius: 12px;
+    padding: 24px;
+    margin: 32px 0;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.mermaid svg {
+    max-width: 100%;
+}
+
