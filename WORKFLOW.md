@@ -322,3 +322,6 @@ API Keys Required:   None (free CoinGecko public API)
 ├─ assets/ ........................ Images, logos
 └─ WORKFLOW.md .................... This file
 ```
+
+### Graphics and Diagrams
+Diagrams are natively supported using Mermaid.js. The AI generation script automatically builds architecture and flow diagrams enclosed in \<pre class="mermaid">\ tags directly into the generated HTML output, maintaining a lightweight DOM without needing standalone image files.
