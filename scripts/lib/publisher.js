@@ -171,6 +171,19 @@ function publishAllDrafts() {
                 console.log(`[Publisher] ⚠️  Skipping legacy full-HTML draft: ${path.basename(draftFile)}`);
                 continue;
             }
+
+            // Bug fix: skip already-published drafts to avoid overwriting existing posts
+            const { meta } = parseDraft(raw);
+            const date = meta.date || new Date().toISOString().split('T')[0];
+            const [year, month] = date.split('-');
+            const day = date.split('-')[2];
+            const slug = path.basename(draftFile, '.html');
+            const expectedOutPath = path.join(BLOG_DIR, `${year}-${month}`, day, `${slug}.html`);
+            if (fs.existsSync(expectedOutPath)) {
+                console.log(`[Publisher] ⏭️  Already published, skipping: ${path.basename(draftFile)}`);
+                continue;
+            }
+
             const outPath = publishDraft(draftFile);
             published.push(outPath);
         } catch (e) {
