@@ -1,0 +1,288 @@
+{
+  "communities": {
+    "0": [
+      "generate_blog_autofixstructure",
+      "generate_blog_loadhistory",
+      "generate_blog_run",
+      "generate_blog_todisplaytitle",
+      "generator_v3_assembledraftcontent",
+      "generator_v3_callgroq",
+      "generator_v3_datasanitizer",
+      "generator_v3_discoverkeywords",
+      "generator_v3_draftprofessionalblog",
+      "generator_v3_finalfactcheck",
+      "generator_v3_firstfactcheck",
+      "generator_v3_generatetitle",
+      "generator_v3_getknownprotocolnames",
+      "generator_v3_logusage",
+      "generator_v3_scrubmarkdown",
+      "scripts_generate_blog_js",
+      "scripts_lib_generator_v3_js"
+    ],
+    "1": [
+      "publish_syncanddeploy",
+      "scan_blog_getfiles",
+      "scan_blog_js",
+      "scripts_lib_utils_js",
+      "scripts_publish_js",
+      "utils_parsecsv",
+      "utils_syncblogindex",
+      "utils_writecsv"
+    ],
+    "2": [
+      "api_search_js",
+      "search_buildenhancedoffers",
+      "search_fetchallcoingeckodata",
+      "search_fetchwithtimeout",
+      "search_getcurrentslot",
+      "search_getnextslottime",
+      "search_handler"
+    ],
+    "3": [
+      "generate_charts_fetchnewscontext",
+      "generate_charts_fetchperformancedata",
+      "generate_charts_fetchupcomingprojects",
+      "generate_charts_formattablerows",
+      "generate_charts_formatupcoming",
+      "generate_charts_run",
+      "scripts_generate_charts_js"
+    ],
+    "4": [
+      "autolink_getnestedhtmlfiles",
+      "autolink_run",
+      "linker_engine_callgroq",
+      "linker_engine_isvalidurl",
+      "linker_engine_processblog",
+      "scripts_autolink_js",
+      "scripts_lib_linker_engine_js"
+    ],
+    "5": [
+      "scripts_lib_sources_js",
+      "sources_fetchlatestnews",
+      "sources_fetchprotocoldetails",
+      "sources_fetchtrendingcoins",
+      "sources_getgroundedsources",
+      "sources_readcache",
+      "sources_writecache"
+    ],
+    "6": [
+      "publisher_buildheroimagehtml",
+      "publisher_computepaths",
+      "publisher_parsedraft",
+      "publisher_publishalldrafts",
+      "publisher_publishdraft",
+      "scripts_lib_publisher_js"
+    ],
+    "7": [
+      "generator_callgroq",
+      "generator_factcheck",
+      "generator_generatedraft",
+      "generator_polisharticle",
+      "scripts_lib_generator_js"
+    ],
+    "8": [
+      "api_daily_post_js",
+      "daily_post_getcurrentslot",
+      "daily_post_getnextslottime",
+      "daily_post_handler"
+    ],
+    "9": [
+      "check_external_gethtmlfiles",
+      "check_external_js",
+      "check_external_verifylinks"
+    ],
+    "10": [
+      "migrate_posts_extract",
+      "migrate_posts_getpostfiles",
+      "migrate_posts_js"
+    ],
+    "11": [
+      "generate_sitemap_generatesitemap",
+      "generate_sitemap_gethtmlfilesrecursive",
+      "scripts_generate_sitemap_js"
+    ],
+    "12": [
+      "find_missing_images_gethtmlfiles",
+      "find_missing_images_js"
+    ],
+    "13": [
+      "fix_blog_getfiles",
+      "fix_blog_js"
+    ],
+    "14": [
+      "fix_internal_links_gethtmlfiles",
+      "fix_internal_links_js"
+    ],
+    "15": [
+      "manual_linker_2_gethtmlfiles",
+      "manual_linker_2_js"
+    ],
+    "16": [
+      "manual_linker_gethtmlfiles",
+      "manual_linker_js"
+    ],
+    "17": [
+      "patch_headers_getallhtmlfiles",
+      "patch_headers_js"
+    ],
+    "18": [
+      "inject_hero_js"
+    ],
+    "19": [
+      "scripts_lib_config_js"
+    ]
+  },
+  "cohesion": {
+    "0": 0.24,
+    "1": 0.25,
+    "2": 0.57,
+    "3": 0.52,
+    "4": 0.43,
+    "5": 0.57,
+    "6": 0.6,
+    "7": 0.7,
+    "8": 1.0,
+    "9": 0.67,
+    "10": 0.67,
+    "11": 1.0,
+    "12": 1.0,
+    "13": 1.0,
+    "14": 1.0,
+    "15": 1.0,
+    "16": 1.0,
+    "17": 1.0,
+    "18": 1.0,
+    "19": 1.0
+  },
+  "gods": [
+    {
+      "id": "generate_blog_run",
+      "label": "run()",
+      "degree": 12
+    },
+    {
+      "id": "generator_v3_callgroq",
+      "label": "callGroq()",
+      "degree": 8
+    },
+    {
+      "id": "search_handler",
+      "label": "handler()",
+      "degree": 5
+    },
+    {
+      "id": "generate_charts_run",
+      "label": "run()",
+      "degree": 5
+    },
+    {
+      "id": "publisher_publishdraft",
+      "label": "publishDraft()",
+      "degree": 5
+    },
+    {
+      "id": "sources_fetchlatestnews",
+      "label": "fetchLatestNews()",
+      "degree": 5
+    },
+    {
+      "id": "generator_v3_firstfactcheck",
+      "label": "firstFactCheck()",
+      "degree": 4
+    },
+    {
+      "id": "generator_callgroq",
+      "label": "callGroq()",
+      "degree": 4
+    },
+    {
+      "id": "linker_engine_processblog",
+      "label": "processBlog()",
+      "degree": 4
+    },
+    {
+      "id": "sources_getgroundedsources",
+      "label": "getGroundedSources()",
+      "degree": 4
+    }
+  ],
+  "surprises": [
+    {
+      "source": "run()",
+      "target": "fetchLatestNews()",
+      "source_files": [
+        "scripts\\generate-blog.js",
+        "scripts\\lib\\sources.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "run()",
+      "target": "getGroundedSources()",
+      "source_files": [
+        "scripts\\generate-blog.js",
+        "scripts\\lib\\sources.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "syncAndDeploy()",
+      "target": "publishAllDrafts()",
+      "source_files": [
+        "scripts\\publish.js",
+        "scripts\\lib\\publisher.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "syncBlogIndex()",
+      "target": "getFiles()",
+      "source_files": [
+        "scripts\\lib\\utils.js",
+        "scan-blog.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories"
+    },
+    {
+      "source": "run()",
+      "target": "processBlog()",
+      "source_files": [
+        "scripts\\autolink.js",
+        "scripts\\lib\\linker-engine.js"
+      ],
+      "confidence": "INFERRED",
+      "relation": "calls",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `run()` connect `Community 0` to `Community 5`?",
+      "why": "High betweenness centrality (0.042) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `fetchLatestNews()` connect `Community 5` to `Community 0`?",
+      "why": "High betweenness centrality (0.014) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `syncAndDeploy()` connect `Community 1` to `Community 6`?",
+      "why": "High betweenness centrality (0.012) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 9 inferred relationships involving `run()` (e.g. with `fetchLatestNews()` and `discoverKeywords()`) actually correct?",
+      "why": "`run()` has 9 INFERRED edges - model-reasoned connections that need verification."
+    }
+  ]
+}

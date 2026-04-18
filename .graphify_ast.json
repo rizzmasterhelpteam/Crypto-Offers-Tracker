@@ -1,0 +1,1756 @@
+{
+  "nodes": [
+    {
+      "id": "check_external_js",
+      "label": "check-external.js",
+      "file_type": "code",
+      "source_file": "check-external.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "check_external_gethtmlfiles",
+      "label": "getHtmlFiles()",
+      "file_type": "code",
+      "source_file": "check-external.js",
+      "source_location": "L6"
+    },
+    {
+      "id": "check_external_verifylinks",
+      "label": "verifyLinks()",
+      "file_type": "code",
+      "source_file": "check-external.js",
+      "source_location": "L35"
+    },
+    {
+      "id": "find_missing_images_js",
+      "label": "find-missing-images.js",
+      "file_type": "code",
+      "source_file": "find-missing-images.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "find_missing_images_gethtmlfiles",
+      "label": "getHtmlFiles()",
+      "file_type": "code",
+      "source_file": "find-missing-images.js",
+      "source_location": "L6"
+    },
+    {
+      "id": "fix_blog_js",
+      "label": "fix-blog.js",
+      "file_type": "code",
+      "source_file": "fix-blog.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "fix_blog_getfiles",
+      "label": "getFiles()",
+      "file_type": "code",
+      "source_file": "fix-blog.js",
+      "source_location": "L13"
+    },
+    {
+      "id": "fix_internal_links_js",
+      "label": "fix-internal-links.js",
+      "file_type": "code",
+      "source_file": "fix-internal-links.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "fix_internal_links_gethtmlfiles",
+      "label": "getHtmlFiles()",
+      "file_type": "code",
+      "source_file": "fix-internal-links.js",
+      "source_location": "L6"
+    },
+    {
+      "id": "inject_hero_js",
+      "label": "inject-hero.js",
+      "file_type": "code",
+      "source_file": "inject-hero.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "manual_linker_2_js",
+      "label": "manual-linker-2.js",
+      "file_type": "code",
+      "source_file": "manual-linker-2.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "manual_linker_2_gethtmlfiles",
+      "label": "getHtmlFiles()",
+      "file_type": "code",
+      "source_file": "manual-linker-2.js",
+      "source_location": "L6"
+    },
+    {
+      "id": "manual_linker_js",
+      "label": "manual-linker.js",
+      "file_type": "code",
+      "source_file": "manual-linker.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "manual_linker_gethtmlfiles",
+      "label": "getHtmlFiles()",
+      "file_type": "code",
+      "source_file": "manual-linker.js",
+      "source_location": "L6"
+    },
+    {
+      "id": "migrate_posts_js",
+      "label": "migrate-posts.js",
+      "file_type": "code",
+      "source_file": "migrate-posts.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "migrate_posts_extract",
+      "label": "extract()",
+      "file_type": "code",
+      "source_file": "migrate-posts.js",
+      "source_location": "L19"
+    },
+    {
+      "id": "migrate_posts_getpostfiles",
+      "label": "getPostFiles()",
+      "file_type": "code",
+      "source_file": "migrate-posts.js",
+      "source_location": "L25"
+    },
+    {
+      "id": "patch_headers_js",
+      "label": "patch-headers.js",
+      "file_type": "code",
+      "source_file": "patch-headers.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "patch_headers_getallhtmlfiles",
+      "label": "getAllHtmlFiles()",
+      "file_type": "code",
+      "source_file": "patch-headers.js",
+      "source_location": "L6"
+    },
+    {
+      "id": "scan_blog_js",
+      "label": "scan-blog.js",
+      "file_type": "code",
+      "source_file": "scan-blog.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "scan_blog_getfiles",
+      "label": "getFiles()",
+      "file_type": "code",
+      "source_file": "scan-blog.js",
+      "source_location": "L11"
+    },
+    {
+      "id": "api_daily_post_js",
+      "label": "daily-post.js",
+      "file_type": "code",
+      "source_file": "api\\daily-post.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "daily_post_getcurrentslot",
+      "label": "getCurrentSlot()",
+      "file_type": "code",
+      "source_file": "api\\daily-post.js",
+      "source_location": "L4"
+    },
+    {
+      "id": "daily_post_getnextslottime",
+      "label": "getNextSlotTime()",
+      "file_type": "code",
+      "source_file": "api\\daily-post.js",
+      "source_location": "L8"
+    },
+    {
+      "id": "daily_post_handler",
+      "label": "handler()",
+      "file_type": "code",
+      "source_file": "api\\daily-post.js",
+      "source_location": "L12"
+    },
+    {
+      "id": "api_search_js",
+      "label": "search.js",
+      "file_type": "code",
+      "source_file": "api\\search.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "search_getcurrentslot",
+      "label": "getCurrentSlot()",
+      "file_type": "code",
+      "source_file": "api\\search.js",
+      "source_location": "L4"
+    },
+    {
+      "id": "search_getnextslottime",
+      "label": "getNextSlotTime()",
+      "file_type": "code",
+      "source_file": "api\\search.js",
+      "source_location": "L8"
+    },
+    {
+      "id": "search_handler",
+      "label": "handler()",
+      "file_type": "code",
+      "source_file": "api\\search.js",
+      "source_location": "L257"
+    },
+    {
+      "id": "search_fetchallcoingeckodata",
+      "label": "fetchAllCoinGeckoData()",
+      "file_type": "code",
+      "source_file": "api\\search.js",
+      "source_location": "L335"
+    },
+    {
+      "id": "search_buildenhancedoffers",
+      "label": "buildEnhancedOffers()",
+      "file_type": "code",
+      "source_file": "api\\search.js",
+      "source_location": "L389"
+    },
+    {
+      "id": "search_fetchwithtimeout",
+      "label": "fetchWithTimeout()",
+      "file_type": "code",
+      "source_file": "api\\search.js",
+      "source_location": "L430"
+    },
+    {
+      "id": "scripts_autolink_js",
+      "label": "autolink.js",
+      "file_type": "code",
+      "source_file": "scripts\\autolink.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "autolink_getnestedhtmlfiles",
+      "label": "getNestedHtmlFiles()",
+      "file_type": "code",
+      "source_file": "scripts\\autolink.js",
+      "source_location": "L6"
+    },
+    {
+      "id": "autolink_run",
+      "label": "run()",
+      "file_type": "code",
+      "source_file": "scripts\\autolink.js",
+      "source_location": "L19"
+    },
+    {
+      "id": "scripts_generate_blog_js",
+      "label": "generate-blog.js",
+      "file_type": "code",
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "generate_blog_todisplaytitle",
+      "label": "toDisplayTitle()",
+      "file_type": "code",
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L18"
+    },
+    {
+      "id": "generate_blog_autofixstructure",
+      "label": "autoFixStructure()",
+      "file_type": "code",
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L31"
+    },
+    {
+      "id": "generate_blog_loadhistory",
+      "label": "loadHistory()",
+      "file_type": "code",
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L76"
+    },
+    {
+      "id": "generate_blog_run",
+      "label": "run()",
+      "file_type": "code",
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L94"
+    },
+    {
+      "id": "scripts_generate_charts_js",
+      "label": "generate-charts.js",
+      "file_type": "code",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "generate_charts_fetchnewscontext",
+      "label": "fetchNewsContext()",
+      "file_type": "code",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L39"
+    },
+    {
+      "id": "generate_charts_fetchperformancedata",
+      "label": "fetchPerformanceData()",
+      "file_type": "code",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L51"
+    },
+    {
+      "id": "generate_charts_fetchupcomingprojects",
+      "label": "fetchUpcomingProjects()",
+      "file_type": "code",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L75"
+    },
+    {
+      "id": "generate_charts_formattablerows",
+      "label": "formatTableRows()",
+      "file_type": "code",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L125"
+    },
+    {
+      "id": "generate_charts_formatupcoming",
+      "label": "formatUpcoming()",
+      "file_type": "code",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L142"
+    },
+    {
+      "id": "generate_charts_run",
+      "label": "run()",
+      "file_type": "code",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L157"
+    },
+    {
+      "id": "scripts_generate_sitemap_js",
+      "label": "generate-sitemap.js",
+      "file_type": "code",
+      "source_file": "scripts\\generate-sitemap.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "generate_sitemap_gethtmlfilesrecursive",
+      "label": "getHtmlFilesRecursive()",
+      "file_type": "code",
+      "source_file": "scripts\\generate-sitemap.js",
+      "source_location": "L8"
+    },
+    {
+      "id": "generate_sitemap_generatesitemap",
+      "label": "generateSitemap()",
+      "file_type": "code",
+      "source_file": "scripts\\generate-sitemap.js",
+      "source_location": "L22"
+    },
+    {
+      "id": "scripts_publish_js",
+      "label": "publish.js",
+      "file_type": "code",
+      "source_file": "scripts\\publish.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "publish_syncanddeploy",
+      "label": "syncAndDeploy()",
+      "file_type": "code",
+      "source_file": "scripts\\publish.js",
+      "source_location": "L8"
+    },
+    {
+      "id": "scripts_lib_config_js",
+      "label": "config.js",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\config.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "scripts_lib_generator_v3_js",
+      "label": "generator-v3.js",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "generator_v3_getknownprotocolnames",
+      "label": "getKnownProtocolNames()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L12"
+    },
+    {
+      "id": "generator_v3_logusage",
+      "label": "logUsage()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L26"
+    },
+    {
+      "id": "generator_v3_callgroq",
+      "label": "callGroq()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L42"
+    },
+    {
+      "id": "generator_v3_discoverkeywords",
+      "label": "discoverKeywords()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L91"
+    },
+    {
+      "id": "generator_v3_generatetitle",
+      "label": "generateTitle()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L150"
+    },
+    {
+      "id": "generator_v3_draftprofessionalblog",
+      "label": "draftProfessionalBlog()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L217"
+    },
+    {
+      "id": "generator_v3_firstfactcheck",
+      "label": "firstFactCheck()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L295"
+    },
+    {
+      "id": "generator_v3_finalfactcheck",
+      "label": "finalFactCheck()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L324"
+    },
+    {
+      "id": "generator_v3_datasanitizer",
+      "label": "dataSanitizer()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L342"
+    },
+    {
+      "id": "generator_v3_scrubmarkdown",
+      "label": "scrubMarkdown()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L361"
+    },
+    {
+      "id": "generator_v3_assembledraftcontent",
+      "label": "assembleDraftContent()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L374"
+    },
+    {
+      "id": "scripts_lib_generator_js",
+      "label": "generator.js",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "generator_callgroq",
+      "label": "callGroq()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator.js",
+      "source_location": "L9"
+    },
+    {
+      "id": "generator_generatedraft",
+      "label": "generateDraft()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator.js",
+      "source_location": "L27"
+    },
+    {
+      "id": "generator_factcheck",
+      "label": "factCheck()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator.js",
+      "source_location": "L55"
+    },
+    {
+      "id": "generator_polisharticle",
+      "label": "polishArticle()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\generator.js",
+      "source_location": "L85"
+    },
+    {
+      "id": "scripts_lib_linker_engine_js",
+      "label": "linker-engine.js",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\linker-engine.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "linker_engine_callgroq",
+      "label": "callGroq()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\linker-engine.js",
+      "source_location": "L9"
+    },
+    {
+      "id": "linker_engine_isvalidurl",
+      "label": "isValidUrl()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\linker-engine.js",
+      "source_location": "L35"
+    },
+    {
+      "id": "linker_engine_processblog",
+      "label": "processBlog()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\linker-engine.js",
+      "source_location": "L59"
+    },
+    {
+      "id": "scripts_lib_publisher_js",
+      "label": "publisher.js",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "publisher_parsedraft",
+      "label": "parseDraft()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L34"
+    },
+    {
+      "id": "publisher_buildheroimagehtml",
+      "label": "buildHeroImageHtml()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L56"
+    },
+    {
+      "id": "publisher_computepaths",
+      "label": "computePaths()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L72"
+    },
+    {
+      "id": "publisher_publishdraft",
+      "label": "publishDraft()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L86"
+    },
+    {
+      "id": "publisher_publishalldrafts",
+      "label": "publishAllDrafts()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L149"
+    },
+    {
+      "id": "scripts_lib_sources_js",
+      "label": "sources.js",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "sources_readcache",
+      "label": "readCache()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L9"
+    },
+    {
+      "id": "sources_writecache",
+      "label": "writeCache()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L18"
+    },
+    {
+      "id": "sources_fetchlatestnews",
+      "label": "fetchLatestNews()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L22"
+    },
+    {
+      "id": "sources_fetchtrendingcoins",
+      "label": "fetchTrendingCoins()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L41"
+    },
+    {
+      "id": "sources_fetchprotocoldetails",
+      "label": "fetchProtocolDetails()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L60"
+    },
+    {
+      "id": "sources_getgroundedsources",
+      "label": "getGroundedSources()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L81"
+    },
+    {
+      "id": "scripts_lib_utils_js",
+      "label": "utils.js",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\utils.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "utils_parsecsv",
+      "label": "parseCSV()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\utils.js",
+      "source_location": "L9"
+    },
+    {
+      "id": "utils_writecsv",
+      "label": "writeCSV()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\utils.js",
+      "source_location": "L23"
+    },
+    {
+      "id": "utils_syncblogindex",
+      "label": "syncBlogIndex()",
+      "file_type": "code",
+      "source_file": "scripts\\lib\\utils.js",
+      "source_location": "L34"
+    }
+  ],
+  "edges": [
+    {
+      "source": "check_external_js",
+      "target": "check_external_gethtmlfiles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "check-external.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "check_external_js",
+      "target": "check_external_verifylinks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "check-external.js",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "find_missing_images_js",
+      "target": "find_missing_images_gethtmlfiles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "find-missing-images.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "fix_blog_js",
+      "target": "fix_blog_getfiles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fix-blog.js",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "fix_internal_links_js",
+      "target": "fix_internal_links_gethtmlfiles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "fix-internal-links.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "manual_linker_2_js",
+      "target": "manual_linker_2_gethtmlfiles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "manual-linker-2.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "manual_linker_js",
+      "target": "manual_linker_gethtmlfiles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "manual-linker.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "migrate_posts_js",
+      "target": "migrate_posts_extract",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate-posts.js",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "migrate_posts_js",
+      "target": "migrate_posts_getpostfiles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "migrate-posts.js",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "patch_headers_js",
+      "target": "patch_headers_getallhtmlfiles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "patch-headers.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "scan_blog_js",
+      "target": "scan_blog_getfiles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scan-blog.js",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "api_daily_post_js",
+      "target": "daily_post_getcurrentslot",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\daily-post.js",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "api_daily_post_js",
+      "target": "daily_post_getnextslottime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\daily-post.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "api_daily_post_js",
+      "target": "daily_post_handler",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\daily-post.js",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "daily_post_getnextslottime",
+      "target": "daily_post_getcurrentslot",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\daily-post.js",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "daily_post_handler",
+      "target": "daily_post_getcurrentslot",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\daily-post.js",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "daily_post_handler",
+      "target": "daily_post_getnextslottime",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\daily-post.js",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
+      "source": "api_search_js",
+      "target": "search_getcurrentslot",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\search.js",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "api_search_js",
+      "target": "search_getnextslottime",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\search.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "api_search_js",
+      "target": "search_handler",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\search.js",
+      "source_location": "L257",
+      "weight": 1.0
+    },
+    {
+      "source": "api_search_js",
+      "target": "search_fetchallcoingeckodata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\search.js",
+      "source_location": "L335",
+      "weight": 1.0
+    },
+    {
+      "source": "api_search_js",
+      "target": "search_buildenhancedoffers",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\search.js",
+      "source_location": "L389",
+      "weight": 1.0
+    },
+    {
+      "source": "api_search_js",
+      "target": "search_fetchwithtimeout",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\search.js",
+      "source_location": "L430",
+      "weight": 1.0
+    },
+    {
+      "source": "search_getnextslottime",
+      "target": "search_getcurrentslot",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\search.js",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "search_handler",
+      "target": "search_getcurrentslot",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\search.js",
+      "source_location": "L264",
+      "weight": 1.0
+    },
+    {
+      "source": "search_handler",
+      "target": "search_getnextslottime",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\search.js",
+      "source_location": "L276",
+      "weight": 1.0
+    },
+    {
+      "source": "search_handler",
+      "target": "search_fetchallcoingeckodata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\search.js",
+      "source_location": "L286",
+      "weight": 1.0
+    },
+    {
+      "source": "search_handler",
+      "target": "search_buildenhancedoffers",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\search.js",
+      "source_location": "L287",
+      "weight": 1.0
+    },
+    {
+      "source": "search_fetchallcoingeckodata",
+      "target": "search_fetchwithtimeout",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "api\\search.js",
+      "source_location": "L339",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_autolink_js",
+      "target": "autolink_getnestedhtmlfiles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\autolink.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_autolink_js",
+      "target": "autolink_run",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\autolink.js",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "autolink_run",
+      "target": "autolink_getnestedhtmlfiles",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\autolink.js",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_blog_js",
+      "target": "generate_blog_todisplaytitle",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_blog_js",
+      "target": "generate_blog_autofixstructure",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_blog_js",
+      "target": "generate_blog_loadhistory",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L76",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_blog_js",
+      "target": "generate_blog_run",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L94",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_blog_run",
+      "target": "generate_blog_loadhistory",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L98",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_blog_run",
+      "target": "generate_blog_autofixstructure",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L147",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_charts_js",
+      "target": "generate_charts_fetchnewscontext",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L39",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_charts_js",
+      "target": "generate_charts_fetchperformancedata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L51",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_charts_js",
+      "target": "generate_charts_fetchupcomingprojects",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L75",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_charts_js",
+      "target": "generate_charts_formattablerows",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L125",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_charts_js",
+      "target": "generate_charts_formatupcoming",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L142",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_charts_js",
+      "target": "generate_charts_run",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L157",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_charts_fetchupcomingprojects",
+      "target": "generate_charts_fetchnewscontext",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L78",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_charts_run",
+      "target": "generate_charts_fetchperformancedata",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L158",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_charts_run",
+      "target": "generate_charts_fetchupcomingprojects",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L159",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_charts_run",
+      "target": "generate_charts_formattablerows",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L164",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_charts_run",
+      "target": "generate_charts_formatupcoming",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-charts.js",
+      "source_location": "L166",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_sitemap_js",
+      "target": "generate_sitemap_gethtmlfilesrecursive",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-sitemap.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_sitemap_js",
+      "target": "generate_sitemap_generatesitemap",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-sitemap.js",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_sitemap_generatesitemap",
+      "target": "generate_sitemap_gethtmlfilesrecursive",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\generate-sitemap.js",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_publish_js",
+      "target": "publish_syncanddeploy",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\publish.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_v3_js",
+      "target": "generator_v3_getknownprotocolnames",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_v3_js",
+      "target": "generator_v3_logusage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_v3_js",
+      "target": "generator_v3_callgroq",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_v3_js",
+      "target": "generator_v3_discoverkeywords",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L91",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_v3_js",
+      "target": "generator_v3_generatetitle",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L150",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_v3_js",
+      "target": "generator_v3_draftprofessionalblog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L217",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_v3_js",
+      "target": "generator_v3_firstfactcheck",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L295",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_v3_js",
+      "target": "generator_v3_finalfactcheck",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L324",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_v3_js",
+      "target": "generator_v3_datasanitizer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L342",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_v3_js",
+      "target": "generator_v3_scrubmarkdown",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L361",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_v3_js",
+      "target": "generator_v3_assembledraftcontent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L374",
+      "weight": 1.0
+    },
+    {
+      "source": "generator_v3_callgroq",
+      "target": "generator_v3_logusage",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "generator_v3_discoverkeywords",
+      "target": "generator_v3_callgroq",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "generator_v3_generatetitle",
+      "target": "generator_v3_callgroq",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L160",
+      "weight": 1.0
+    },
+    {
+      "source": "generator_v3_draftprofessionalblog",
+      "target": "generator_v3_callgroq",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L271",
+      "weight": 1.0
+    },
+    {
+      "source": "generator_v3_firstfactcheck",
+      "target": "generator_v3_getknownprotocolnames",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L297",
+      "weight": 1.0
+    },
+    {
+      "source": "generator_v3_firstfactcheck",
+      "target": "generator_v3_callgroq",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L309",
+      "weight": 1.0
+    },
+    {
+      "source": "generator_v3_finalfactcheck",
+      "target": "generator_v3_callgroq",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L327",
+      "weight": 1.0
+    },
+    {
+      "source": "generator_v3_datasanitizer",
+      "target": "generator_v3_callgroq",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L346",
+      "weight": 1.0
+    },
+    {
+      "source": "generator_v3_assembledraftcontent",
+      "target": "generator_v3_scrubmarkdown",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator-v3.js",
+      "source_location": "L375",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_js",
+      "target": "generator_callgroq",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator.js",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_js",
+      "target": "generator_generatedraft",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator.js",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_js",
+      "target": "generator_factcheck",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator.js",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_generator_js",
+      "target": "generator_polisharticle",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator.js",
+      "source_location": "L85",
+      "weight": 1.0
+    },
+    {
+      "source": "generator_generatedraft",
+      "target": "generator_callgroq",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator.js",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "generator_factcheck",
+      "target": "generator_callgroq",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator.js",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "generator_polisharticle",
+      "target": "generator_callgroq",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\generator.js",
+      "source_location": "L87",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_linker_engine_js",
+      "target": "linker_engine_callgroq",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\linker-engine.js",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_linker_engine_js",
+      "target": "linker_engine_isvalidurl",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\linker-engine.js",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_linker_engine_js",
+      "target": "linker_engine_processblog",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\linker-engine.js",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "linker_engine_processblog",
+      "target": "linker_engine_callgroq",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\linker-engine.js",
+      "source_location": "L82",
+      "weight": 1.0
+    },
+    {
+      "source": "linker_engine_processblog",
+      "target": "linker_engine_isvalidurl",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\linker-engine.js",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_publisher_js",
+      "target": "publisher_parsedraft",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_publisher_js",
+      "target": "publisher_buildheroimagehtml",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L56",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_publisher_js",
+      "target": "publisher_computepaths",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L72",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_publisher_js",
+      "target": "publisher_publishdraft",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L86",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_publisher_js",
+      "target": "publisher_publishalldrafts",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L149",
+      "weight": 1.0
+    },
+    {
+      "source": "publisher_publishdraft",
+      "target": "publisher_parsedraft",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L90",
+      "weight": 1.0
+    },
+    {
+      "source": "publisher_publishdraft",
+      "target": "publisher_computepaths",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "publisher_publishdraft",
+      "target": "publisher_buildheroimagehtml",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "publisher_publishalldrafts",
+      "target": "publisher_publishdraft",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\publisher.js",
+      "source_location": "L174",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_sources_js",
+      "target": "sources_readcache",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_sources_js",
+      "target": "sources_writecache",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_sources_js",
+      "target": "sources_fetchlatestnews",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_sources_js",
+      "target": "sources_fetchtrendingcoins",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L41",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_sources_js",
+      "target": "sources_fetchprotocoldetails",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_sources_js",
+      "target": "sources_getgroundedsources",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L81",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_fetchlatestnews",
+      "target": "sources_readcache",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_fetchlatestnews",
+      "target": "sources_writecache",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_fetchtrendingcoins",
+      "target": "sources_readcache",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_fetchtrendingcoins",
+      "target": "sources_writecache",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L52",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_getgroundedsources",
+      "target": "sources_fetchprotocoldetails",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L100",
+      "weight": 1.0
+    },
+    {
+      "source": "sources_getgroundedsources",
+      "target": "sources_fetchlatestnews",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\sources.js",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_utils_js",
+      "target": "utils_parsecsv",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\utils.js",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_utils_js",
+      "target": "utils_writecsv",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\utils.js",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_lib_utils_js",
+      "target": "utils_syncblogindex",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts\\lib\\utils.js",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "autolink_run",
+      "target": "linker_engine_processblog",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "scripts\\autolink.js",
+      "source_location": "L59",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_blog_run",
+      "target": "sources_fetchlatestnews",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_blog_run",
+      "target": "generator_v3_discoverkeywords",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L104",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_blog_run",
+      "target": "generator_v3_generatetitle",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L110",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_blog_run",
+      "target": "sources_getgroundedsources",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L111",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_blog_run",
+      "target": "generator_v3_draftprofessionalblog",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_blog_run",
+      "target": "generator_v3_firstfactcheck",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L124",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_blog_run",
+      "target": "generator_v3_finalfactcheck",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L132",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_blog_run",
+      "target": "generator_v3_datasanitizer",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "generate_blog_run",
+      "target": "generator_v3_assembledraftcontent",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "scripts\\generate-blog.js",
+      "source_location": "L162",
+      "weight": 1.0
+    },
+    {
+      "source": "publish_syncanddeploy",
+      "target": "publisher_publishalldrafts",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "scripts\\publish.js",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "publish_syncanddeploy",
+      "target": "utils_syncblogindex",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "scripts\\publish.js",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "utils_syncblogindex",
+      "target": "scan_blog_getfiles",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "scripts\\lib\\utils.js",
+      "source_location": "L52",
+      "weight": 1.0
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

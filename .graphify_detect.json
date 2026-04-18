@@ -1,0 +1,53 @@
+{
+  "files": {
+    "code": [
+      "check-external.js",
+      "find-missing-images.js",
+      "fix-blog.js",
+      "fix-internal-links.js",
+      "inject-hero.js",
+      "manual-linker-2.js",
+      "manual-linker.js",
+      "migrate-posts.js",
+      "patch-headers.js",
+      "scan-blog.js",
+      "api\\daily-post.js",
+      "api\\search.js",
+      "scripts\\autolink.js",
+      "scripts\\generate-blog.js",
+      "scripts\\generate-charts.js",
+      "scripts\\generate-sitemap.js",
+      "scripts\\publish.js",
+      "scripts\\lib\\config.js",
+      "scripts\\lib\\generator-v3.js",
+      "scripts\\lib\\generator.js",
+      "scripts\\lib\\linker-engine.js",
+      "scripts\\lib\\publisher.js",
+      "scripts\\lib\\sources.js",
+      "scripts\\lib\\utils.js"
+    ],
+    "document": [
+      "missing-images.txt",
+      "robots.txt",
+      "WORKFLOW.md"
+    ],
+    "paper": [],
+    "image": [
+      "assets\\hero-bg.png",
+      "assets\\logo.png",
+      "assets\\blog\\avail-kzg.png",
+      "assets\\blog\\berachain_hero.png",
+      "assets\\blog\\celestia-das.png",
+      "assets\\blog\\celestia-hero-optimized.png",
+      "assets\\blog\\jito_hero.png",
+      "assets\\blog\\optimism_hero.png"
+    ],
+    "video": []
+  },
+  "total_files": 35,
+  "total_words": 38517,
+  "needs_graph": false,
+  "warning": "Corpus is ~38,517 words - fits in a single context window. You may not need a graph.",
+  "skipped_sensitive": [],
+  "graphifyignore_patterns": 0
+}
