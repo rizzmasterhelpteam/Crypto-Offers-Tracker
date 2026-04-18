@@ -1,155 +1,248 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EigenLayer vs JitoSOL: A Developer's Guide to Liquid Restaking Yields (2026) | Crypto Digest</title>
-    <meta name="description" content="An in-depth technical comparison of EigenLayer (eETH/ezETH) and Solana's JitoSOL. Compare real 2026 APYs, AVS slashing risks, and infrastructure architecture.">
-    <meta name="keywords" content="EigenLayer architecture, LRT yield comparison 2026, AVS slashing risks, Ether.fi vs Renzo, JitoSOL MEV strategies, Web3 infrastructure">
-   
-    <meta property="og:type" content="article">
-    <meta property="og:title" content="EigenLayer vs JitoSOL: A Developer's Guide to Liquid Restaking Yields (2026)">
-    <meta property="og:description" content="An in-depth technical comparison of EigenLayer (eETH/ezETH) and Solana's JitoSOL. Compare real 2026 APYs, AVS slashing risks, and infrastructure architecture.">
-    <meta property="og:image" content="../../../assets/eigenlayer-jito-cover.png">
-    <meta name="twitter:card" content="summary_large_image">
-   
-    <link rel="stylesheet" href="../../style.css">
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "TechArticle",
-      "headline": "EigenLayer vs JitoSOL: A Developer's Guide to Liquid Restaking Yields (2026)",
-      "description": "An in-depth technical comparison of EigenLayer and Solana's JitoSOL, analyzing APYs, AVS slashing risks, and infrastructure architecture.",
-      "image": "../../../assets/eigenlayer-jito-cover.png",
-      "datePublished": "2026-04-18",
-      "author": {
-        "@type": "Person",
-        "name": "Deepak Verma",
-        "jobTitle": "Full-Stack Developer",
-        "url": "https://github.com/deepakverma"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "Crypto Digest",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://crypto-offers.com/assets/logo.png"
-        }
-      }
-    }
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-    <script>
-        mermaid.initialize({ startOnLoad: true, theme: 'dark' });
-    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EigenLayer vs JitoSOL: Developer's Guide to Liquid Restaking Yields & Risks (2026) | Crypto Digest</title>
+    <meta name="description" content="In-depth developer-focused comparison of EigenLayer LRTs (eETH/ezETH) vs JitoSOL in 2026. Real APY ranges, AVS slashing risks, architecture, and actionable strategies for DeFi builders.">
+    <meta name="keywords" content="EigenLayer vs JitoSOL 2026, LRT yield comparison, AVS slashing risks, eETH ezETH vs JitoSOL, EigenLayer architecture, liquid restaking developer guide">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="EigenLayer vs JitoSOL: Developer's Guide to Liquid Restaking Yields & Risks (2026)">
+    <meta property="og:description" content="Technical breakdown of EigenLayer LRTs vs JitoSOL: yields, risks, architecture, and strategies for 2026.">
+    <meta property="og:image" content="../../../assets/eigenlayer-jito-cover.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="stylesheet" href="../../style.css">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      "headline": "EigenLayer vs JitoSOL: Developer's Guide to Liquid Restaking Yields (2026)",
+      "description": "In-depth technical comparison of EigenLayer (eETH/ezETH) and Solana's JitoSOL, including 2026 yields, AVS risks, and architecture.",
+      "image": "../../../assets/eigenlayer-jito-cover.png",
+      "datePublished": "2026-04-18",
+      "author": {
+        "@type": "Person",
+        "name": "Mark",
+        "jobTitle": "Full-Stack Developer"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Crypto Digest"
+      }
+    }
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+    </script>
 </head>
 <body>
-    <!-- [Keep your existing progress bar, sticky header, header, etc. unchanged] -->
+    <div class="progress-container">
+        <div class="progress-bar" id="myBar"></div>
+    </div>
 
-    <main class="container">
-        <div class="post-detail-container">
-            <article class="post-detail">
-                <header class="post-header">
-                    <div class="category-badge green">Protocol Architecture & Yield</div>
-                    <h1>EigenLayer vs JitoSOL: A Developer's Guide to Liquid Restaking Yields (2026)</h1>
-                   
-                    <div class="author-bio-box" style="display: flex; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid var(--accent);">
-                        <div>
-                            <p style="margin: 0; font-size: 0.95rem; color: #333;">
-                                <strong>By Deepak Verma</strong> &middot; <span class="date">April 18, 2026</span><span id="reading-time"></span>
-                            </p>
-                            <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #666;">
-                                Deepak is a full-stack developer bridging Web2 infrastructure and Web3 protocols. He builds mobile apps and automated platforms using modern stacks (Supabase, Vercel, Capacitor) and analyzes smart contract architectures.
-                            </p>
-                        </div>
-                    </div>
-                </header>
-                <div class="content-body">
-                    <p>As a developer accustomed to deploying full-stack apps, I view infrastructure through a specific lens: abstracting the hard parts. Just as platforms like Vercel and Supabase allow me to spin up complex backends and databases for my mobile applications without racking my own servers, EigenLayer is doing the exact same thing for blockchain security.</p>
-                    <p>Instead of every new oracle, bridge, or data availability layer having to bootstrap its own multi-billion dollar validator network from scratch, EigenLayer allows them to "rent" Ethereum’s massive restaked security pool (currently in the $9–15B+ range). For the end-user, this manifests as <strong>Liquid Restaking Tokens (LRTs)</strong>—a way to earn base ETH yields plus additional rewards from Actively Validated Services (AVSs), without locking up capital.</p>
-                    <p>But how does Ethereum's dominant LRT ecosystem stack up against Solana's MEV-optimized juggernaut, JitoSOL, in 2026? Let's bypass the marketing fluff and look at the actual math, architectural risks, and yield compositions.</p>
+    <div class="sticky-header">
+        <div class="sticky-header-inner">
+            <span class="sticky-title"></span>
+            <nav class="sticky-nav nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/" style="color: var(--accent);">Digest</a>
+            </nav>
+        </div>
+    </div>
 
-                    <p><strong>Important Disclaimer:</strong> Yields in crypto are highly variable and change daily based on network activity, AVS rewards, MEV volume, and incentives. The figures below reflect approximate ranges observed as of April 18, 2026. Always verify live data on DefiLlama, Dune Analytics, or the respective protocol dashboards before committing capital.</p>
+    <header>
+        <div class="container header-inner">
+            <a href="/" class="logo">
+                <span>Crypto Digest</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/" style="color: var(--accent);">Digest</a>
+                <a href="/about.html">About</a>
+            </nav>
+        </div>
+    </header>
 
-                    <h2>The Infrastructure Architecture: How the Yield is Generated</h2>
-                   
-                    <p>To understand the risk, you have to understand the pipeline. When you deposit ETH into an LRT like Ether.fi or Renzo, your capital travels through several layers of smart contracts before it generates a return.</p>
-                    <pre><code class="language-mermaid">
+    <main class="container">
+        <div class="post-detail-container">
+            <article class="post-detail">
+                <header class="post-header">
+                    <div class="category-badge green">Protocol Architecture & Yield</div>
+                    <h1>EigenLayer vs JitoSOL: Developer's Guide to Liquid Restaking Yields & Risks (2026)</h1>
+                    
+                    <div class="author-bio-box" style="display: flex; align-items: center; background: #f8f9fa; padding: 18px; border-radius: 8px; margin: 25px 0; border-left: 5px solid var(--accent);">
+                        <div>
+                            <p style="margin: 0; font-size: 0.95rem; color: #333;">
+                                <strong>By Mark</strong> &middot; <span class="date">April 18, 2026</span><span id="reading-time"></span>
+                            </p>
+                            <p style="margin: 8px 0 0 0; font-size: 0.85rem; color: #666;">
+                                Mark is a full-stack developer with experience bridging Web2 infrastructure and Web3 protocols. He builds mobile apps and automated platforms using Supabase, Vercel, and Capacitor, while deeply analyzing smart contract architectures and yield strategies in DeFi.
+                            </p>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="content-body">
+                    <p>As a developer who deploys full-stack apps daily, I evaluate infrastructure by how well it abstracts complexity. Just like Vercel and Supabase let me launch production backends without managing servers, <strong>EigenLayer</strong> abstracts blockchain security — letting new services "rent" Ethereum's established validator set instead of bootstrapping their own.</p>
+
+                    <p>This creates <strong>Liquid Restaking Tokens (LRTs)</strong> like eETH and ezETH, which deliver base ETH staking yields plus extra rewards from Actively Validated Services (AVSs), all while keeping capital liquid for DeFi use.</p>
+
+                    <p>In 2026, how does Ethereum's EigenLayer ecosystem compare to Solana's MEV-optimized <strong>JitoSOL</strong>? This guide cuts through hype with architecture details, realistic yield data, risks, and developer-focused strategies.</p>
+
+                    <p><strong>Disclaimer (April 18, 2026):</strong> Yields and TVL fluctuate daily due to network activity, AVS incentives, MEV volume, and market conditions. Figures below are approximate ranges from DefiLlama, Dune Analytics, and protocol data. Always check live dashboards and understand risks before allocating capital.</p>
+
+                    <h2>Restaking Architecture: How Yield is Generated</h2>
+                    <p>When you deposit ETH into an LRT protocol (e.g., Ether.fi or Renzo), it flows through multiple smart contract layers:</p>
+                    <pre><code class="language-mermaid">
 flowchart TD
-    A[User Deposits ETH] --> B[LRT Protocol Smart Contract<br>e.g., Ether.fi, Renzo]
-    B --> C[Mints Liquid Token<br>eETH, ezETH]
-    B --> D[EigenLayer Core Contracts]
-    D --> E[Node Operators]
-    E --> F[Actively Validated Services AVS]
-    F --> G[Data Availability Layer]
-    F --> H[Decentralized Sequencers]
-    F --> I[AI Oracle Networks]
-    style A fill:#4ade80,stroke:#166534
-    style C fill:#3b82f6,stroke:#1d4ed8
-                    </code></pre>
-                    <p>Every arrow in that diagram represents a smart contract interaction, and therefore, a potential point of failure. The yield you receive is your compensation for taking on that layered technical risk.</p>
+    A[User Deposits ETH] --> B[LRT Protocol<br>e.g. Ether.fi, Renzo]
+    B --> C[Mints LRT<br>eETH / ezETH]
+    B --> D[EigenLayer Core Contracts]
+    D --> E[Node Operators]
+    E --> F[Actively Validated Services (AVSs)]
+    F --> G[DA Layers • Oracles • Bridges • AI Networks]
+    C --> H[DeFi Composability: Collateral, LP, Farming]
+    style A fill:#4ade80,stroke:#166534
+    style C fill:#3b82f6,stroke:#1d4ed8
+                    </code></pre>
+                    <p>Each step adds potential points of failure — and the extra yield compensates for that layered risk.</p>
 
-                    <h2>2026 Yield Snapshot: EigenLayer LRTs vs. JitoSOL</h2>
-                    <p>I track yields closely because, much like calculating API costs or AdMob eCPM rates for an app, optimizing for the highest sustainable return while minimizing infrastructure risk is the name of the game. Here is the current snapshot.</p>
-                    <div style="overflow-x:auto;">
-                        <table style="width:100%; border-collapse:collapse; margin:20px 0; font-size: 0.95rem; text-align: left;">
-                            <thead>
-                                <tr style="background:var(--accent); color:white;">
-                                    <th style="padding:12px;">Protocol / Token</th>
-                                    <th style="padding:12px;">Base Network</th>
-                                    <th style="padding:12px;">Approx. Total APY (April 2026)</th>
-                                    <th style="padding:12px;">Yield Source</th>
-                                    <th style="padding:12px;">Primary Risk Vector</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr style="background: #fdfdfd;">
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;"><strong>Ether.fi (eETH)</strong></td>
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;">Ethereum</td>
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;">~3.5–6.5%</td>
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;">ETH Staking (~3–5%) + Variable AVS Rewards</td>
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;">Operator / AVS Slashing</td>
-                                </tr>
-                                <tr style="background: #f9f9f9;">
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;"><strong>Renzo (ezETH)</strong></td>
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;">Ethereum</td>
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;">~3–6%</td>
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;">ETH Staking + AVS Rewards (often more aggressive)</td>
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;">Smart Contract + Slashing Risk</td>
-                                </tr>
-                                <tr style="background: #fdfdfd;">
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;"><strong>Jito (JitoSOL)</strong></td>
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;">Solana</td>
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;">~6–7.8%</td>
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;">SOL Staking + MEV Rewards</td>
-                                    <td style="padding:12px; border-bottom:1px solid #ddd;">Network Outage / MEV Volatility</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <h2>2026 Yield Snapshot: EigenLayer LRTs vs JitoSOL</h2>
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse; margin:25px 0; font-size: 0.95rem; text-align: left;">
+                            <thead>
+                                <tr style="background:var(--accent); color:white;">
+                                    <th style="padding:12px;">Protocol / Token</th>
+                                    <th style="padding:12px;">Base Network</th>
+                                    <th style="padding:12px;">Approx. Total APY (April 2026)</th>
+                                    <th style="padding:12px;">Yield Source</th>
+                                    <th style="padding:12px;">Primary Risk Vector</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: #fdfdfd;">
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;"><strong>Ether.fi (eETH)</strong></td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">Ethereum</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">~3.5–6.5%</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">ETH Staking (~3–5%) + Variable AVS Rewards</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">Operator / AVS Slashing</td>
+                                </tr>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;"><strong>Renzo (ezETH)</strong></td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">Ethereum</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">~3–6%</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">ETH Staking + Aggressive AVS Exposure</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">Smart Contract + Slashing Risk</td>
+                                </tr>
+                                <tr style="background: #fdfdfd;">
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;"><strong>Jito (JitoSOL)</strong></td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">Solana</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">~6–7.8%</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">SOL Staking + MEV Rewards</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">Network Outage / MEV Volatility</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                    <h2>The Core Differences: Shared Security vs. MEV Extraction</h2>
-                   
-                    <h3>1. The EigenLayer Approach (Ethereum)</h3>
-                    <p>If you hold <code>eETH</code> or <code>ezETH</code>, your yield is fundamentally derived from software startups and services paying for security via AVSs. The risk here is <strong>slashing</strong> — if an operator misbehaves on a specific AVS, a portion of the staked ETH can be penalized. This is why choosing an LRT that actively curates its AVS whitelist and manages operator risk is crucial. Slashing mechanisms have matured since 2025 with better isolation in many cases.</p>
+                    <h2>Core Differences: Shared Security vs Native MEV</h2>
+                    <h3>1. EigenLayer (Ethereum) – Shared Security Model</h3>
+                    <p>LRT holders earn from services paying for Ethereum security. Slashing risk exists if operators fail on an AVS, but mechanisms have improved with better isolation since 2025.</p>
 
-                    <h3>2. The JitoSOL Approach (Solana)</h3>
-                    <p>Jito takes a different path. It doesn't secure external networks. Instead, it optimizes transaction ordering on Solana itself through a specialized client. Validators extract <strong>Maximum Extractable Value (MEV)</strong> from arbitrage and other opportunities, then pass a portion of those profits back to <code>JitoSOL</code> holders. This makes it faster and highly composable within Solana's DeFi ecosystem, but the extra yield depends heavily on sustained trading volume and MEV activity.</p>
+                    <h3>2. JitoSOL (Solana) – MEV-Optimized Staking</h3>
+                    <p>Jito enhances native Solana transaction ordering via a specialized client. Validators capture MEV (arbitrage, etc.) and share profits with JitoSOL holders. It's fast and deeply integrated with Solana DeFi but tied to trading volume.</p>
 
-                    <h2>Actionable Strategies for 2026</h2>
-                    <p>I don't leave my capital sitting idle any more than I leave server capacity unutilized. Here is how I approach the current landscape:</p>
-                    <ul>
-                        <li><strong>For Maximum Composability:</strong> If you use Aave, Maker, or similar protocols, EigenLayer LRTs like <code>weETH</code> are often accepted as premium collateral. You can deposit, borrow stablecoins, and continue earning base yield.</li>
-                        <li><strong>For Active DeFi Integrators:</strong> If you run automated trading scripts or liquidity pools on Solana, JitoSOL's deep integration into platforms like Kamino and Jupiter makes it very convenient.</li>
-                        <li><strong>Risk Mitigation:</strong> Avoid blindly chasing the highest advertised yields. Protocols or AVSs promising significantly above-average returns often involve higher slashing exposure or unproven services. Stick to top LRTs by TVL for better audit coverage and risk management.</li>
-                    </ul>
-                    <p><strong>The Developer's Bottom Line:</strong> EigenLayer has productized Ethereum's trust layer into something other networks can consume. Jito has productized MEV-aware transaction ordering on Solana. Both are excellent examples of infrastructure design, but your choice depends on which ecosystem's risk profile and composability you prefer.</p>
-                </div>
-            </article>
-            <!-- Back link and footer remain the same -->
-        </div>
-    </main>
+                    <h2>Top EigenLayer LRTs in 2026</h2>
+                    <ul>
+                        <li><strong>Ether.fi (eETH/weETH)</strong>: Strong TVL, excellent DeFi integrations (often used as collateral).</li>
+                        <li><strong>Renzo (ezETH)</strong>: More aggressive AVS strategy, higher potential (and risk) rewards.</li>
+                    </ul>
+                    <p>Choose based on your risk tolerance and desired composability.</p>
 
-    <!-- Keep your existing scripts -->
+                    <h2>Risks Developers Should Evaluate</h2>
+                    <ul>
+                        <li><strong>Slashing</strong>: AVS-specific penalties on operators.</li>
+                        <li><strong>Smart Contract Risk</strong>: Multi-layer interactions increase attack surface.</li>
+                        <li><strong>Depeg & Liquidity Risk</strong>: LRTs can temporarily diverge from underlying assets.</li>
+                        <li><strong>MEV/Network Volatility (JitoSOL)</strong>: Yield depends on Solana activity.</li>
+                    </ul>
+                    <p><strong>Mitigation Tip</strong>: Stick to top-TVL LRTs, diversify operators, and start small.</p>
+
+                    <h2>Actionable Developer Strategies for 2026</h2>
+                    <ul>
+                        <li><strong>Composability Play</strong>: Deposit into Ether.fi → receive weETH → use as collateral on Aave/Maker while it continues yielding.</li>
+                        <li><strong>Solana Automation</strong>: Integrate JitoSOL into scripts or bots on Kamino/Jupiter for MEV-aware liquidity provision.</li>
+                        <li><strong>Risk-Adjusted Approach</strong>: Monitor AVS performance dashboards. Avoid chasing 10%+ yields without understanding the slashing conditions.</li>
+                        <li><strong>Hybrid Strategy</strong>: Use EigenLayer LRTs for Ethereum depth and JitoSOL for high-speed Solana plays.</li>
+                    </ul>
+
+                    <h2>FAQs – EigenLayer vs JitoSOL</h2>
+                    <details><summary>Which has higher yields in 2026?</summary><p>JitoSOL often shows steadier MEV-boosted yields (~6–7.8%), while EigenLayer LRTs are more variable (3.5–6.5%+) depending on AVS activity.</p></details>
+                    <details><summary>Is slashing a big risk?</summary><p>It exists on EigenLayer but has improved with isolation features. JitoSOL has lower slashing risk but carries Solana network risks.</p></details>
+
+                    <p><strong>Developer's Bottom Line:</strong> EigenLayer turns Ethereum security into a consumable service. Jito turns Solana transaction ordering into optimized yield. Both are strong infrastructure plays — pick based on your ecosystem, risk tolerance, and composability needs.</p>
+
+                    <p>Questions on integration, operator selection, or your specific setup? Drop them in the comments.</p>
+                </div>
+            </article>
+
+            <div style="margin-top: 60px; text-align: center;">
+                <a href="/blog/" class="read-more" style="justify-content: center; font-size: 1.1rem; text-decoration: none; color: var(--link); font-weight: bold;">&#8592; Back to all Technical Digests</a>
+            </div>
+        </div>
+    </main>
+
+    <button id="back-to-top" aria-label="Back to top" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 15px; display: none; cursor: pointer;">&#8593;</button>
+
+    <footer style="margin-top: 50px; padding: 30px 0; border-top: 1px solid #eaeaea; text-align: center;">
+        <div class="container">
+            <div class="footer-logo" style="font-weight: bold; font-size: 1.2rem;">
+                <span>Crypto Digest</span>
+            </div>
+            <p style="color: #666; font-size: 0.9rem;">Expert-led technical analysis for the modular crypto ecosystem.</p>
+            <p style="color: #999; font-size: 0.8rem;">&copy; 2026 Crypto Digest. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Sticky Header & Progress Bar
+        (function () {
+            var h1 = document.querySelector('.post-header h1');
+            var stickyHeader = document.querySelector('.sticky-header');
+            var progressBar = document.getElementById('myBar');
+
+            window.addEventListener('scroll', function () {
+                if (h1 && stickyHeader) {
+                    stickyHeader.classList.toggle('visible', h1.getBoundingClientRect().bottom <= 0);
+                }
+                if (progressBar) {
+                    var h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    if (h > 0) progressBar.style.width = ((document.documentElement.scrollTop / h) * 100) + '%';
+                }
+            }, { passive: true });
+        })();
+
+        // Reading Time
+        (function () {
+            var body = document.querySelector('.content-body');
+            var rt = document.getElementById('reading-time');
+            if (body && rt) rt.textContent = '\u00a0\u00b7\u00a0' + Math.ceil(body.textContent.trim().split(/\s+/).length / 200) + ' min read';
+        })();
+
+        // Back to Top
+        (function () {
+            var btt = document.getElementById('back-to-top');
+            if (!btt) return;
+            window.addEventListener('scroll', function () {
+                btt.style.display = window.scrollY > 400 ? 'block' : 'none';
+            }, { passive: true });
+            btt.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        })();
+    </script>
 </body>
 </html>
