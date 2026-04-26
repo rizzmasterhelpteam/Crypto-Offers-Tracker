@@ -77,11 +77,16 @@ function loadHistory() {
     if (!fs.existsSync(config.HISTORY_PATH)) return {};
     try {
         const historyObj = JSON.parse(fs.readFileSync(config.HISTORY_PATH, 'utf8'));
+        let changed = false;
         for (const fileName in historyObj) {
             if (!fs.existsSync(path.join(config.BLOG_DIR, fileName))) {
                 console.log(`[Sync] ${fileName} deleted — removing from history.`);
                 delete historyObj[fileName];
+                changed = true;
             }
+        }
+        if (changed) {
+            fs.writeFileSync(config.HISTORY_PATH, JSON.stringify(historyObj, null, 4));
         }
         return historyObj;
     } catch (e) {

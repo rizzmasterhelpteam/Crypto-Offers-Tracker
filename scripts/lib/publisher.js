@@ -66,13 +66,13 @@ function buildHeroImageHtml(heroImagePath, title, assetsPath) {
 }
 
 /**
- * Compute relative path from blog/YYYY-MM/DD/ back to blog/style.css and assets/
- * Depth 3 (YYYY-MM/DD/file.html) → ../../style.css and ../../../assets/
+ * Compute relative paths from a blog post back to blog/style.css and assets/.
+ * Works at any nesting depth: depth 3 (YYYY-MM/DD/file.html) → ../../style.css
  */
 function computePaths(relativeFilePath) {
-    const depth = relativeFilePath.split('/').length; // e.g. "2026-04/14/file.html" = 3
-    const cssPath = depth === 3 ? '../../style.css' : '../style.css';
-    const assetsPath = depth === 3 ? '../../../assets/' : '../../assets/';
+    const depth = relativeFilePath.split('/').length; // number of path components
+    const cssPath    = '../'.repeat(depth - 1) + 'style.css';
+    const assetsPath = '../'.repeat(depth) + 'assets/';
     return { cssPath, assetsPath };
 }
 
@@ -137,7 +137,25 @@ function publishDraft(draftFile, outputPath = null) {
         .replace(/{{HERO_IMAGE}}/g, heroHtml)
         .replace(/{{CONTENT}}/g, content);
 
-    fs.writeFileSync(outputPath, compiled, 'utf8');
+    try {
+        fs.writeFileSync(outputPath, compiled, 'utf8');
+    } catch (writeErr) {
+        console.error(`[Publisher] ❌ Failed to write ${relPath}: ${writeErr.message}`);
+        throw writeErr;
+    }
+
+    // Update history.json so generate-blog.js deduplication and SEO linker stay current
+    try {
+        let history = {};
+        if (fs.existsSync(config.HISTORY_PATH)) {
+            history = JSON.parse(fs.readFileSync(config.HISTORY_PATH, 'utf8'));
+        }
+        history[relPath] = title;
+        fs.writeFileSync(config.HISTORY_PATH, JSON.stringify(history, null, 4));
+    } catch (histErr) {
+        console.warn(`[Publisher] ⚠️  Could not update history.json: ${histErr.message}`);
+    }
+
     console.log(`[Publisher] ✅ Published → ${relPath}`);
     return outputPath;
 }

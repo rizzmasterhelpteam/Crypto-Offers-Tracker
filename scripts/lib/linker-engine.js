@@ -41,6 +41,7 @@ async function isValidUrl(url) {
         clearTimeout(timeout);
         return res.ok;
     } catch (e) {
+        console.warn(`[Linker] URL skipped (${e.name === 'AbortError' ? 'timeout' : e.message}): ${url}`);
         return false;
     }
 }

@@ -10,12 +10,31 @@ function parseCSV(content) {
     const lines = content.split('\n').filter(l => l.trim());
     if (lines.length < 2) return [];
     const headers = lines[0].split(',').map(h => h.trim());
+
+    function parseLine(line) {
+        const values = [];
+        let cur = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+            const ch = line[i];
+            if (inQuotes) {
+                if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+                else if (ch === '"') { inQuotes = false; }
+                else { cur += ch; }
+            } else {
+                if (ch === '"') { inQuotes = true; }
+                else if (ch === ',') { values.push(cur.trim()); cur = ''; }
+                else { cur += ch; }
+            }
+        }
+        values.push(cur.trim());
+        return values;
+    }
+
     return lines.slice(1).map(line => {
-        const values = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+        const values = parseLine(line);
         const row = {};
-        headers.forEach((h, i) => {
-            row[h] = values[i] ? values[i].replace(/^"|"$/g, '').trim() : '';
-        });
+        headers.forEach((h, i) => { row[h] = values[i] ?? ''; });
         return row;
     });
 }
@@ -115,7 +134,13 @@ function syncBlogIndex() {
     }
     const startIndex = startMarkerPos + startMarker.length;
     indexHtml = indexHtml.substring(0, startIndex) + postEntries + '\n            ' + indexHtml.substring(endIndex);
-    fs.writeFileSync(config.INDEX_PATH, indexHtml);
+    try {
+        fs.writeFileSync(config.INDEX_PATH, indexHtml, 'utf8');
+        console.log('[Utils] Blog index synchronized successfully.');
+    } catch (err) {
+        console.error(`[Utils] ❌ Failed to write blog index: ${err.message}`);
+        throw err;
+    }
 }
 
 module.exports = {

@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, spawnSync } = require('child_process');
 const config = require('./lib/config');
 const utils = require('./lib/utils');
 const { publishAllDrafts } = require('./lib/publisher');
@@ -38,16 +38,18 @@ async function syncAndDeploy() {
 
             console.log(`[5/5] Committing and Pushing...`);
             const commitMsg = `Publish: Batch update ${new Date().toISOString().split('T')[0]}`;
-            try {
-                execSync(`git commit -m "${commitMsg}"`, { stdio: 'inherit' });
-                execSync(`git push origin main`, { stdio: 'inherit' });
-                console.log(`\n🎉 Successfully synced and pushed to GitHub.`);
-            } catch (pushErr) {
-                if (pushErr.message.includes('nothing to commit')) {
-                    console.log(`\n😴 No new changes were identified for commit.`);
+            const commitResult = spawnSync('git', ['commit', '-m', commitMsg], { stdio: 'inherit' });
+            if (commitResult.status === 0) {
+                const pushResult = spawnSync('git', ['push', 'origin', 'main'], { stdio: 'inherit' });
+                if (pushResult.status === 0) {
+                    console.log(`\n🎉 Successfully synced and pushed to GitHub.`);
                 } else {
-                    console.error(`\n❌ Push failed:`, pushErr.message);
+                    console.error(`\n❌ Push failed with exit code ${pushResult.status}.`);
                 }
+            } else if (commitResult.status === 1) {
+                console.log(`\n😴 No new changes were identified for commit.`);
+            } else {
+                console.error(`\n❌ Commit failed with exit code ${commitResult.status}.`);
             }
         } else {
             console.log(`\n⚠️  No .git repository found. Skipping push.`);

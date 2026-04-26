@@ -7,9 +7,14 @@ const path = require('path');
 const PROJECT_ROOT = path.join(__dirname, '..', '..');
 const ADMIN_DIR = path.join(PROJECT_ROOT, 'admin');
 
+const ADSENSE_PUB_ID = process.env.ADSENSE_PUB_ID || 'ca-pub-XXXXXXXXXX';
+if (ADSENSE_PUB_ID === 'ca-pub-XXXXXXXXXX') {
+    console.warn('[Config] ⚠️  ADSENSE_PUB_ID is not set. Ads will not serve. Set the ADSENSE_PUB_ID environment variable.');
+}
+
 module.exports = {
     SITE_URL: 'https://crypto-offers.vercel.app',
-    ADSENSE_PUB_ID: 'ca-pub-XXXXXXXXXX', // Replace with your actual ID
+    ADSENSE_PUB_ID,
     BLOG_DIR: path.join(PROJECT_ROOT, 'blog'),
     ADMIN_DIR: ADMIN_DIR,
     TEMPLATE_PATH: path.join(PROJECT_ROOT, 'blog', 'template.html'),
