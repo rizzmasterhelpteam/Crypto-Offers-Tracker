@@ -35,10 +35,6 @@
     }
     </script>
     
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-    <script>
-        mermaid.initialize({ startOnLoad: true, theme: 'dark' });
-    </script>
 </head>
 <body>
     <div class="progress-container">
@@ -98,18 +94,14 @@
 
                     <h2>Restaking Architecture: How Yield is Generated</h2>
                     <p>When you deposit ETH into an LRT protocol (e.g., Ether.fi or Renzo), it flows through multiple smart contract layers:</p>
-                    <pre><code class="language-mermaid">
-flowchart TD
-    A[User Deposits ETH] --> B[LRT Protocol<br>e.g. Ether.fi, Renzo]
-    B --> C[Mints LRT<br>eETH / ezETH]
-    B --> D[EigenLayer Core Contracts]
-    D --> E[Node Operators]
-    E --> F[Actively Validated Services (AVSs)]
-    F --> G[DA Layers • Oracles • Bridges • AI Networks]
-    C --> H[DeFi Composability: Collateral, LP, Farming]
-    style A fill:#4ade80,stroke:#166534
-    style C fill:#3b82f6,stroke:#1d4ed8
-                    </code></pre>
+                    <ol style="margin: 20px 0; padding-left: 1.4em; line-height: 2;">
+                        <li><strong>User deposits ETH</strong> into an LRT protocol (e.g. Ether.fi or Renzo)</li>
+                        <li>Protocol <strong>mints a Liquid Restaking Token</strong> (eETH / ezETH) representing your position</li>
+                        <li>Deposited ETH is delegated through <strong>EigenLayer core contracts</strong> to Node Operators</li>
+                        <li>Node Operators opt into <strong>Actively Validated Services (AVSs)</strong> — DA layers, oracles, bridges, AI networks</li>
+                        <li>AVS rewards flow back to operators and then to <strong>LRT holders as additional yield</strong></li>
+                        <li>Your LRT remains liquid — usable as <strong>collateral, LP token, or farming asset</strong> across DeFi</li>
+                    </ol>
                     <p>Each step adds potential points of failure — and the extra yield compensates for that layered risk.</p>
 
                     <h2>2026 Yield Snapshot: EigenLayer LRTs vs JitoSOL</h2>

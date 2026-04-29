@@ -10,28 +10,16 @@ const generator = require('./lib/generator-v3');
 const utils = require('./lib/utils');
 const { publishDraft } = require('./lib/publisher');
 
-// Known acronyms to preserve casing during title-casing
-const ACRONYMS = new Set(['RWA', 'DeFi', 'AVS', 'MEV', 'TPS', 'TVL', 'ZK', 'AI', 'L1', 'L2', 'L3', 'DA', 'EVM', 'DAO', 'NFT', 'KYC', 'AML', 'LST', 'AMM', 'DEX', 'CEX']);
-
-/**
- * Title-case a string, preserving known acronyms and protocol names.
- */
-function toDisplayTitle(str) {
-    return str.replace(/\b\w+/g, word => {
-        if (ACRONYMS.has(word.toUpperCase())) return word.toUpperCase();
-        const knownKey = Object.keys(config.PROJECT_KNOWLEDGE).find(k => k.toLowerCase() === word.toLowerCase());
-        if (knownKey) return knownKey.charAt(0).toUpperCase() + knownKey.slice(1);
-        return word.charAt(0).toUpperCase() + word.slice(1);
-    });
-}
 
 /**
  * Post-processing: DOM-free structural fix using regex.
  * Catches cases where the LLM still emits bare <h2>Key Takeaways</h2> or <h2>Analyst Note</h2>.
  */
 function autoFixStructure(html) {
-    // Remove any Mermaid diagram blocks (no longer supported)
+    // Remove any Mermaid diagram blocks in all formats the LLM may emit
     html = html.replace(/<pre\s+class=["']mermaid["']>[\s\S]*?<\/pre>/gi, '');
+    html = html.replace(/<pre[^>]*>\s*<code[^>]*class=["'][^"']*mermaid[^"']*["'][^>]*>[\s\S]*?<\/code>\s*<\/pre>/gi, '');
+    html = html.replace(/```mermaid[\s\S]*?```/gi, '');
 
     // Fix: LLM wrapping intro paragraphs in <h2> instead of <p>
     html = html.replace(/<h2[^>]*>([^<]{70,})<\/h2>/g, (_, inner) => `<p>${inner}</p>`);
