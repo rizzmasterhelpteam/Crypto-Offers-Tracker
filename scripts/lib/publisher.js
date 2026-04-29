@@ -112,9 +112,10 @@ function publishDraft(draftFile, outputPath = null) {
     const relPath = path.relative(BLOG_DIR, outputPath).replace(/\\/g, '/');
     const { cssPath, assetsPath } = computePaths(relPath);
 
+    // og:image must be an absolute URL for Google/social crawlers to pick it up
     const ogImage = heroImage
-        ? `${assetsPath}${heroImage.replace(/^assets\/blog\//, 'blog/')}`
-        : `${assetsPath}logo.png`;
+        ? `${config.SITE_URL}/assets/blog/${heroImage.replace(/^assets\/blog\//, '')}`
+        : `${config.SITE_URL}/assets/logo.png`;
 
     const authorLink = `<a href="/author/${author.toLowerCase()}.html" style="color: var(--link); font-weight: 600; text-decoration: none;">${author}</a>`;
     const heroHtml = buildHeroImageHtml(heroImage, title, assetsPath);
