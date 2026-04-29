@@ -8,6 +8,7 @@ const config = require('./lib/config');
 const sources = require('./lib/sources');
 const generator = require('./lib/generator-v3');
 const utils = require('./lib/utils');
+const { publishDraft } = require('./lib/publisher');
 
 // Known acronyms to preserve casing during title-casing
 const ACRONYMS = new Set(['RWA', 'DeFi', 'AVS', 'MEV', 'TPS', 'TVL', 'ZK', 'AI', 'L1', 'L2', 'L3', 'DA', 'EVM', 'DAO', 'NFT', 'KYC', 'AML', 'LST', 'AMM', 'DEX', 'CEX']);
@@ -29,6 +30,9 @@ function toDisplayTitle(str) {
  * Catches cases where the LLM still emits bare <h2>Key Takeaways</h2> or <h2>Analyst Note</h2>.
  */
 function autoFixStructure(html) {
+    // Remove any Mermaid diagram blocks (no longer supported)
+    html = html.replace(/<pre\s+class=["']mermaid["']>[\s\S]*?<\/pre>/gi, '');
+
     // Fix: LLM wrapping intro paragraphs in <h2> instead of <p>
     html = html.replace(/<h2[^>]*>([^<]{70,})<\/h2>/g, (_, inner) => `<p>${inner}</p>`);
 
@@ -174,7 +178,16 @@ async function run() {
         }
 
         console.log(`✅ Draft saved: drafts/${draftFileName}`);
-        console.log(`[Flow] Review the draft, then run the Publish workflow to go live.`);
+
+        // Immediately compile draft → full HTML blog post (CSS + head + body via template)
+        console.log(`[Flow] Compiling full HTML page from template...`);
+        const publishedPath = publishDraft(fullPath);
+        console.log(`✅ Full HTML post ready: ${path.relative(path.join(__dirname, '..'), publishedPath)}`);
+
+        // Keep the blog index in sync
+        console.log(`[Flow] Updating blog index...`);
+        utils.syncBlogIndex();
+        console.log(`✅ Blog index updated.`);
 
     } catch (err) {
         console.error(`❌ CRITICAL ERROR:`, err.message);
