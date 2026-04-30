@@ -39,7 +39,7 @@ const MODEL_MAX_TOKENS = {
     'llama-3.3-70b-versatile': 4000,   // 12K TPM limit
 };
 
-async function callGroq(messages, model, temperature = 0.5, maxTokensOverride = null) {
+async function callGroq(messages, model, temperature = 0.5, maxTokensOverride = null, fallbackModel = null) {
     if (!GROQ_API_KEY) throw new Error("GROQ_API_KEY is not set.");
 
     const max_tokens = maxTokensOverride || MODEL_MAX_TOKENS[model] || 4000;
@@ -55,7 +55,7 @@ async function callGroq(messages, model, temperature = 0.5, maxTokensOverride = 
             });
 
             if (response.status === 429) {
-                console.log(`[Rate Limit] 429 hit. Retrying in ${delay / 1000}s... (${retries} left)`);
+                console.log(`[Rate Limit] 429 hit on ${model}. Retrying in ${delay / 1000}s... (${retries} left)`);
                 await new Promise(r => setTimeout(r, delay));
                 retries--;
                 delay = Math.min(delay * 2, 60000);
@@ -74,8 +74,12 @@ async function callGroq(messages, model, temperature = 0.5, maxTokensOverride = 
             return data.choices[0].message.content.trim();
         } catch (err) {
             if (retries <= 1) {
+                if (fallbackModel && fallbackModel !== model) {
+                    console.warn(`[Groq] ${model} exhausted. Falling back to ${fallbackModel}...`);
+                    return callGroq(messages, fallbackModel, temperature, maxTokensOverride);
+                }
                 console.error(`[Groq] Final Error: ${err.message}`);
-                return null; // Return null on total failure
+                return null;
             }
             console.log(`[Network Error] ${err.message}. Retrying...`);
             await new Promise(r => setTimeout(r, 2000));
@@ -144,11 +148,11 @@ OUTPUT RULES (CRITICAL):
 }
 
 /**
- * STEP 1.5: Compelling Title Generation (llama-4-scout-17b)
+ * STEP 1.5: Compelling Title Generation (gpt-oss-120b → llama fallback)
  * Role: Generate a specific, engaging article title from keyword + source context.
  */
 async function generateTitle(keyword, sourceContext = '') {
-    console.log(`[Step 1.5] Generating Alpha-focused title...`);
+    console.log(`[Step 1.5] Generating Alpha-focused title (${config.MODELS.PRIMARY})...`);
     const systemPrompt = `You are an institutional headline writer.
 TASK: Generate ONE compelling crypto title for: "${keyword}".
 RULES:
@@ -160,7 +164,7 @@ RULES:
     const raw = await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `KEYWORD: ${keyword}\n\nSOURCE CONTEXT:\n${sourceContext.slice(0, 800)}` }
-    ], 'meta-llama/llama-4-scout-17b-16e-instruct', 0.7, 80);
+    ], config.MODELS.PRIMARY, 0.7, 80, config.MODELS.UTILITY);
 
     if (!raw) {
         console.warn(`[Step 1.5] Title generation failed. Using default.`);
@@ -271,7 +275,7 @@ ${sourceText}`;
     const rawDraft = await callGroq([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `Draft the full 800-word technical report for: "${keyword}" targeting the ${persona.name} audience.` }
-    ], 'openai/gpt-oss-120b', 0.7, 4000);
+    ], config.MODELS.PRIMARY, 0.7, 4000, config.MODELS.UTILITY);
 
     if (!rawDraft) {
         throw new Error(`[Step 2] FAILED: API return null (Rate limit exceeded).`);

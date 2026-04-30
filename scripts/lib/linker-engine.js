@@ -6,7 +6,7 @@ const config = require('./config');
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-async function callGroq(messages, model = 'meta-llama/llama-4-scout-17b-16e-instruct', temperature = 0.3) {
+async function callGroq(messages, model = config.MODELS.PRIMARY, temperature = 0.3) {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {

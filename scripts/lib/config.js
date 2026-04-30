@@ -80,5 +80,12 @@ module.exports = {
         'arbitrum.io', 'docs.drift.trade', 'jito.network', 'eips.ethereum.org'
     ],
     RESEARCH_SEEDS: ['Celestia', 'EigenLayer', 'Monad', 'Berachain', 'Jito', 'Drift Protocol', 'Starknet', 'zkSync'],
-    CURRENT_DATE: new Date().toISOString().split('T')[0] // 2026-04-07
+    CURRENT_DATE: new Date().toISOString().split('T')[0], // 2026-04-07
+
+    // Model routing: PRIMARY for all content generation, UTILITY for fast/cheap utility tasks
+    // (keyword extraction, hallucination auditing, data sanitization) where high TPM matters more than quality.
+    MODELS: {
+        PRIMARY: 'openai/gpt-oss-120b',                         // 8K TPM — used for drafts, titles, linking, charts
+        UTILITY: 'meta-llama/llama-4-scout-17b-16e-instruct'    // 30K TPM — used for Steps 1/3/4/5 (audit/cleanup)
+    }
 };

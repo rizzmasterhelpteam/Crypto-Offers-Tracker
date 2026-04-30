@@ -60,7 +60,7 @@ export default async function handler(req, res) {
             },
             signal: groqController.signal,
             body: JSON.stringify({
-                model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+                model: 'openai/gpt-oss-120b',
                 messages: [
                     {
                         role: 'system',
@@ -77,7 +77,7 @@ Write a concise technical blog post analyzing what's driving these moves. Includ
                     }
                 ],
                 temperature: 0.65,
-                max_tokens: 6000
+                max_tokens: 4000
             })
         });
 
