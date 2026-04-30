@@ -810,9 +810,6 @@
 
         <!-- Search Section -->
         <div class="search-section" id="searchSection">
-            <h2 class="section-title">Select Platform — Find Real Crypto Offers</h2>
-            <div class="platform-chips" id="platformChips"></div>
-
             <div class="search-grid" style="grid-template-columns: 1fr;">
                 <select id="searchType" aria-label="Filter offers by type" onchange="handleSearch()">
                     <option value="all">All Types</option>
@@ -923,14 +920,6 @@
             return Math.floor(Date.now() / (12 * 60 * 60 * 1000));
         }
 
-        const PLATFORMS = [
-            'Binance', 'Coinbase', 'Kraken', 'OKX', 'Bybit',
-            'KuCoin', 'Gate.io', 'HTX', 'Bitget', 'MEXC',
-            'Crypto.com', 'Gemini', 'BitMEX', 'Phemex',
-            'Uniswap', 'PancakeSwap', 'SushiSwap', 'Curve',
-            '1inch', 'Jupiter', 'Raydium', 'dYdX'
-        ];
-
         const PLATFORM_URLS = {
             'Binance': 'https://www.binance.com/en/activity',
             'Coinbase': 'https://www.coinbase.com/rewards',
@@ -956,11 +945,9 @@
             'dYdX': 'https://dydx.exchange'
         };
 
-        let selectedPlatform = '';
         let currentResults = [];
 
         document.addEventListener('DOMContentLoaded', () => {
-            initPlatformChips();
             initAds();
             // Trigger initial auto-search
             handleSearch(true);
@@ -972,30 +959,6 @@
                 (adsbygoogle = window.adsbygoogle || []).push({});
                 (adsbygoogle = window.adsbygoogle || []).push({});
             } catch (e) { }
-        }
-
-        function initPlatformChips() {
-            const container = document.getElementById('platformChips');
-            const allChip = document.createElement('div');
-            allChip.className = 'chip active';
-            allChip.textContent = 'All Platforms';
-            allChip.onclick = () => selectPlatform('', allChip);
-            container.appendChild(allChip);
-
-            PLATFORMS.forEach(platform => {
-                const chip = document.createElement('div');
-                chip.className = 'chip';
-                chip.textContent = platform;
-                chip.onclick = () => selectPlatform(platform, chip);
-                container.appendChild(chip);
-            });
-        }
-
-        function selectPlatform(platform, chipElement) {
-            selectedPlatform = platform;
-            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-            chipElement.classList.add('active');
-            handleSearch(); // Auto-search when platform is clicked
         }
 
         function showNotification(message, type = 'info') {
@@ -1135,9 +1098,6 @@
             emptyState.classList.add('hidden');
             let filtered = globalOffersList;
 
-            if (selectedPlatform) {
-                filtered = filtered.filter(o => o.platform && o.platform.toLowerCase().includes(selectedPlatform.toLowerCase()));
-            }
             if (searchType !== 'all') {
                 filtered = filtered.filter(o => o.type === searchType);
             }
