@@ -155,7 +155,7 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Check live pool APY on Curve Finance; rates change with CRV gauge weights",
-        link: "https://curve.fi/#/ethereum/pools",
+        link: "https://curve.finance/pools",
         coinId: "curve-dao-token",
         coinName: "Curve DAO Token"
     },
@@ -215,18 +215,18 @@ const VERIFIED_OFFERS = [
         type: "launchpad",
         badge: "live",
         requirements: "Verify current active governance programs and any associated rewards on Optimism",
-        link: "https://vote.optimism.io",
+        link: "https://agora.optimism.io",
         coinId: "optimism",
         coinName: "Optimism"
     },
     {
-        title: "Arbitrum DAO Grants Program",
+        title: "Arbitrum Foundation Grants & Programs",
         platform: "Arbitrum",
-        description: "The Arbitrum Foundation funds builders creating projects on Arbitrum. Grant sizes and open rounds vary — check the official grants page for current opportunities.",
-        value: "Varies by grant round",
+        description: "The Arbitrum Foundation runs multiple funding programs for builders on Arbitrum — including audit grants, gas sponsorship (ArbiFuel), gaming ventures, and chain development. Active programs and eligibility vary; check the grants page for currently open rounds.",
+        value: "Varies by active program",
         type: "launchpad",
         badge: "live",
-        requirements: "Review current open grant rounds and eligibility on the Arbitrum Foundation grants page",
+        requirements: "Check the Arbitrum Foundation grants page for currently open programs; the original DAO Grant Program has concluded",
         link: "https://arbitrum.foundation/grants",
         coinId: "arbitrum",
         coinName: "Arbitrum"
