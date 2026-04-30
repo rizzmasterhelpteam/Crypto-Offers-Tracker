@@ -23,7 +23,7 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Verify current rates and minimums on Binance Earn before depositing",
-        link: "https://www.binance.com/en/activity/earn",
+        link: "https://www.binance.com/en/earn",
         coinId: "tether",
         coinName: "Tether"
     },
@@ -107,7 +107,7 @@ const VERIFIED_OFFERS = [
         type: "trading",
         badge: "new",
         requirements: "Read full T&Cs on the Bybit promo page; bonus terms change regularly",
-        link: "https://www.bybit.com/en-US/promo/",
+        link: "https://www.bybit.com/en/promo/",
         coinId: "tether",
         coinName: "Tether"
     },
@@ -239,7 +239,7 @@ const VERIFIED_OFFERS = [
         type: "staking",
         badge: "live",
         requirements: "Check current staking APR on Lido; understand stETH liquidity and smart contract risks",
-        link: "https://lido.fi/ethereum",
+        link: "https://stake.lido.fi",
         coinId: "ethereum",
         coinName: "Ethereum"
     },
