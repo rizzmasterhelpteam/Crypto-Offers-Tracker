@@ -1,0 +1,17 @@
+{
+  "name": "Crypto Offers",
+  "short_name": "CryptoOffers",
+  "description": "Live crypto airdrops, staking rewards, and trading bonuses across 20+ exchanges.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/assets/logo.png",
+      "sizes": "640x640",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
