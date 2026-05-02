@@ -26,6 +26,8 @@ const config = require('./config');
 
 const TEMPLATE_PATH = config.TEMPLATE_PATH;
 const BLOG_DIR = config.BLOG_DIR;
+const DRAFTS_DIR = path.join(BLOG_DIR, '..', 'drafts');
+const ARCHIVED_DRAFTS_DIR = path.join(DRAFTS_DIR, 'published');
 
 /**
  * Parse YAML-style front matter from a draft file.
@@ -34,7 +36,6 @@ const BLOG_DIR = config.BLOG_DIR;
 function parseDraft(rawText) {
     const match = rawText.match(/^---\n([\s\S]*?)\n---\n\n?([\s\S]*)$/);
     if (!match) {
-        // Legacy format: no front matter — treat whole file as content
         return { meta: {}, content: rawText.trim() };
     }
 
@@ -50,12 +51,64 @@ function parseDraft(rawText) {
     return { meta, content: match[2].trim() };
 }
 
+function getDraftFiles() {
+    if (!fs.existsSync(DRAFTS_DIR)) {
+        return [];
+    }
+
+    return fs.readdirSync(DRAFTS_DIR, { withFileTypes: true })
+        .filter(entry => entry.isFile() && entry.name.endsWith('.html'))
+        .map(entry => path.join(DRAFTS_DIR, entry.name));
+}
+
+function listDrafts(options = {}) {
+    const { includeLegacy = false } = options;
+
+    return getDraftFiles()
+        .map(draftFile => {
+            const rawText = fs.readFileSync(draftFile, 'utf8');
+            const { meta } = parseDraft(rawText);
+            const hasFrontMatter = rawText.startsWith('---');
+
+            return {
+                draftFile,
+                fileName: path.basename(draftFile),
+                title: meta.title || path.basename(draftFile, '.html'),
+                date: meta.date || '',
+                hasFrontMatter
+            };
+        })
+        .filter(draft => includeLegacy || draft.hasFrontMatter)
+        .sort((a, b) => {
+            const byDate = (b.date || '').localeCompare(a.date || '');
+            return byDate || a.fileName.localeCompare(b.fileName);
+        });
+}
+
+function archiveDraftFile(draftFile) {
+    fs.mkdirSync(ARCHIVED_DRAFTS_DIR, { recursive: true });
+
+    const parsed = path.parse(draftFile);
+    let archivedPath = path.join(ARCHIVED_DRAFTS_DIR, parsed.base);
+    let counter = 1;
+
+    while (fs.existsSync(archivedPath)) {
+        archivedPath = path.join(
+            ARCHIVED_DRAFTS_DIR,
+            `${parsed.name}-published-${counter++}${parsed.ext}`
+        );
+    }
+
+    fs.renameSync(draftFile, archivedPath);
+    return archivedPath;
+}
+
 /**
  * Build hero image HTML block from a relative asset path.
  */
 function buildHeroImageHtml(heroImagePath, title, assetsPath) {
     if (!heroImagePath) return '';
-    // Resolve relative to the deployed URL (assetsPath is "../../assets/" or "../../../assets/")
+
     const src = heroImagePath.startsWith('http')
         ? heroImagePath
         : `${assetsPath}${heroImagePath.replace(/^assets\/blog\//, 'blog/')}`;
@@ -67,11 +120,11 @@ function buildHeroImageHtml(heroImagePath, title, assetsPath) {
 
 /**
  * Compute relative paths from a blog post back to blog/style.css and assets/.
- * Works at any nesting depth: depth 3 (YYYY-MM/DD/file.html) → ../../style.css
+ * Works at any nesting depth: depth 3 (YYYY-MM/DD/file.html) -> ../../style.css
  */
 function computePaths(relativeFilePath) {
-    const depth = relativeFilePath.split('/').length; // number of path components
-    const cssPath    = '../'.repeat(depth - 1) + 'style.css';
+    const depth = relativeFilePath.split('/').length;
+    const cssPath = '../'.repeat(depth - 1) + 'style.css';
     const assetsPath = '../'.repeat(depth) + 'assets/';
     return { cssPath, assetsPath };
 }
@@ -79,8 +132,8 @@ function computePaths(relativeFilePath) {
 /**
  * Inject a draft into the template and write the compiled HTML file.
  *
- * @param {string} draftFile   - Absolute path to the .html draft file
- * @param {string} outputPath  - Absolute path for the published blog post (optional)
+ * @param {string} draftFile - Absolute path to the .html draft file
+ * @param {string} outputPath - Absolute path for the published blog post (optional)
  * @returns {string} The output path where the post was written
  */
 function publishDraft(draftFile, outputPath = null) {
@@ -89,7 +142,6 @@ function publishDraft(draftFile, outputPath = null) {
     const rawText = fs.readFileSync(draftFile, 'utf8');
     const { meta, content } = parseDraft(rawText);
 
-    // Required metadata with fallbacks
     const title = meta.title || path.basename(draftFile, '.html');
     const date = meta.date || new Date().toISOString().split('T')[0];
     const category = meta.category || 'Protocol Alpha';
@@ -99,10 +151,9 @@ function publishDraft(draftFile, outputPath = null) {
     const keywords = meta.keywords || '';
     const heroImage = meta.hero_image || '';
 
-    // Determine output path: blog/YYYY-MM/DD/slug.html
     if (!outputPath) {
-        const [year, month] = date.split('-');             // "2026", "04"
-        const day = date.split('-')[2];                     // "14"
+        const [year, month] = date.split('-');
+        const day = date.split('-')[2];
         const slug = path.basename(draftFile, '.html');
         const outDir = path.join(BLOG_DIR, `${year}-${month}`, day);
         fs.mkdirSync(outDir, { recursive: true });
@@ -112,7 +163,6 @@ function publishDraft(draftFile, outputPath = null) {
     const relPath = path.relative(BLOG_DIR, outputPath).replace(/\\/g, '/');
     const { cssPath, assetsPath } = computePaths(relPath);
 
-    // og:image must be an absolute URL for Google/social crawlers to pick it up
     const ogImage = heroImage
         ? `${config.SITE_URL}/assets/blog/${heroImage.replace(/^assets\/blog\//, '')}`
         : `${config.SITE_URL}/assets/logo.png`;
@@ -121,7 +171,6 @@ function publishDraft(draftFile, outputPath = null) {
     const heroHtml = buildHeroImageHtml(heroImage, title, assetsPath);
 
     const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
-
     const compiled = template
         .replace(/{{TITLE}}/g, title)
         .replace(/{{META_DESCRIPTION}}/g, description)
@@ -141,11 +190,10 @@ function publishDraft(draftFile, outputPath = null) {
     try {
         fs.writeFileSync(outputPath, compiled, 'utf8');
     } catch (writeErr) {
-        console.error(`[Publisher] ❌ Failed to write ${relPath}: ${writeErr.message}`);
+        console.error(`[Publisher] Failed to write ${relPath}: ${writeErr.message}`);
         throw writeErr;
     }
 
-    // Update history.json so generate-blog.js deduplication and SEO linker stay current
     try {
         let history = {};
         if (fs.existsSync(config.HISTORY_PATH)) {
@@ -154,28 +202,42 @@ function publishDraft(draftFile, outputPath = null) {
         history[relPath] = title;
         fs.writeFileSync(config.HISTORY_PATH, JSON.stringify(history, null, 4));
     } catch (histErr) {
-        console.warn(`[Publisher] ⚠️  Could not update history.json: ${histErr.message}`);
+        console.warn(`[Publisher] Could not update history.json: ${histErr.message}`);
     }
 
-    console.log(`[Publisher] ✅ Published → ${relPath}`);
+    console.log(`[Publisher] Published -> ${relPath}`);
     return outputPath;
 }
 
+function publishDraftByName(draftFileName) {
+    const draftFile = path.join(DRAFTS_DIR, draftFileName);
+    if (!fs.existsSync(draftFile)) {
+        throw new Error(`Draft not found: ${draftFileName}`);
+    }
+
+    const rawText = fs.readFileSync(draftFile, 'utf8');
+    if (!rawText.startsWith('---')) {
+        throw new Error(`Draft is not a content-only draft with front matter: ${draftFileName}`);
+    }
+
+    const outputPath = publishDraft(draftFile);
+    const archivedPath = archiveDraftFile(draftFile);
+
+    console.log(`[Publisher] Archived draft source -> ${path.relative(BLOG_DIR, archivedPath).replace(/\\/g, '/')}`);
+    return { outputPath, archivedPath };
+}
+
 /**
- * Process all draft files in the drafts/ directory.
- * Skips drafts that have already been published (exist in blog/).
+ * Process all pending content-only draft files in the drafts/ directory.
+ * Published drafts are archived under drafts/published/ after compilation.
  */
 function publishAllDrafts() {
-    const draftsDir = path.join(BLOG_DIR, '..', 'drafts');
-    if (!fs.existsSync(draftsDir)) {
-        console.log('[Publisher] No drafts/ directory found — skipping.');
+    if (!fs.existsSync(DRAFTS_DIR)) {
+        console.log('[Publisher] No drafts/ directory found - skipping.');
         return [];
     }
 
-    const draftFiles = fs.readdirSync(draftsDir)
-        .filter(f => f.endsWith('.html'))
-        .map(f => path.join(draftsDir, f));
-
+    const draftFiles = getDraftFiles();
     if (draftFiles.length === 0) {
         console.log('[Publisher] No drafts found.');
         return [];
@@ -184,32 +246,27 @@ function publishAllDrafts() {
     const published = [];
     for (const draftFile of draftFiles) {
         try {
-            // Only publish content-only drafts (have front matter)
             const raw = fs.readFileSync(draftFile, 'utf8');
             if (!raw.startsWith('---')) {
-                console.log(`[Publisher] ⚠️  Skipping legacy full-HTML draft: ${path.basename(draftFile)}`);
-                continue;
-            }
-
-            // Bug fix: skip already-published drafts to avoid overwriting existing posts
-            const { meta } = parseDraft(raw);
-            const date = meta.date || new Date().toISOString().split('T')[0];
-            const [year, month] = date.split('-');
-            const day = date.split('-')[2];
-            const slug = path.basename(draftFile, '.html');
-            const expectedOutPath = path.join(BLOG_DIR, `${year}-${month}`, day, `${slug}.html`);
-            if (fs.existsSync(expectedOutPath)) {
-                console.log(`[Publisher] ⏭️  Already published, skipping: ${path.basename(draftFile)}`);
+                console.log(`[Publisher] Skipping legacy full-HTML draft: ${path.basename(draftFile)}`);
                 continue;
             }
 
             const outPath = publishDraft(draftFile);
+            archiveDraftFile(draftFile);
             published.push(outPath);
-        } catch (e) {
-            console.error(`[Publisher] ❌ Failed to publish ${path.basename(draftFile)}: ${e.message}`);
+        } catch (error) {
+            console.error(`[Publisher] Failed to publish ${path.basename(draftFile)}: ${error.message}`);
         }
     }
+
     return published;
 }
 
-module.exports = { publishDraft, publishAllDrafts, parseDraft };
+module.exports = {
+    publishDraft,
+    publishDraftByName,
+    publishAllDrafts,
+    parseDraft,
+    listDrafts
+};

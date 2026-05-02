@@ -1,7 +1,18 @@
-name: Manual Publish — Sync Blog Index & Sitemap
+name: Publish Selected Draft
 
 on:
-  workflow_dispatch: # Run manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      draft_file:
+        description: Draft file to publish
+        required: true
+        type: choice
+        options:
+          # AUTO-GENERATED DRAFT OPTIONS START
+          - 'starknet-cairovm-performance-optimization-techniques.html'
+          - 'starknet-parallel-transaction-processing-efficiency.html'
+          - 'arbitrum-stylus-smart-contract-performance-optimization-techniques.html'
+          # AUTO-GENERATED DRAFT OPTIONS END
 
 jobs:
   publish:
@@ -17,8 +28,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Sync Blog Index
-        run: node -e "require('./scripts/lib/utils').syncBlogIndex()"
+      - name: Publish Selected Draft
+        env:
+          DRAFT_FILE: ${{ inputs.draft_file }}
+        run: node scripts/publish-selected-draft.js
 
       - name: Generate Sitemap
         run: node scripts/generate-sitemap.js
@@ -31,6 +44,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "Nothing new to publish."
           else
-            git commit -m "Publish: Manual index & sitemap sync - $(date +'%Y-%m-%d')"
+            git commit -m "Publish: ${{ inputs.draft_file }} - $(date +'%Y-%m-%d')"
             git push
           fi
