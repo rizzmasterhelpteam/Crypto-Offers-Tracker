@@ -9,7 +9,6 @@ const sources = require('./lib/sources');
 const generator = require('./lib/generator-v3');
 const utils = require('./lib/utils');
 const { publishDraft } = require('./lib/publisher');
-const { syncPublishWorkflowOptions } = require('./lib/publish-workflow-sync');
 
 /**
  * Post-processing: DOM-free structural fix using regex.
@@ -176,14 +175,6 @@ async function run() {
         }
 
         console.log(`OK Draft saved: drafts/${draftFileName}`);
-
-        try {
-            console.log('[Flow] Refreshing publish workflow draft choices...');
-            syncPublishWorkflowOptions();
-            console.log('[Flow] Publish workflow draft choices refreshed.');
-        } catch (syncErr) {
-            console.warn(`[Flow] Could not refresh publish workflow choices: ${syncErr.message}`);
-        }
 
         console.log('[Flow] Compiling full HTML page from template...');
         const publishedPath = publishDraft(fullPath);

@@ -4,15 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       draft_file:
-        description: Draft file to publish
+        description: 'Draft filename to publish (e.g. my-post.html)'
         required: true
-        type: choice
-        options:
-          # AUTO-GENERATED DRAFT OPTIONS START
-          - 'starknet-cairovm-performance-optimization-techniques.html'
-          - 'starknet-parallel-transaction-processing-efficiency.html'
-          - 'arbitrum-stylus-smart-contract-performance-optimization-techniques.html'
-          # AUTO-GENERATED DRAFT OPTIONS END
+        type: string
 
 jobs:
   publish:
