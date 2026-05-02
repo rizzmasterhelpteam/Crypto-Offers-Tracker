@@ -86,15 +86,9 @@ function syncBlogIndex() {
             ? titleMatch[1].replace(/ \| crypto (offers|digest).*$/i, '').replace(/^["']+|["']+$/g, '').replace(/\r?\n|\r/g, ' ').trim()
             : file;
 
-        // Extract date from content or filename (YYYY-MM/DD/slug.html)
         let date = 'Recent';
         if (dateMatch) {
             date = dateMatch[1];
-        } else {
-            const parts = file.split('/'); // 2026-04/09/slug.html
-            if (parts.length >= 3) {
-                date = `${parts[0]}-${parts[1]}`; // This should be parts[0] is YYYY-MM, parts[1] is DD
-            }
         }
 
         const categoryName = categoryMatch ? categoryMatch[2] : 'Insight';

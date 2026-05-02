@@ -152,12 +152,8 @@ function publishDraft(draftFile, outputPath = null) {
     const heroImage = meta.hero_image || '';
 
     if (!outputPath) {
-        const [year, month] = date.split('-');
-        const day = date.split('-')[2];
         const slug = path.basename(draftFile, '.html');
-        const outDir = path.join(BLOG_DIR, `${year}-${month}`, day);
-        fs.mkdirSync(outDir, { recursive: true });
-        outputPath = path.join(outDir, `${slug}.html`);
+        outputPath = path.join(BLOG_DIR, `${slug}.html`);
     }
 
     const relPath = path.relative(BLOG_DIR, outputPath).replace(/\\/g, '/');
@@ -212,14 +208,8 @@ function publishDraft(draftFile, outputPath = null) {
 function publishFullHtmlDraft(draftFile) {
     const rawText = fs.readFileSync(draftFile, 'utf8');
 
-    const dateMatch = rawText.match(/"datePublished"\s*:\s*"(\d{4}-\d{2}-\d{2})"/);
-    const date = dateMatch ? dateMatch[1] : new Date().toISOString().split('T')[0];
-    const [year, month, day] = date.split('-');
-
     const slug = path.basename(draftFile, '.html');
-    const outDir = path.join(BLOG_DIR, `${year}-${month}`, day);
-    fs.mkdirSync(outDir, { recursive: true });
-    const outputPath = path.join(outDir, `${slug}.html`);
+    const outputPath = path.join(BLOG_DIR, `${slug}.html`);
 
     fs.copyFileSync(draftFile, outputPath);
 
