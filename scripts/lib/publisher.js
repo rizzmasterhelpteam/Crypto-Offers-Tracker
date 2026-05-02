@@ -209,6 +209,37 @@ function publishDraft(draftFile, outputPath = null) {
     return outputPath;
 }
 
+function publishFullHtmlDraft(draftFile) {
+    const rawText = fs.readFileSync(draftFile, 'utf8');
+
+    const dateMatch = rawText.match(/"datePublished"\s*:\s*"(\d{4}-\d{2}-\d{2})"/);
+    const date = dateMatch ? dateMatch[1] : new Date().toISOString().split('T')[0];
+    const [year, month, day] = date.split('-');
+
+    const slug = path.basename(draftFile, '.html');
+    const outDir = path.join(BLOG_DIR, `${year}-${month}`, day);
+    fs.mkdirSync(outDir, { recursive: true });
+    const outputPath = path.join(outDir, `${slug}.html`);
+
+    fs.copyFileSync(draftFile, outputPath);
+
+    try {
+        let history = {};
+        if (fs.existsSync(config.HISTORY_PATH)) {
+            history = JSON.parse(fs.readFileSync(config.HISTORY_PATH, 'utf8'));
+        }
+        const titleMatch = rawText.match(/<title>([^<]+)<\/title>/i);
+        const relPath = path.relative(BLOG_DIR, outputPath).replace(/\\/g, '/');
+        history[relPath] = titleMatch ? titleMatch[1].trim() : slug;
+        fs.writeFileSync(config.HISTORY_PATH, JSON.stringify(history, null, 4));
+    } catch (histErr) {
+        console.warn(`[Publisher] Could not update history.json: ${histErr.message}`);
+    }
+
+    console.log(`[Publisher] Published full-HTML draft -> ${path.relative(BLOG_DIR, outputPath).replace(/\\/g, '/')}`);
+    return outputPath;
+}
+
 function publishDraftByName(draftFileName) {
     const draftFile = path.join(DRAFTS_DIR, draftFileName);
     if (!fs.existsSync(draftFile)) {
@@ -216,11 +247,9 @@ function publishDraftByName(draftFileName) {
     }
 
     const rawText = fs.readFileSync(draftFile, 'utf8');
-    if (!rawText.startsWith('---')) {
-        throw new Error(`Draft is not a content-only draft with front matter: ${draftFileName}`);
-    }
-
-    const outputPath = publishDraft(draftFile);
+    const outputPath = rawText.startsWith('---')
+        ? publishDraft(draftFile)
+        : publishFullHtmlDraft(draftFile);
     const archivedPath = archiveDraftFile(draftFile);
 
     console.log(`[Publisher] Archived draft source -> ${path.relative(BLOG_DIR, archivedPath).replace(/\\/g, '/')}`);
@@ -265,6 +294,7 @@ function publishAllDrafts() {
 
 module.exports = {
     publishDraft,
+    publishFullHtmlDraft,
     publishDraftByName,
     publishAllDrafts,
     parseDraft,
