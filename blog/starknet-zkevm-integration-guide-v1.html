@@ -83,6 +83,7 @@
 </head>
 <body>
     <article>
+        <div class="category-badge blue">Deep Tech</div>
         <p>StarkNet isn't the same beast it was two years ago. The shift from a pure validity rollup to a zkEVM-compatible execution environment is a big deal — and if you're still porting Solidity contracts the old way, you're already behind. Three things make this whole thing tick: the Cairo-to-EVM transpilation layer, the STWO prover that squashes execution traces into something lean and provable, and a preconfirmation pipeline that actually delivers sub-second finality for 95&nbsp;% of calls. That's not marketing copy. That's the stack. This guide tears it apart, runs the numbers, and shows you exactly which consensus hooks you need to touch when wiring a zkEVM front-end into StarkNet's native governance token economics.</p>
 
         <p>By the time you're done here, you'll know how to compile a Solidity source file with <code>starknet&ndash;evm&ndash;compiler</code>, generate a STWO proof through the hosted prover API, and push that proof-augmented transaction through the preconfirmation gateway. Code snippets are Rust-based — but the HTTP endpoints don't care what language you're using. Go, TypeScript, Python, whatever. Slot it in and move on.</p>

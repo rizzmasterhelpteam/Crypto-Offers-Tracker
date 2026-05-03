@@ -4,7 +4,6 @@ const { execSync, spawnSync } = require('child_process');
 const config = require('./lib/config');
 const utils = require('./lib/utils');
 const { publishAllDrafts } = require('./lib/publisher');
-const { syncPublishWorkflowOptions } = require('./lib/publish-workflow-sync');
 
 async function syncAndDeploy() {
     console.log('[Publish] Starting manual batch sync and deploy...');
@@ -17,10 +16,6 @@ async function syncAndDeploy() {
         } else {
             console.log('[Publish] No new content-only drafts to publish.');
         }
-
-        console.log('[1.5/5] Refreshing publish workflow draft choices...');
-        syncPublishWorkflowOptions();
-        console.log('[Publish] Publish workflow choices updated.');
 
         console.log('[2/5] Scanning blog folders and updating index.html...');
         utils.syncBlogIndex();
