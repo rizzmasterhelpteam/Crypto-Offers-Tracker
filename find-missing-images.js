@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const GLOB_DIR = path.join(__dirname, 'blog', '2026-04');
+const GLOB_DIR = path.join(__dirname, 'blog');
 
 function getHtmlFiles(dir, files = []) {
     const list = fs.readdirSync(dir);

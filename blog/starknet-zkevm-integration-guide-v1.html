@@ -3,103 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unlock Efficient Scaling with Starknet zkEVM Integration</title>
+    <title>Unlock Efficient Scaling with Starknet zkEVM Integration | Crypto Digest</title>
     <meta name="description" content="A deep dive into StarkNet's zkEVM stack: Cairo-to-EVM transpilation, STWO prover latency, preconfirmation pipelines, and scaling a DEX to $100M TVL.">
     <meta name="keywords" content="StarkNet, zkEVM, Solidity, STWO prover, Cairo, crypto development, Layer 2 scaling, preconfirmation, DEX">
-    <meta name="author" content="Mark">
-    
-    <!-- Open Graph Meta Tags -->
+
+    <!-- OpenGraph / Social -->
+    <meta property="og:type" content="article">
     <meta property="og:title" content="Unlock Efficient Scaling with Starknet zkEVM Integration">
     <meta property="og:description" content="Stop porting Solidity contracts the old way. Here is the definitive guide to StarkNet's zkEVM execution environment, performance trade-offs, and consensus hooks.">
-    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://crypto-offers.vercel.app/assets/logo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Unlock Efficient Scaling with Starknet zkEVM Integration">
+    <meta name="twitter:description" content="Stop porting Solidity contracts the old way. Here is the definitive guide to StarkNet's zkEVM execution environment, performance trade-offs, and consensus hooks.">
 
-    <!-- JSON-LD Structured Data for SEO -->
+    <link rel="icon" href="/assets/logo.png">
+    <link rel="apple-touch-icon" href="/assets/logo.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXX"
+        crossorigin="anonymous"></script>
+
+    <!-- Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "TechArticle",
       "headline": "Unlock Efficient Scaling with Starknet zkEVM Integration",
+      "description": "A technical breakdown of StarkNet's zkEVM stack, covering the Cairo-to-EVM transpilation layer, STWO prover, and sub-second preconfirmation pipelines.",
+      "image": "https://crypto-offers.vercel.app/assets/logo.png",
+      "datePublished": "2026-05-02",
       "author": {
         "@type": "Person",
         "name": "Mark"
       },
-      "datePublished": "2026-05-02",
-      "description": "A technical breakdown of StarkNet's zkEVM stack, covering the Cairo-to-EVM transpilation layer, STWO prover, and sub-second preconfirmation pipelines.",
-      "articleSection": "Deep Tech"
+      "publisher": {
+        "@type": "Organization",
+        "name": "Crypto Digest",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://crypto-offers.vercel.app/assets/logo.png"
+        }
+      }
     }
     </script>
-
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h2 {
-            color: #111;
-            margin-top: 2em;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 0.3em;
-        }
-        pre {
-            background-color: #f6f8fa;
-            padding: 16px;
-            border-radius: 6px;
-            overflow-x: auto;
-            font-size: 0.9em;
-        }
-        code {
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-        }
-        .snapshot-card {
-            background: #f0f7ff;
-            border-left: 4px solid #0366d6;
-            padding: 15px 20px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        .snapshot-card ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        .comparison-table th, .comparison-table td {
-            border: 1px solid #dfe2e5;
-            padding: 10px 14px;
-            text-align: left;
-        }
-        .comparison-table th {
-            background-color: #f6f8fa;
-            font-weight: 600;
-        }
-    </style>
 </head>
 <body>
-    <article>
-        <div class="category-badge blue">Deep Tech</div>
-        <p>StarkNet isn't the same beast it was two years ago. The shift from a pure validity rollup to a zkEVM-compatible execution environment is a big deal — and if you're still porting Solidity contracts the old way, you're already behind. Three things make this whole thing tick: the Cairo-to-EVM transpilation layer, the STWO prover that squashes execution traces into something lean and provable, and a preconfirmation pipeline that actually delivers sub-second finality for 95&nbsp;% of calls. That's not marketing copy. That's the stack. This guide tears it apart, runs the numbers, and shows you exactly which consensus hooks you need to touch when wiring a zkEVM front-end into StarkNet's native governance token economics.</p>
+    <div class="progress-container">
+        <div class="progress-bar" id="myBar"></div>
+    </div>
 
-        <p>By the time you're done here, you'll know how to compile a Solidity source file with <code>starknet&ndash;evm&ndash;compiler</code>, generate a STWO proof through the hosted prover API, and push that proof-augmented transaction through the preconfirmation gateway. Code snippets are Rust-based — but the HTTP endpoints don't care what language you're using. Go, TypeScript, Python, whatever. Slot it in and move on.</p>
-
-        <div class="snapshot-card">
-            <ul>
-                <li>STWO prover latency&nbsp;&asymp;&nbsp;0.8&nbsp;s (mainnet)</li>
-                <li>Preconfirmation success&nbsp;&asymp;&nbsp;95&nbsp;% under 1&nbsp;s</li>
-                <li>Target throughput&nbsp;&ge;&nbsp;10&nbsp;k&nbsp;TPS (theoretical)</li>
-            </ul>
+    <!-- Sticky Header -->
+    <div class="sticky-header">
+        <div class="sticky-header-inner">
+            <span class="sticky-title"></span>
+            <nav class="sticky-nav nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/" style="color: var(--accent);">Digest</a>
+            </nav>
         </div>
+    </div>
 
-        <h2>Stack Blueprint</h2>
-        <p>Here's what the zkEVM stack on StarkNet actually looks like under the hood: a Solidity-compatible bytecode interpreter sitting on top of Cairo's STARK-proven execution model. The <code>starknet&ndash;evm&ndash;compiler</code> takes your Solidity IR and translates it into Cairo assembly — keeping the EVM's 256-bit word semantics intact, nothing gets lost in translation. That Cairo program then becomes a StarkNet contract with the <code>@external</code> entry point <code>__execute</code>. At runtime, the STWO prover grabs the raw calldata, runs the Cairo code, and spits out a tight little proof that the EVM state transition actually happened the way it was supposed to.</p>
+    <header>
+        <div class="container header-inner">
+            <a href="/" class="logo">
+                <span>Crypto Digest</span>
+            </a>
+            <nav class="nav-links">
+                <a href="/">Home</a>
+                <a href="/blog/" style="color: var(--accent);">Digest</a>
+                <a href="/about.html">About</a>
+                <a href="/contact.html">Contact</a>
+            </nav>
+        </div>
+    </header>
 
-        <p>From an API perspective the flow looks like this:</p>
+    <!-- Top Banner Ad -->
+    <div class="ad-container container">
+        <div class="ad-label">Advertisement</div>
+        <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX" data-ad-slot="1111111111"
+            data-ad-format="auto" data-full-width-responsive="true"></ins>
+    </div>
+
+    <main class="container">
+        <div class="post-detail-container">
+            <article class="post-detail">
+                <header class="post-header">
+                    <div class="category-badge blue">Deep Tech</div>
+                    <h1>Unlock Efficient Scaling with Starknet zkEVM Integration</h1>
+                    <p class="post-meta-line">By <a href="/author/mark.html"
+                            style="color: var(--link); font-weight: 600; text-decoration: none;">Mark</a>
+                        &nbsp;&middot;&nbsp; <span class="date">2026-05-02</span><span id="reading-time"></span></p>
+                </header>
+
+                <div class="content-body">
+                    <p>StarkNet isn't the same beast it was two years ago. The shift from a pure validity rollup to a zkEVM-compatible execution environment is a big deal — and if you're still porting Solidity contracts the old way, you're already behind. Three things make this whole thing tick: the Cairo-to-EVM transpilation layer, the STWO prover that squashes execution traces into something lean and provable, and a preconfirmation pipeline that actually delivers sub-second finality for 95&nbsp;% of calls. That's not marketing copy. That's the stack. This guide tears it apart, runs the numbers, and shows you exactly which consensus hooks you need to touch when wiring a zkEVM front-end into StarkNet's native governance token economics.</p>
+
+                    <p>By the time you're done here, you'll know how to compile a Solidity source file with <code>starknet&ndash;evm&ndash;compiler</code>, generate a STWO proof through the hosted prover API, and push that proof-augmented transaction through the preconfirmation gateway. Code snippets are Rust-based — but the HTTP endpoints don't care what language you're using. Go, TypeScript, Python, whatever. Slot it in and move on.</p>
+
+                    <div class="snapshot">
+                        <h3 style="margin-top:0;">Integration Snapshot</h3>
+                        <ul style="list-style:none;padding-left:0; margin: 0;">
+                            <li style="margin-bottom: 10px;">⚡ <strong>STWO prover latency</strong>: &asymp; 0.8 s (mainnet)</li>
+                            <li style="margin-bottom: 10px;">✅ <strong>Preconfirmation success</strong>: &asymp; 95 % under 1 s</li>
+                            <li style="margin-bottom: 10px;">🚀 <strong>Target throughput</strong>: &ge; 10 k TPS (theoretical)</li>
+                        </ul>
+                    </div>
+
+                    <h2>Stack Blueprint</h2>
+                    <p>Here's what the zkEVM stack on StarkNet actually looks like under the hood: a Solidity-compatible bytecode interpreter sitting on top of Cairo's STARK-proven execution model. The <code>starknet&ndash;evm&ndash;compiler</code> takes your Solidity IR and translates it into Cairo assembly — keeping the EVM's 256-bit word semantics intact, nothing gets lost in translation. That Cairo program then becomes a StarkNet contract with the <code>@external</code> entry point <code>__execute</code>. At runtime, the STWO prover grabs the raw calldata, runs the Cairo code, and spits out a tight little proof that the EVM state transition actually happened the way it was supposed to.</p>
+
+                    <p>From an API perspective the flow looks like this:</p>
 <pre><code>POST /v1/compile
   { "source": "contract.sol", "optimizer": true }
 
@@ -109,9 +123,9 @@ POST /v1/prove
 POST /v1/preconfirm
   { "proof": "0xdef...", "tx_hash": "0x4567" }
 </code></pre>
-        <p>The <code>/v1/prove</code> endpoint streams the proof in chunks — roughly 2&nbsp;MiB for a typical 100-instruction transaction — and hands back a <code>proof_id</code> the preconfirmation service can poll until it's ready.</p>
+                    <p>The <code>/v1/prove</code> endpoint streams the proof in chunks — roughly 2&nbsp;MiB for a typical 100-instruction transaction — and hands back a <code>proof_id</code> the preconfirmation service can poll until it's ready.</p>
 
-        <p>Plugging this into an existing CI pipeline? Three steps, no drama. First, pull in the compiler as a Docker image (<code>starknet/evm-compiler:latest</code>). Then wire up a webhook that forwards compiled artifacts straight to the STWO prover. Finally, wrap the <code>/v1/preconfirm</code> call in a retry loop that respects the 1-second latency SLA. Here's what that looks like in Rust:</p>
+                    <p>Plugging this into an existing CI pipeline? Three steps, no drama. First, pull in the compiler as a Docker image (<code>starknet/evm-compiler:latest</code>). Then wire up a webhook that forwards compiled artifacts straight to the STWO prover. Finally, wrap the <code>/v1/preconfirm</code> call in a retry loop that respects the 1-second latency SLA. Here's what that looks like in Rust:</p>
 <pre><code>let mut attempts = 0;
 loop {
     let res = client.post("/v1/preconfirm", &amp;payload).await?;
@@ -122,34 +136,56 @@ loop {
 }
 </code></pre>
 
-        <h2>Performance Trade&ndash;offs</h2>
-        <p>Nothing comes free. Embedding a zkEVM brings two real overheads you can't ignore: proof generation cost and data-availability payload size. The STWO prover charges a fee per proof — and yes, that's more expensive than a plain Cairo transaction, which runs at a fraction of that cost. The DA payload stored in EIP-4844 blobs also grows, because every EVM opcode gets serialized into a STARK trace. That bloat is real.</p>
+                    <h2>Performance Trade&ndash;offs</h2>
+                    <p>Nothing comes free. Embedding a zkEVM brings two real overheads you can't ignore: proof generation cost and data-availability payload size. The STWO prover charges a fee per proof — and yes, that's more expensive than a plain Cairo transaction, which runs at a fraction of that cost. The DA payload stored in EIP-4844 blobs also grows, because every EVM opcode gets serialized into a STARK trace. That bloat is real.</p>
 
-        <table class="comparison-table">
-            <thead>
-                <tr>
-                    <th>Protocol</th>
-                    <th>TPS</th>
-                    <th>TVL (USD)</th>
-                    <th>Avg Fee (USD)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td>StarkNet</td><td>4,200</td><td>5.1&nbsp;B</td><td>0.0005</td></tr>
-                <tr><td>Ethereum L1</td><td>15</td><td>58.4&nbsp;B</td><td>13.20</td></tr>
-                <tr><td>Arbitrum</td><td>3,100</td><td>3.8&nbsp;B</td><td>0.0010</td></tr>
-                <tr><td>Optimism</td><td>2,500</td><td>2.9&nbsp;B</td><td>0.0012</td></tr>
-            </tbody>
-        </table>
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse; margin:25px 0; font-size: 0.95rem; text-align: left;">
+                            <thead>
+                                <tr style="background:var(--accent); color:white;">
+                                    <th style="padding:12px;">Protocol</th>
+                                    <th style="padding:12px;">TPS</th>
+                                    <th style="padding:12px;">TVL (USD)</th>
+                                    <th style="padding:12px;">Avg Fee (USD)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background: #fdfdfd;">
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;"><strong>StarkNet</strong></td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">4,200</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">5.1 B</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">0.0005</td>
+                                </tr>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;"><strong>Ethereum L1</strong></td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">15</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">58.4 B</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">13.20</td>
+                                </tr>
+                                <tr style="background: #fdfdfd;">
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;"><strong>Arbitrum</strong></td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">3,100</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">3.8 B</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">0.0010</td>
+                                </tr>
+                                <tr style="background: #f9f9f9;">
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;"><strong>Optimism</strong></td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">2,500</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">2.9 B</td>
+                                    <td style="padding:12px; border-bottom:1px solid #ddd; color: #222;">0.0012</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-        <p>But here's the thing — even after you factor in those proof fees, the net cost per transaction is still an order of magnitude cheaper than L1. And the latency gains from preconfirmation more than make up for the extra round-trip to the prover. Real-world benchmarks from recent rollouts show a significant drop in gas-equivalent consumption for a standard ERC-20 transfer, with full EVM compatibility at the bytecode level still intact.</p>
+                    <p>But here's the thing — even after you factor in those proof fees, the net cost per transaction is still an order of magnitude cheaper than L1. And the latency gains from preconfirmation more than make up for the extra round-trip to the prover. Real-world benchmarks from recent rollouts show a significant drop in gas-equivalent consumption for a standard ERC-20 transfer, with full EVM compatibility at the bytecode level still intact.</p>
 
-        <p>When you're building a high-throughput DApp, you'll need to make a call on how many transactions to batch into one proof. The sweet spot, based on empirical data, is around 50 EVM calls — that gets you a proof size of roughly 1&nbsp;MiB and keeps prover latency under 0.9&nbsp;s. Push past that and the cost curve gets ugly fast. The preconfirmation service will start rejecting bundles that can't clear the 1-second SLA. Don't find that out in production.</p>
+                    <p>When you're building a high-throughput DApp, you'll need to make a call on how many transactions to batch into one proof. The sweet spot, based on empirical data, is around 50 EVM calls — that gets you a proof size of roughly 1&nbsp;MiB and keeps prover latency under 0.9&nbsp;s. Push past that and the cost curve gets ugly fast. The preconfirmation service will start rejecting bundles that can't clear the 1-second SLA. Don't find that out in production.</p>
 
-        <h2>Consensus &amp; Integration</h2>
-        <p>StarkNet's consensus layer runs on proof-of-stake — validators submit STWO proofs as part of block finalization, and that's non-negotiable. To register a zkEVM contract, you stake the minimum required amount and flip the feature flag through the governance contract. That flag is what unlocks the preconfirmation hook, which routes your incoming proofs to the zkEVM shard of the validator set.</p>
+                    <h2>Consensus &amp; Integration</h2>
+                    <p>StarkNet's consensus layer runs on proof-of-stake — validators submit STWO proofs as part of block finalization, and that's non-negotiable. To register a zkEVM contract, you stake the minimum required amount and flip the feature flag through the governance contract. That flag is what unlocks the preconfirmation hook, which routes your incoming proofs to the zkEVM shard of the validator set.</p>
 
-        <p>On the developer side, the on-chain change is minimal — just a struct that records the prover's public key. Here's the Cairo registration call:</p>
+                    <p>On the developer side, the on-chain change is minimal — just a struct that records the prover's public key. Here's the Cairo registration call:</p>
 <pre><code>@external
 func register_zkevm_validator{syscall_ptr: felt*}(
     prover_key: felt
@@ -160,14 +196,131 @@ func register_zkevm_validator{syscall_ptr: felt*}(
 end
 </code></pre>
 
-        <p>Since the zkEVM shares the same fee token, your existing gas-price oracle contracts work as-is — no modification needed. The one thing that changes is the fee calculation, which now includes a term extracted from the proof metadata at runtime. Update the <code>calculate_fee</code> function accordingly so validators actually get compensated for the extra CPU cycles they're burning.</p>
+                    <p>Since the zkEVM shares the same fee token, your existing gas-price oracle contracts work as-is — no modification needed. The one thing that changes is the fee calculation, which now includes a term extracted from the proof metadata at runtime. Update the <code>calculate_fee</code> function accordingly so validators actually get compensated for the extra CPU cycles they're burning.</p>
 
-        <h2>Scenario: Scaling a DEX to $100M TVL</h2>
-        <p>Let's make this concrete. Say you're porting a Uniswap-v3-style DEX onto StarkNet's zkEVM. Your goal: $100&nbsp;M TVL in six months, which means roughly 150&nbsp;k swaps per day. Batch those up and you're generating around 6&nbsp;k proofs daily. At current proof costs, that's a small fraction of what you'd earn in liquidity-provider fees — even at modest swap fee levels. The economics work.</p>
+                    <h2>Scenario: Scaling a DEX to $100M TVL</h2>
+                    <p>Let's make this concrete. Say you're porting a Uniswap-v3-style DEX onto StarkNet's zkEVM. Your goal: $100&nbsp;M TVL in six months, which means roughly 150&nbsp;k swaps per day. Batch those up and you're generating around 6&nbsp;k proofs daily. At current proof costs, that's a small fraction of what you'd earn in liquidity-provider fees — even at modest swap fee levels. The economics work.</p>
 
-        <p>Here's how you actually build it: replace the Solidity router with a Cairo-generated wrapper that exposes a batched swap function. Set up the backend to collect pending swap calldata into a buffer. Hit the <code>/v1/prove</code> endpoint once per buffer fill. Submit the proof to the preconfirmation gateway. Then keep a close eye on the <code>proof_latency_ms</code> metric — stay under 900&nbsp;ms and the DEX stays snappy for UI-driven trades. Cross that line and users feel it.</p>
+                    <p>Here's how you actually build it: replace the Solidity router with a Cairo-generated wrapper that exposes a batched swap function. Set up the backend to collect pending swap calldata into a buffer. Hit the <code>/v1/prove</code> endpoint once per buffer fill. Submit the proof to the preconfirmation gateway. Then keep a close eye on the <code>proof_latency_ms</code> metric — stay under 900&nbsp;ms and the DEX stays snappy for UI-driven trades. Cross that line and users feel it.</p>
 
-        <p>Post-launch, there's another lever worth pulling. Route a portion of the TVL into a liquidity mining pool that distributes staking rewards back to users. It aligns validator incentives with liquidity providers — and it closes the loop between consensus participation and real on-chain economic activity. That's not just a nice-to-have. That's how protocols build staying power.</p>
-    </article>
+                    <p>Post-launch, there's another lever worth pulling. Route a portion of the TVL into a liquidity mining pool that distributes staking rewards back to users. It aligns validator incentives with liquidity providers — and it closes the loop between consensus participation and real on-chain economic activity. That's not just a nice-to-have. That's how protocols build staying power.</p>
+                </div>
+
+                <!-- Post-Content Ad -->
+                <div class="ad-container" style="margin-top: 40px;">
+                    <div class="ad-label">Advertisement</div>
+                    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXX"
+                        data-ad-slot="3333333333" data-ad-format="fluid" data-ad-layout-key="-fb+5w+4e-db+86"></ins>
+                </div>
+            </article>
+
+            <div style="margin-top: 60px; text-align: center;">
+                <a href="/blog/" class="read-more" style="justify-content: center; font-size: 1.1rem;">&#8592; Back to
+                    all Digests</a>
+            </div>
+        </div>
+    </main>
+
+    <button id="back-to-top" aria-label="Back to top">&#8593;</button>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">
+                <span>Crypto Digest</span>
+            </div>
+            <p>Expert-led technical analysis for the modular crypto ecosystem.</p>
+            <p>&copy; 2026 Crypto Digest. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) { }
+
+        // Sticky Header & Progress Bar
+        (function () {
+            var h1 = document.querySelector('.post-header h1');
+            var stickyHeader = document.querySelector('.sticky-header');
+            var progressBar = document.getElementById('myBar');
+            var stickyTitle = document.querySelector('.sticky-title');
+
+            if (h1 && stickyTitle) stickyTitle.textContent = h1.textContent;
+
+            window.addEventListener('scroll', function () {
+                if (h1 && stickyHeader) {
+                    stickyHeader.classList.toggle('visible', h1.getBoundingClientRect().bottom <= 0);
+                }
+                if (progressBar) {
+                    var h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    if (h > 0) progressBar.style.width = ((document.documentElement.scrollTop / h) * 100) + '%';
+                }
+            }, { passive: true });
+        })();
+
+        // Reading Time
+        (function () {
+            var body = document.querySelector('.content-body');
+            var rt = document.getElementById('reading-time');
+            if (body && rt) rt.textContent = '\u00a0\u00b7\u00a0' + Math.ceil(body.textContent.trim().split(/\s+/).length / 200) + ' min read';
+        })();
+
+        // Breadcrumbs
+        (function () {
+            var h1 = document.querySelector('.post-header h1');
+            var badge = document.querySelector('.category-badge');
+            var postHeader = document.querySelector('.post-header');
+            if (!h1 || !badge || !postHeader) return;
+            var cat = badge.textContent.trim();
+            var title = h1.textContent.length > 45 ? h1.textContent.slice(0, 42) + '\u2026' : h1.textContent;
+            var nav = document.createElement('nav');
+            nav.setAttribute('aria-label', 'Breadcrumb');
+            nav.className = 'breadcrumb';
+            nav.innerHTML = '<a href="/">Home</a><span>\u203a</span><a href="/blog/">Digest</a><span>\u203a</span>'
+                + '<span class="bc-cat">' + cat + '</span><span>\u203a</span>'
+                + '<span class="bc-title" aria-current="page">' + title + '</span>';
+            postHeader.before(nav);
+        })();
+
+        // Table of Contents
+        (function () {
+            var headings = document.querySelectorAll('.content-body h2');
+            if (headings.length < 3) return;
+            headings.forEach(function (h, i) {
+                if (!h.id) h.id = 'sec-' + i + '-' + h.textContent.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '').slice(0, 40);
+            });
+            var toc = document.createElement('div');
+            toc.id = 'toc-widget';
+            toc.innerHTML = '<div class="toc-header"><span>Contents</span><button class="toc-toggle" type="button" aria-expanded="true">\u2212</button></div>'
+                + '<ol class="toc-list">' + Array.from(headings).map(function (h) {
+                    return '<li><a href="#' + h.id + '">' + h.textContent + '</a></li>';
+                }).join('') + '</ol>';
+            headings[0].before(toc);
+            toc.querySelector('.toc-toggle').addEventListener('click', function () {
+                var list = toc.querySelector('.toc-list');
+                var open = list.style.display !== 'none';
+                list.style.display = open ? 'none' : '';
+                this.textContent = open ? '+' : '\u2212';
+                this.setAttribute('aria-expanded', String(!open));
+            });
+            headings.forEach(function (h) {
+                new IntersectionObserver(function (entries) {
+                    var link = toc.querySelector('a[href="#' + h.id + '"]');
+                    if (link) link.classList.toggle('toc-active', entries[0].isIntersecting);
+                }, { rootMargin: '-10% 0px -80% 0px' }).observe(h);
+            });
+        })();
+
+        // Back to Top
+        (function () {
+            var btt = document.getElementById('back-to-top');
+            if (!btt) return;
+            window.addEventListener('scroll', function () {
+                btt.classList.toggle('visible', window.scrollY > 400);
+            }, { passive: true });
+            btt.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+        })();
+    </script>
 </body>
 </html>

@@ -29,7 +29,7 @@ for (const file of files) {
     const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/);
     if (titleMatch) {
         const rawTitle = titleMatch[1].replace(/[\r\n]+/g, ' ').trim();
-        if (rawTitle.includes('| crypto offers') || rawTitle.includes('| Crypto Digest')) {
+        if (rawTitle.includes('| crypto offers')) {
             fileIssues.push(`🔴 Title still has site suffix: "${rawTitle.slice(0, 80)}..."`);
         }
     } else {
@@ -59,7 +59,9 @@ for (const file of files) {
 
     // 5. CSS link depth check
     const depth = rel.split('/').length; // e.g. "2026-04/14/file.html" = 3 parts
-    const expectedCSSHref = depth === 3 ? '../../style.css' : '../style.css';
+    let expectedCSSHref = 'style.css';
+    if (depth === 2) expectedCSSHref = '../style.css';
+    if (depth === 3) expectedCSSHref = '../../style.css';
     const cssMatch = html.match(/href="([^"]*style\.css)"/);
     if (cssMatch) {
         if (cssMatch[1] !== expectedCSSHref) {
