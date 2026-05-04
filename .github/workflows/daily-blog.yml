@@ -31,6 +31,6 @@ jobs:
             echo "No draft generated"
           else
             git commit -m "Draft: $(date +'%Y-%m-%d') - awaiting review"
-            git pull --rebase
+            git pull --rebase --autostash
             git push
           fi
