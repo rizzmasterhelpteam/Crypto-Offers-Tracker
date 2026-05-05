@@ -1030,10 +1030,8 @@
             const fetchController = new AbortController();
             const fetchTimeout = setTimeout(() => fetchController.abort(), 30000);
             const response = await fetch('/api/search', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                signal: fetchController.signal,
-                body: JSON.stringify({})
+                method: 'GET',
+                signal: fetchController.signal
             });
             clearTimeout(fetchTimeout);
 

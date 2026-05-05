@@ -259,15 +259,19 @@ const VERIFIED_OFFERS = [
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     if (req.method === 'OPTIONS') return res.status(200).end();
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
     const slot = getCurrentSlot();
     const globalCacheKey = `global_slot_${slot}`;
 
     // BUG FIX #2: Return cached data with correct structure including marketData & prices
+    // 12-hour CDN caching — persists across serverless cold starts unlike in-memory cache
+    const cacheMaxAge = 12 * 60 * 60;
+    res.setHeader('Cache-Control', `public, s-maxage=${cacheMaxAge}, stale-while-revalidate=${cacheMaxAge * 2}`);
+
     if (serverCache[globalCacheKey]) {
         const cached = serverCache[globalCacheKey];
         return res.status(200).json({

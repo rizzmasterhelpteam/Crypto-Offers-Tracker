@@ -24,6 +24,10 @@ export default async function handler(req, res) {
     const slot = getCurrentSlot();
     const cacheKey = `blog_slot_${slot}`;
 
+    // 12-hour CDN caching — persists across serverless cold starts unlike in-memory cache
+    const cacheMaxAge = 12 * 60 * 60;
+    res.setHeader('Cache-Control', `public, s-maxage=${cacheMaxAge}, stale-while-revalidate=${cacheMaxAge * 2}`);
+
     // Return cached blog if available
     if (serverCache[cacheKey]) {
         return res.status(200).json({
