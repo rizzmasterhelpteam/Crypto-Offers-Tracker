@@ -153,8 +153,14 @@ function publishDraft(draftFile, outputPath = null) {
 
     if (!outputPath) {
         const slug = path.basename(draftFile, '.html');
-        outputPath = path.join(BLOG_DIR, `${slug}.html`);
+        const [year, month, day] = date.split('-');
+        if (!year || !month || !day) {
+            throw new Error(`Invalid or missing date in draft "${path.basename(draftFile)}": "${date}". Expected YYYY-MM-DD.`);
+        }
+        outputPath = path.join(BLOG_DIR, `${year}-${month}`, day, `${slug}.html`);
     }
+
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 
     const relPath = path.relative(BLOG_DIR, outputPath).replace(/\\/g, '/');
     const { cssPath, assetsPath } = computePaths(relPath);
@@ -209,8 +215,13 @@ function publishFullHtmlDraft(draftFile) {
     const rawText = fs.readFileSync(draftFile, 'utf8');
 
     const slug = path.basename(draftFile, '.html');
-    const outputPath = path.join(BLOG_DIR, `${slug}.html`);
+    const dateMatch = rawText.match(/"datePublished"\s*:\s*"(\d{4}-\d{2}-\d{2})"/) ||
+        rawText.match(/<span class="date">(\d{4}-\d{2}-\d{2})<\/span>/);
+    const date = dateMatch ? dateMatch[1] : new Date().toISOString().split('T')[0];
+    const [year, month, day] = date.split('-');
+    const outputPath = path.join(BLOG_DIR, `${year}-${month}`, day, `${slug}.html`);
 
+    fs.mkdirSync(path.dirname(outputPath), { recursive: true });
     fs.copyFileSync(draftFile, outputPath);
 
     try {
