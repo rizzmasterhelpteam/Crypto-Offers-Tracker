@@ -4,10 +4,13 @@
   ],
   "redirects": [
     { "source": "/blog/avail-modular-data-availability-for-rollups-guide.html", "destination": "/blog/2026-05/05/avail-modular-data-availability-for-rollups-guide.html", "statusCode": 301 },
-    { "source": "/blog/eigenlayer-liquid-restaking-protocols-comparison.html", "destination": "/blog/2026-04/18/eigenlayer-liquid-restaking-protocols-comparison.html", "statusCode": 301 },
-    { "source": "/blog/jito-retail-guide-yield-savings.html", "destination": "/blog/2026-04/14/jito-retail-guide-yield-savings.html", "statusCode": 301 },
+    { "source": "/blog/eigenlayer-liquid-restaking-protocols-comparison.html", "destination": "/blog/2026-04/09/eigenlayer-liquid-restaking-protocols-comparison.html", "statusCode": 301 },
+    { "source": "/blog/jito-retail-guide-yield-savings.html", "destination": "/blog/2026-04/09/jito-retail-guide-yield-savings.html", "statusCode": 301 },
     { "source": "/blog/sei-parallel-execution-evm-compatibility-integration-guide.html", "destination": "/blog/2026-05/04/sei-parallel-execution-evm-compatibility-integration-guide.html", "statusCode": 301 },
     { "source": "/blog/starknet-zkevm-integration-guide-v1.html", "destination": "/blog/2026-05/02/starknet-zkevm-integration-guide-v1.html", "statusCode": 301 },
-    { "source": "/blog/zksync-era-gas-efficiency-optimization-strategies.html", "destination": "/blog/2026-04/14/zksync-era-gas-efficiency-optimization-strategies.html", "statusCode": 301 }
+    { "source": "/blog/zksync-era-gas-efficiency-optimization-strategies.html", "destination": "/blog/2026-04/09/zksync-era-gas-efficiency-optimization-strategies.html", "statusCode": 301 },
+    { "source": "/blog/2026-04/14/jito-retail-guide-yield-savings.html", "destination": "/blog/2026-04/09/jito-retail-guide-yield-savings.html", "statusCode": 301 },
+    { "source": "/blog/2026-04/14/zksync-era-gas-efficiency-optimization-strategies.html", "destination": "/blog/2026-04/09/zksync-era-gas-efficiency-optimization-strategies.html", "statusCode": 301 },
+    { "source": "/blog/2026-04/18/eigenlayer-liquid-restaking-protocols-comparison.html", "destination": "/blog/2026-04/09/eigenlayer-liquid-restaking-protocols-comparison.html", "statusCode": 301 }
   ]
 }
