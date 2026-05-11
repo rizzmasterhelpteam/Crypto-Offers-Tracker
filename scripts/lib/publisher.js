@@ -129,6 +129,24 @@ function computePaths(relativeFilePath) {
     return { cssPath, assetsPath };
 }
 
+function injectSharedLogoScript(html) {
+    if (html.includes('/assets/site-logo.js')) {
+        return html;
+    }
+
+    const scriptTag = '<script defer src="/assets/site-logo.js"></script>';
+
+    if (html.includes('</head>')) {
+        return html.replace('</head>', `    ${scriptTag}\n</head>`);
+    }
+
+    if (html.includes('</body>')) {
+        return html.replace('</body>', `    ${scriptTag}\n</body>`);
+    }
+
+    return `${html}\n${scriptTag}\n`;
+}
+
 /**
  * Inject a draft into the template and write the compiled HTML file.
  *
@@ -222,7 +240,8 @@ function publishFullHtmlDraft(draftFile) {
     const outputPath = path.join(BLOG_DIR, `${year}-${month}`, day, `${slug}.html`);
 
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-    fs.copyFileSync(draftFile, outputPath);
+    const compiled = injectSharedLogoScript(rawText);
+    fs.writeFileSync(outputPath, compiled, 'utf8');
 
     try {
         let history = {};

@@ -12,6 +12,7 @@
     <title>Terms of Service - Crypto Offers Tracker 2026</title>
     <meta name="description" content="Terms of Service for Crypto Offers Tracker">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script defer src="/assets/site-logo.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -63,10 +64,21 @@
         }
 
         .site-nav .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
             font-weight: 800;
             font-size: 1.1rem;
             color: #f1f5f9;
             text-decoration: none;
+        }
+
+        .site-nav .logo img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            display: block;
+            flex-shrink: 0;
         }
 
         .site-nav .nav-links {
@@ -95,7 +107,7 @@
 
 <body>
     <nav class="site-nav">
-        <a href="/" class="logo">crypto offers</a>
+        <a href="/" class="logo"><img src="/assets/logo.png" alt="crypto offers logo"><span>crypto offers</span></a>
         <div class="nav-links">
             <a href="/">Tracker</a>
             <a href="/blog/">Digest</a>
