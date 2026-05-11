@@ -5,5 +5,6 @@
     "2026-05/04/sei-parallel-execution-evm-compatibility-integration-guide.html": "sei-parallel-execution-evm-compatibility-integration-guide",
     "2026-05/02/starknet-zkevm-integration-guide-v1.html": "Unlock Efficient Scaling with Starknet zkEVM Integration",
     "2026-04/09/zksync-era-gas-efficiency-optimization-strategies.html": "How to Slash zkSync Era Gas Fees Using Paymasters & Native Account Abstraction (2026 Guide)",
-    "2026-05/08/optimism-eip-4844-blob-transaction-cost-savings-analysis.html": "Optimism Cuts Transaction Costs with EIP-4844 Blob Savings | Deep Tech"
+    "2026-05/08/optimism-eip-4844-blob-transaction-cost-savings-analysis.html": "Optimism Cuts Transaction Costs with EIP-4844 Blob Savings | Deep Tech",
+    "2026-05/11/celestia-blob-streaming-for-efficient-data-availability-layer-integration.html": "Celestia Introduces Blob Streaming for Seamless Data Availability Integration"
 }
