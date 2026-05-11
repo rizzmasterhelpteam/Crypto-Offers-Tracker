@@ -20,6 +20,7 @@ module.exports = {
     TEMPLATE_PATH: path.join(PROJECT_ROOT, 'blog', 'template.html'),
     INDEX_PATH: path.join(PROJECT_ROOT, 'blog', 'index.html'),
     QUEUE_PATH: path.join(ADMIN_DIR, 'queue.csv'),
+    OFFERS_PATH: path.join(ADMIN_DIR, 'offers.json'),
     SITEMAP_PATH: path.join(PROJECT_ROOT, 'sitemap.xml'),
     USAGE_LOG_PATH: path.join(ADMIN_DIR, 'usage.log'),
     STATE_PATH: path.join(ADMIN_DIR, 'state.json'),

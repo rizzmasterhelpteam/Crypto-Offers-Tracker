@@ -1,327 +1,108 @@
-# Crypto Offers Tracker - Complete Workflow
+# Crypto Offers Tracker - Offer Registry Workflow
 
-## 1️⃣ USER VISITS APP (index.html)
+## 1. Homepage Data Model
 
-```
-Browser loads → DOMContentLoaded event
-    ├─ initPlatformChips() 
-    │  └─ Creates filter chips (Binance, Coinbase, Kraken, etc.)
-    ├─ initAds()
-    │  └─ Loads Google AdSense
-    └─ handleSearch(true) ← Initial load
-```
+The homepage no longer uses a hardcoded offer list inside `api/search.js`.
 
----
+The source of truth is `admin/offers.json`.
 
-## 2️⃣ FETCH OFFERS & MARKET DATA
+Each record includes:
 
-### Frontend → Backend Flow
+- `id`, `title`, `platform`, `category`, `description`, `valueLabel`, `link`
+- `audience`, `offerKind`, `verificationStatus`
+- `lastVerifiedAt`, `verifiedFrom`, `reviewBy`
+- `isEvergreen`, `expiresAt`
+- `requirements` and/or `notes`
+- `coinId`, `coinName` when market enrichment is useful
 
-```
-POST /api/search
-  ↓
-Backend (api/search.js)
-  ├─ Check server cache (global_slot_X)
-  │  └─ 12-hour cache per UTC slot
-  └─ If cache miss:
-     ├─ Parallel CoinGecko API calls:
-     │  ├─ /global (market cap, volume, dominance, sentiment)
-     │  ├─ /search/trending (top 7 trending coins)
-     │  ├─ /simple/price (live prices + 24h %)
-     │  └─ /exchanges (trust scores)
-     │
-     ├─ Enhance 20 VERIFIED_OFFERS with:
-     │  ├─ livePrice (e.g., BTC $74,144)
-     │  ├─ priceChange24h (e.g., +0.43%)
-     │  ├─ isTrending (true/false)
-     │  ├─ trendingRank (1-7 if trending)
-     │  └─ exchangeTrustScore (1-10)
-     │
-     └─ Cache result + return JSON
-```
+This separates editorial verification from live market data.
 
-### API Response Format
+## 2. Publish Rules
 
-```json
-{
-  "results": [
-    {
-      "title": "Binance USDT Staking",
-      "platform": "Binance",
-      "description": "Earn up to 10% APY on USDT staking",
-      "value": "Variable APY",
-      "type": "staking",
-      "badge": "live",
-      "requirements": "Minimum: 50 USDT",
-      "link": "https://www.binance.com/en/activity/earn",
-      "livePrice": 74144,
-      "priceChange24h": 0.43,
-      "isTrending": true,
-      "trendingRank": 1,
-      "exchangeTrustScore": 10
-    }
-    // ... 19 more offers
-  ],
-  "marketData": {
-    "total_market_cap": { "usd": 2594871108019.58 },
-    "market_cap_change_percentage_24h_usd": -0.4325,
-    "market_cap_percentage": { "btc": 57.11 }
-  },
-  "prices": {
-    "bitcoin": { "usd": 74144, "usd_24h_change": 0.43 },
-    "ethereum": { "usd": 2349.58, "usd_24h_change": 0.427 }
-  },
-  "cached": false,
-  "nextRefresh": "2026-04-16T06:00:00.000Z"
-}
+`api/search.js` loads the registry and validates it before serving any offer data.
+
+The homepage only publishes records that are:
+
+- `audience === "retail"`
+- `verificationStatus === "verified"`
+- not expired
+- carrying `lastVerifiedAt` and `verifiedFrom`
+
+Records for builders, governance, expired programs, drafts, or malformed entries stay out of the homepage response.
+
+## 3. API Flow
+
+Request path:
+
+```text
+GET /api/search
+  -> read admin/offers.json
+  -> validate registry structure
+  -> filter to published retail offers
+  -> fetch CoinGecko market context
+  -> enrich offers with prices, trending flags, and exchange trust score
+  -> cache response for the current 12-hour slot
 ```
 
----
+Response fields now include:
 
-## 3️⃣ DISPLAY MARKET WIDGETS
+- offer verification metadata
+- `lastVerifiedAt`
+- `verifiedFrom`
+- `verificationStatus`
+- `isEvergreen`
+- `expiresAt` when present
+- CoinGecko market context such as `livePrice`, `priceChange24h`, `isTrending`, and `exchangeTrustScore`
 
-### Market Ticker Bar
-```
-📊 Market Cap: $2.59T | 📈 24h Vol: $99B | 
-Bitcoin: $74,144 📈 +0.43% | Ethereum: $2,349 📉 -0.57% | BTC Dom: 57.1%
-```
-- Updates every page load
-- No caching (always fresh)
-- Shows global market sentiment
+CoinGecko does not decide whether an offer is valid. It only adds market context.
 
-### Market Sentiment Banner
-```
-IF market up (+):  🟢 "Crypto market up 2.3% today — Great time to earn!"
-IF market down (-): 🔴 "Crypto market down 1.8% — Check staking for stability!"
-```
-- Dynamic border color (green/red)
-- Updates every 12 hours
+## 4. Homepage Rendering
 
-### Trending Now Section
-```
-🔥 TRENDING NOW
+`index.html` renders the verified API response and does not synthesize freshness.
 
-[🔥 #1 Bitcoin] [🔥 #2 Ethereum] [🔥 #3 Solana] 
-[Price: $74,144] [Price: $2,349] [Price: $84.83]
+Current behavior:
 
-← Clickable chips to filter offers
-```
-- Top 7 trending coins from CoinGecko
-- Shows live prices
-- Click to filter offers by platform
+- category filter options are derived from published registry data
+- cards show `last verified` instead of a fake current date
+- badges are rule-based:
+  - recent verification -> `LIVE`
+  - evergreen verified record -> `EVERGREEN`
+  - verified record outside the live window -> `VERIFIED`
+  - near expiry -> `ENDING`
+- trending coins can temporarily surface a `TRENDING` badge, but verification status still comes from the registry
 
----
+The homepage is retail-only. Builder grants and governance programs are kept out even if they remain in the registry for tracking.
 
-## 4️⃣ FILTER & DISPLAY OFFERS
+## 5. Market Widgets and Caching
 
-### User Selects
-```
-Platform Filter: All, Binance, Coinbase, Kraken, OKX, etc.
-Type Filter: All Types, Airdrops, Staking, Trading, Learn & Earn, Launchpads
-```
+The ticker, sentiment banner, and trending section still use CoinGecko data.
 
-### Filtering Logic
-```javascript
-filtered = globalOffersList
-  .filter(o => !selectedPlatform || o.platform === selectedPlatform)
-  .filter(o => searchType === 'all' || o.type === searchType)
-```
+- cache window: 12 hours
+- refresh cadence: twice daily
+- cache applies to market context and enriched results
+- homepage copy must not imply that every offer was live-scraped at that moment
 
-### Display Results
-```
-Grid Layout:
-├─ 2 offer cards
-├─ Advertisement
-├─ 3 offer cards
-├─ Advertisement
-└─ Remaining cards
+Client cache key namespace:
+
+- `crypto_v4_verified_offers_slot_<slot>`
+
+Older cache namespaces are cleaned up in the browser.
+
+## 6. Maintenance Workflow
+
+Before publishing registry changes, run:
+
+```powershell
+node scripts/validate-offers.js
 ```
 
----
+The validator fails fast on:
 
-## 5️⃣ OFFER CARD DISPLAY
+- malformed JSON structure
+- duplicate IDs
+- invalid URLs
+- missing required fields
+- invalid verification metadata
+- expired records without `expiresAt`
 
-### Card Structure
-```
-┌────────────────────────────────┐
-│ 🔥 #1 TRENDING (pulsing)      │ ← Badge (dynamic)
-│                                │
-│ Binance USDT Staking           │ ← Title
-│ Earn up to 10% APY on USDT     │ ← Description
-│ 📋 Minimum: 50 USDT            │ ← Requirements
-│                                │
-│ 🏢 Binance                     │ ← Platform
-│ 💰 Variable APY                │ ← Value/Reward
-│ 📈 $2,349 ↑ +0.43%             │ ← LIVE PRICE
-│ ⭐ Trust: 10/10                │ ← TRUST SCORE
-│ 📅 2026-04-15                  │ ← Date
-│ 🔗 binance.com                 │ ← Domain
-│                                │
-│ [🔗 View Real Offer] [📤]      │ ← Actions
-└────────────────────────────────┘
-
-Badges:
-  🟢 LIVE   - Currently active
-  ✨ NEW    - Recently added
-  ⏰ ENDING - Expiring soon
-  🔥 TRENDING - In top 7 trending coins
-```
-
-### Card Interactions
-```
-"View Real Offer" Button → window.open(link) → Official exchange page
-"Share" Button → navigator.share() or copy URL
-Click Card → No action (info only)
-```
-
----
-
-## 6️⃣ CACHING STRATEGY
-
-### 12-Hour Slot System
-```
-Slot = Math.floor(Date.now() / (12 * 60 * 60 * 1000))
-
-Timeline:
-├─ Slot 0: 00:00 UTC → 12:00 UTC (Cache expires at 12:00)
-├─ Slot 1: 12:00 UTC → 00:00 UTC next day (Cache expires at 00:00)
-└─ Slot 2: Next day starts...
-
-Refresh Points: 00:00 UTC and 12:00 UTC (Twice daily globally)
-```
-
-### Cache Locations
-```
-Server-side (api/search.js):
-  - In-memory: serverCache[global_slot_X]
-  - Shared across all users in that 12h window
-  - Auto-cleanup of old slots
-
-Client-side (index.html):
-  - localStorage: crypto_v3_global_slot_X
-  - Per-browser cache
-  - Auto-cleanup of stale slots
-```
-
----
-
-## 7️⃣ CHARTS WORKFLOW (charts.html)
-
-### Charts Page Display
-```
-Top Monthly Performers Table:
-  Rank  │ Name      │ 24h Change │ %
-  1     │ Bitcoin   │ ███████    │ 45%
-  2     │ Ethereum  │ █████      │ 32%
-  3     │ Solana    │ ███        │ 18%
-
-Top Yearly Performers Table:
-  Rank  │ Name      │ YTD Change │ %
-  1     │ Bitcoin   │ ██████████ │ 180%
-  2     │ Ethereum  │ ████████   │ 120%
-  3     │ Solana    │ ██████     │ 95%
-
-Upcoming Projects & Airdrops:
-  • Project X  🚀 Coming Soon
-  • Project Y  🔜 Q2 2026
-  • Project Z  📅 TBA
-```
-
-### Chart Update Strategy
-```
-⚠️ IMPORTANT: Charts are STATIC/MANUAL
-
-- NOT connected to API
-- Updated weekly by admin
-- Shows historical context (not real-time)
-- Different from live offers (which ARE real-time)
-```
-
----
-
-## 8️⃣ DATA FLOW SUMMARY
-
-```
-CoinGecko API (Free, No Key)
-├─ /global → Market sentiment banner
-├─ /search/trending → Trending section + badges
-├─ /simple/price → Live prices on cards
-└─ /exchanges → Trust score badges
-
-VERIFIED_OFFERS (Hardcoded, 20 total)
-├─ Binance (2 offers)
-├─ Coinbase (2 offers)
-├─ Kraken (2 offers)
-├─ OKX (1 offer)
-├─ Bybit (1 offer)
-├─ KuCoin (1 offer)
-├─ Gate.io (1 offer)
-├─ Bitget (1 offer)
-├─ Crypto.com (1 offer)
-├─ MEXC (1 offer)
-├─ DeFi Protocols (Uniswap, Curve, Aave, Lido, Yearn)
-└─ Layer 2s (Optimism, Arbitrum)
-
-Combined & Enhanced
-└─ Display to user with live context
-```
-
----
-
-## 9️⃣ VERIFIED OFFERS DATABASE (20 Offers)
-
-| # | Platform | Offer | Type | APY/Value |
-|---|----------|-------|------|-----------|
-| 1 | Binance | USDT Staking | Staking | 10% APY |
-| 2 | Binance | Referral Commission | Trading | 20% |
-| 3 | Coinbase | Learn & Earn | Learn | $10-50 |
-| 4 | Coinbase | ETH Staking | Staking | 3.5-4% |
-| 5 | Kraken | Multi-Asset Staking | Staking | 5-20% |
-| 6 | Kraken | Tier Rewards | Trading | 10-40% |
-| 7 | OKX | Earn Program | Staking | 5-30% |
-| 8 | Bybit | New User Bonus | Trading | $1000 |
-| 9 | KuCoin | Staking Center | Staking | 5-50% |
-| 10 | Gate.io | Lending Products | Staking | 2-15% |
-| 11 | Uniswap | Liquidity Rewards | Launchpad | Variable |
-| 12 | Curve | Governance Rewards | Staking | 15-100% |
-| 13 | Aave | Liquidity Mining | Staking | Variable |
-| 14 | Bitget | Earning Center | Staking | 2-20% |
-| 15 | Crypto.com | Earn | Staking | 3-14% |
-| 16 | MEXC | Mining Rewards | Trading | 50% fee back |
-| 17 | Optimism | Delegate Rewards | Launchpad | Variable |
-| 18 | Arbitrum | DAO Grants | Launchpad | $10K-100K |
-| 19 | Lido | Liquid Staking | Staking | ~3% |
-| 20 | Yearn | Vault APY | Staking | 5-50% |
-
----
-
-## 🔟 KEY STATISTICS
-
-```
-Verified Offers:     20 real, authenticated offers
-CoinGecko APIs:      5 endpoints (parallel fetch)
-Cache Duration:      12 hours (2 slots per day)
-Update Frequency:    Twice daily (00:00 UTC & 12:00 UTC)
-Trending Coins:      Top 7 from CoinGecko
-Total Platforms:     22+ exchanges + DeFi protocols
-Mobile Responsive:   Yes
-Ad Integration:      Google AdSense
-API Keys Required:   None (free CoinGecko public API)
-```
-
----
-
-## 🔗 FILE STRUCTURE
-
-```
-├─ index.html ..................... Main offers page (55KB)
-├─ charts.html .................... Market charts (17KB)
-├─ api/search.js .................. Offers API backend
-├─ api/daily-post.js .............. Blog post API
-├─ blog/style.css ................. Shared styles
-├─ assets/ ........................ Images, logos
-└─ WORKFLOW.md .................... This file
-```
-
-### Graphics and Diagrams
-Diagrams are natively supported using Mermaid.js. The AI generation script automatically builds architecture and flow diagrams enclosed in \<pre class="mermaid">\ tags directly into the generated HTML output, maintaining a lightweight DOM without needing standalone image files.
+If validation passes, deploy the repo changes. The homepage will then serve the updated verified registry on the next deployment.
