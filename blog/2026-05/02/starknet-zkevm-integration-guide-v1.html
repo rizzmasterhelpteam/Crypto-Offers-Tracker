@@ -140,7 +140,7 @@ loop {
 </code></pre>
 
                     <h2>Performance Trade&ndash;offs</h2>
-                    <p>Nothing comes free. Embedding a zkEVM brings two real overheads you can't ignore: proof generation cost and data-availability payload size. The STWO prover charges a fee per proof — and yes, that's more expensive than a plain Cairo transaction, which runs at a fraction of that cost. The DA payload stored in EIP-4844 blobs also grows, because every EVM opcode gets serialized into a STARK trace. That bloat is real.</p>
+                    <p>Nothing comes free. Embedding a zkEVM brings two real overheads you can't ignore: proof generation cost and data-availability payload size. The STWO prover charges a fee per proof — and yes, that's more expensive than a plain Cairo transaction, which runs at a fraction of that cost. The DA payload stored in <a href="/blog/2026-05/08/optimism-eip-4844-blob-transaction-cost-savings-analysis.html">EIP-4844 blobs</a> also grows, because every EVM opcode gets serialized into a STARK trace. That bloat is real.</p>
 
                     <div style="overflow-x:auto;">
                         <table style="width:100%; border-collapse:collapse; margin:25px 0; font-size: 0.95rem; text-align: left;">
@@ -181,7 +181,7 @@ loop {
                         </table>
                     </div>
 
-                    <p>But here's the thing — even after you factor in those proof fees, the net cost per transaction is still an order of magnitude cheaper than L1. And the latency gains from preconfirmation more than make up for the extra round-trip to the prover. Real-world benchmarks from recent rollouts show a significant drop in gas-equivalent consumption for a standard ERC-20 transfer, with full EVM compatibility at the bytecode level still intact.</p>
+                    <p>But here's the thing — even after you factor in those proof fees, the net cost per transaction is still an order of magnitude cheaper than L1. And the latency gains from preconfirmation more than make up for the extra round-trip to the prover. Real-world benchmarks from recent rollouts show a significant drop in gas-equivalent consumption for a standard ERC-20 transfer, with full EVM compatibility at the bytecode level still intact. If you're benchmarking against throughput-first EVM designs, compare those trade-offs with our <a href="/blog/2026-05/04/sei-parallel-execution-evm-compatibility-integration-guide.html">Sei parallel execution guide</a>.</p>
 
                     <p>When you're building a high-throughput DApp, you'll need to make a call on how many transactions to batch into one proof. The sweet spot, based on empirical data, is around 50 EVM calls — that gets you a proof size of roughly 1&nbsp;MiB and keeps prover latency under 0.9&nbsp;s. Push past that and the cost curve gets ugly fast. The preconfirmation service will start rejecting bundles that can't clear the 1-second SLA. Don't find that out in production.</p>
 
